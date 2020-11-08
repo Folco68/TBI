@@ -1,2 +1,3 @@
-- remove MainWindow buttons, use context menu instead (new, edit, delete, url if a BT is selected)
 - fix spacer problem of DlgTB when it becomes high
+- copy/exec URL from context menu
+- help in context menu?

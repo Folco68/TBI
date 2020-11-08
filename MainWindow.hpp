@@ -23,6 +23,7 @@
 #define MAINWINDOW_HPP
 
 #include "TechnicalBulletin.hpp"
+#include <QAction>
 #include <QByteArray>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -48,6 +49,12 @@ class MainWindow : public QMainWindow
     bool            Modified;
     QLabel*         MessageTBCount;
     QLabel*         MessagePendingModifications;
+    QMenu*          TableContextMenu;
+    QAction*        ActionNewTB;
+    QAction*        ActionEditTB;
+    QAction*        ActionDeleteTB;
+    QAction*        ActionCopyUrl;
+    QAction*        ActionOpenUrl;
 
     // TBs
     void updateUI();
@@ -64,6 +71,10 @@ class MainWindow : public QMainWindow
 
     // Close handling (prevent from closing with unsaved data
     void closeEvent(QCloseEvent* event) override;
+
+    // URL handling
+    void copyURLToClipboard();
+    void openURL();
 };
 
 // Table header index

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>407</width>
-    <height>308</height>
+    <height>261</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -109,60 +109,6 @@
        </property>
       </column>
      </widget>
-    </item>
-    <item>
-     <spacer name="VSpacer2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>10</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="HLayoutNewTB">
-      <item>
-       <widget class="QPushButton" name="ButtonNewTB">
-        <property name="text">
-         <string>New TB</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="ButtonEditTB">
-        <property name="text">
-         <string>Edit TB</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="HSpacerTBButtons">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="ButtonDeleteTB">
-        <property name="text">
-         <string>Delete TB</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
