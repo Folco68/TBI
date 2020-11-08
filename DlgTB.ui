@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgTB</class>
+ <widget class="QDialog" name="DlgTB">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>477</width>
+    <height>403</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="HLayoutTop">
+     <item>
+      <layout class="QFormLayout" name="FLayoutLeft">
+       <item row="0" column="0">
+        <widget class="QLabel" name="LabelNumber">
+         <property name="text">
+          <string>Number:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="EditNumber">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelTitle">
+         <property name="text">
+          <string>Title:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="EditTitle">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelCategory">
+         <property name="text">
+          <string>Category:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="ComboCategory">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>MKC (Mandatory Kit Corrective)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>MKD (Mandatory Kit on Demand)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>MKS (Mandatory Kit Safety)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SK (Solution Kit)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UK (Update Kit)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>VCK (Volume Conversion Kit)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Withdrawal</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="LabelRK">
+         <property name="text">
+          <string>RK:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="EditRK">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="LabelTechPub">
+         <property name="text">
+          <string>Tech Pub:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="EditTechPub">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QFormLayout" name="FLayoutRight">
+       <item row="0" column="0">
+        <widget class="QLabel" name="LabelReleaseDate">
+         <property name="text">
+          <string>Release date:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelRegisteredBy">
+         <property name="text">
+          <string>Registered by:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="EditRegisteredBy">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelReplaces">
+         <property name="text">
+          <string>Replaces:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="EditReplaces">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="LabelReplacedBy">
+         <property name="text">
+          <string>Replaced by:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="EditReplacedBy">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QDateEdit" name="EditReleaseDate">
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="FLayoutBottom">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="LabelComment">
+       <property name="text">
+        <string>Comment:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPlainTextEdit" name="TexteditComment">
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="tabChangesFocus">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="LabelKeywords">
+       <property name="text">
+        <string>Keywords:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="EditKeywords">
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="HLayoutButtons">
+     <item>
+      <spacer name="HSpacerButtons">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonOK">
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonCancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>EditNumber</tabstop>
+  <tabstop>EditTitle</tabstop>
+  <tabstop>ComboCategory</tabstop>
+  <tabstop>EditRK</tabstop>
+  <tabstop>EditTechPub</tabstop>
+  <tabstop>EditReleaseDate</tabstop>
+  <tabstop>EditRegisteredBy</tabstop>
+  <tabstop>EditReplaces</tabstop>
+  <tabstop>EditReplacedBy</tabstop>
+  <tabstop>TexteditComment</tabstop>
+  <tabstop>EditKeywords</tabstop>
+  <tabstop>ButtonOK</tabstop>
+  <tabstop>ButtonCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
