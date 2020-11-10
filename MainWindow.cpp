@@ -20,6 +20,7 @@
  */
 
 #include "MainWindow.hpp"
+#include "DlgHelp.hpp"
 #include "DlgTB.hpp"
 #include "Global.hpp"
 #include "TechnicalBulletin.hpp"
@@ -39,22 +40,25 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
+#include <QShortcut>
 #include <QStatusBar>
+#include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow()
+    : QMainWindow()
     , ui(new Ui::MainWindow)
     , Modified(false)
     , MessageTBCount(new QLabel)
     , MessagePendingModifications(new QLabel)
     , TableContextMenu(new QMenu(this))
-    , ActionNewTB(new QAction(tr("New TB"), this))
-    , ActionEditTB(new QAction(tr("Edit TB"), this))
-    , ActionDeleteTB(new QAction(tr("Delete TB"), this))
-    , ActionCopyUrl(new QAction(tr("Copy URL"), this))
-    , ActionOpenUrl(new QAction(tr("Open URL"), this))
+    , ActionNewTB(new ContextMenuAction(tr("New TB"), this, QKeySequence(Qt::CTRL + Qt::Key_N)))
+    , ActionEditTB(new ContextMenuAction(tr("Edit TB"), this, QKeySequence(Qt::CTRL + Qt::Key_E)))
+    , ActionDeleteTB(new ContextMenuAction(tr("Delete TB"), this, QKeySequence(Qt::Key_Delete)))
+    , ActionCopyUrl(new ContextMenuAction(tr("Copy URL"), this, QKeySequence(Qt::CTRL + Qt::Key_C)))
+    , ActionOpenUrl(new ContextMenuAction(tr("Open URL"), this, QKeySequence(Qt::CTRL + Qt::Key_O)))
+    , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
 {
     // Window
     ui->setupUi(this);
@@ -62,7 +66,7 @@ MainWindow::MainWindow(QWidget* parent)
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
 
     // Status bar
-    ui->StatusBar->addWidget(this->MessageTBCount);
+    ui->StatusBar->addPermanentWidget(this->MessageTBCount);
     ui->StatusBar->addPermanentWidget(this->MessagePendingModifications);
 
     // TB table
@@ -78,40 +82,38 @@ MainWindow::MainWindow(QWidget* parent)
     // TB table context menu
     ui->TableTB->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->TableTB, &QWidget::customContextMenuRequested, [this]() { this->TableContextMenu->exec(QCursor::pos()); });
-
-    this->TableContextMenu->addAction(ActionNewTB);
-    this->ActionNewTB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
     connect(this->ActionNewTB, &QAction::triggered, [this]() { newTB(); });
-    this->ActionNewTB->setShortcutVisibleInContextMenu(true);
-
-    this->TableContextMenu->addAction(ActionEditTB);
-    this->ActionEditTB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
     connect(this->ActionEditTB, &QAction::triggered, [this]() { editTB(); });
-    this->ActionEditTB->setShortcutVisibleInContextMenu(true);
-
-    this->TableContextMenu->addAction(ActionDeleteTB);
-    this->ActionDeleteTB->setShortcut(QKeySequence(Qt::Key_Delete));
     connect(this->ActionDeleteTB, &QAction::triggered, [this]() { deleteTB(); });
-    this->ActionDeleteTB->setShortcutVisibleInContextMenu(true);
-
-    this->TableContextMenu->addAction(ActionCopyUrl);
-    this->ActionCopyUrl->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
     connect(this->ActionCopyUrl, &QAction::triggered, [this]() { copyURLToClipboard(); });
-    this->ActionCopyUrl->setShortcutVisibleInContextMenu(true);
-
-    this->TableContextMenu->addAction(ActionOpenUrl);
-    this->ActionOpenUrl->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
     connect(this->ActionOpenUrl, &QAction::triggered, [this]() { openURL(); });
-    this->ActionOpenUrl->setShortcutVisibleInContextMenu(true);
+    connect(this->ActionHelp, &QAction::triggered, []() { DlgHelp::showDlgHelp(); });
 
     // Add actions to the context menu, an to the main window to allow kbd shortcuts
     QList<QAction*> actions;
-    actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl;
+    actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionHelp;
+    this->TableContextMenu->insertSeparator(this->ActionCopyUrl);
+    this->TableContextMenu->insertSeparator(this->ActionHelp);
     this->TableContextMenu->addActions(actions);
     this->addActions(actions);
 
+    // Global shortcut
+    QShortcut* ShortcutSave = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this);
+    connect(ShortcutSave, &QShortcut::activated, [this]() {
+        if (this->Modified)
+            save();
+    });
+
     // Buttons connections
     connect(ui->ButtonSave, &QPushButton::clicked, [this]() { save(); });
+    connect(ui->ButtonSearch, &QPushButton::clicked, [this]() { search(); });
+
+    // Search connection
+    connect(ui->EditKeywords, &QLineEdit::returnPressed, [this]() { search(); });
+    connect(ui->EditKeywords, &QLineEdit::textChanged, [this]() {
+        if (ui->EditKeywords->text().isEmpty())
+            search();
+    });
 
     // Table connections
     connect(ui->TableTB, &QTableWidget::itemSelectionChanged, [this]() { updateUI(); });
@@ -169,7 +171,7 @@ void MainWindow::updateUI()
     // Status bar
     int     count  = ui->TableTB->rowCount();
     QString plural = count > 1 ? "s" : "";
-    this->MessageTBCount->setText(tr("%1 Technical Bulletin%2 registered").arg(count).arg(plural));
+    this->MessageTBCount->setText(tr("%1 Technical Bulletin%2 registered   ").arg(count).arg(plural));
     this->MessagePendingModifications->setText(this->Modified ? tr("Modifications have to be saved") : tr("Index is saved"));
 
     // Adjust columns size
@@ -270,6 +272,39 @@ void MainWindow::deleteTB()
     }
 }
 
+//  search
+//
+// Search the TB with keywords
+//
+void MainWindow::search()
+{
+    ui->StatusBar->showMessage(tr("Searching..."));
+
+    QList<QString> keywords = ui->EditKeywords->text().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+    if (keywords.count() == 0) {
+        // No keyword: display all TBs
+        for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+            ui->TableTB->setRowHidden(i, false);
+        }
+    }
+    else {
+        // Else filter TBs with keywords
+        for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+            TechnicalBulletin* tb         = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+            QStringList        tbkeywords = tb->keywords();
+            bool               visible    = true;
+            for (int j = 0; visible && (j < keywords.count()); j++) {
+                if (!tbkeywords.contains(keywords[j], Qt::CaseInsensitive)) {
+                    visible = false;
+                }
+            }
+            ui->TableTB->setRowHidden(i, !visible);
+        }
+    }
+
+    ui->StatusBar->clearMessage();
+}
+
 //  addTB
 //
 // Add a TB at the bottom of the table
@@ -301,7 +336,7 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
     ui->TableTB->item(row, COLUMN_CATEGORY)->setText(tb->category());
     ui->TableTB->item(row, COLUMN_RK)->setText(tb->rk());
     ui->TableTB->item(row, COLUMN_TECH_PUB)->setText(tb->techpub());
-    ui->TableTB->item(row, COLUMN_RELEASE_DATE)->setText(tb->releaseDate().toString());
+    ui->TableTB->item(row, COLUMN_RELEASE_DATE)->setText(tb->releaseDate().toString("yyyy/MM/dd"));
     ui->TableTB->item(row, COLUMN_REGISTERED_BY)->setText(tb->registeredBy());
     ui->TableTB->item(row, COLUMN_REPLACES)->setText(tb->replaces());
     ui->TableTB->item(row, COLUMN_REPLACED_BY)->setText(tb->replacedBy());
@@ -363,25 +398,16 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::copyURLToClipboard()
 {
-    // Get current row and TB
     QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
     int                      row       = selection.at(0)->row();
     TechnicalBulletin*       tb        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-
-    QClipboard* clipboard = QGuiApplication::clipboard();
-    QString     url("https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=");
-    url.append(tb->number());
-    clipboard->setText(url);
+    QGuiApplication::clipboard()->setText(QString(BASE_URL_TECH_PUB).arg(tb->number()));
 }
 
 void MainWindow::openURL()
 {
-    // Get current row and TB
     QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
     int                      row       = selection.at(0)->row();
     TechnicalBulletin*       tb        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-
-    QString url("https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=");
-    url.append(tb->number());
-    QDesktopServices::openUrl(url);
+    QDesktopServices::openUrl(QString(BASE_URL_TECH_PUB).arg(tb->number()));
 }

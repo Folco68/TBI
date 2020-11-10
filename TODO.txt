@@ -1,3 +1,2 @@
-- fix spacer problem of DlgTB when it becomes high
-- copy/exec URL from context menu
-- help in context menu?
+- create a TB with a drop on program icon
+- display real count of displayed TB in status bar

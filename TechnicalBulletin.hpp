@@ -95,7 +95,4 @@ QDataStream& operator<<(QDataStream& stream, const TechnicalBulletin& tb);
 // A TB pointer is saved in metadata of every table line, in column COLUMN_METADATA
 Q_DECLARE_METATYPE(TechnicalBulletin*)
 
-// Keyword separator in UI
-#define KEYWORD_SEPARATOR " "
-
 #endif // TECHNICALBULLETIN_HPP

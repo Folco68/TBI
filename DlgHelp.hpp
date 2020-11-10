@@ -19,13 +19,26 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#include "MainWindow.hpp"
-#include <QApplication>
+#ifndef DLGHELP_HPP
+#define DLGHELP_HPP
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    MainWindow   w;
-    w.show();
-    return a.exec();
+#include <QDialog>
+
+namespace Ui {
+class DlgHelp;
 }
+
+class DlgHelp : public QDialog
+{
+    Q_OBJECT
+
+  public:
+    static void showDlgHelp();
+    ~DlgHelp();
+
+  private:
+    explicit DlgHelp(QWidget* parent = nullptr);
+    Ui::DlgHelp* ui;
+};
+
+#endif // DLGHELP_HPP

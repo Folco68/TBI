@@ -22,8 +22,8 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+#include "ContextMenuAction.hpp"
 #include "TechnicalBulletin.hpp"
-#include <QAction>
 #include <QByteArray>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow();
     ~MainWindow();
 
   private:
@@ -49,12 +49,17 @@ class MainWindow : public QMainWindow
     bool            Modified;
     QLabel*         MessageTBCount;
     QLabel*         MessagePendingModifications;
-    QMenu*          TableContextMenu;
-    QAction*        ActionNewTB;
-    QAction*        ActionEditTB;
-    QAction*        ActionDeleteTB;
-    QAction*        ActionCopyUrl;
-    QAction*        ActionOpenUrl;
+
+    // Context menu
+    QMenu*             TableContextMenu;
+    ContextMenuAction* ActionNewTB;
+    ContextMenuAction* ActionEditTB;
+    ContextMenuAction* ActionDeleteTB;
+    ContextMenuAction* ActionCopyUrl;
+    ContextMenuAction* ActionOpenUrl;
+    ContextMenuAction* ActionHelp;
+
+    // Other action
 
     // TBs
     void updateUI();
@@ -62,6 +67,7 @@ class MainWindow : public QMainWindow
     void editTB();
     void deleteTB();
     void save();
+    void search();
     void addTB(TechnicalBulletin* tb);
     void updateTB(TechnicalBulletin* tb, int row);
 
@@ -91,7 +97,7 @@ typedef enum {
     COLUMN_KEYWORDS
 } COLUMN_INDEX;
 
-// Role number of TB data ptr in BT table
+// Role number of TB data ptr in TB table
 #define TB_ROLE Qt::UserRole
 #define COLUMN_METADATA COLUMN_NUMBER
 

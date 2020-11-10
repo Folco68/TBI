@@ -19,13 +19,11 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#include "MainWindow.hpp"
-#include <QApplication>
+#include "ContextMenuAction.hpp"
 
-int main(int argc, char *argv[])
+ContextMenuAction::ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut)
+    : QAction(text, parent)
 {
-    QApplication a(argc, argv);
-    MainWindow   w;
-    w.show();
-    return a.exec();
+    setShortcut(shortcut);
+    setShortcutVisibleInContextMenu(true);
 }

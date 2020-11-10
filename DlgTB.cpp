@@ -22,6 +22,7 @@
 #include "DlgTB.hpp"
 #include "Global.hpp"
 #include "ui_DlgTB.h"
+#include <QDesktopServices>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
@@ -43,6 +44,12 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     // Connections
     connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
+    connect(ui->ButtonWebPage, &QPushButton::clicked, [this]() { QDesktopServices::openUrl(QString(BASE_URL_TECH_PUB).arg(ui->EditNumber->text())); });
+    connect(ui->ButtonDownloadRM, &QPushButton::clicked, [this]() { QDesktopServices::openUrl(QString(BASE_URL_RM).arg(ui->EditTechPub->text())); });
+
+    // Enable/disable buttons
+    connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
+    connect(ui->EditTechPub, &QLineEdit::textChanged, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
 }
 
 //  DlgTB

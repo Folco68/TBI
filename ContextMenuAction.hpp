@@ -19,13 +19,17 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#include "MainWindow.hpp"
-#include <QApplication>
+#ifndef CONTEXTMENUACTION_HPP
+#define CONTEXTMENUACTION_HPP
 
-int main(int argc, char *argv[])
+#include <QAction>
+#include <QKeySequence>
+#include <QWidget>
+
+class ContextMenuAction : public QAction
 {
-    QApplication a(argc, argv);
-    MainWindow   w;
-    w.show();
-    return a.exec();
-}
+  public:
+    ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut);
+};
+
+#endif // CONTEXTMENUACTION_HPP

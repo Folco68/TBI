@@ -19,13 +19,27 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#include "MainWindow.hpp"
-#include <QApplication>
+#include "DlgHelp.hpp"
+#include "ui_DlgHelp.h"
+#include <QPushButton>
 
-int main(int argc, char *argv[])
+DlgHelp::DlgHelp(QWidget* parent)
+    : QDialog(parent)
+    , ui(new Ui::DlgHelp)
 {
-    QApplication a(argc, argv);
-    MainWindow   w;
-    w.show();
-    return a.exec();
+    ui->setupUi(this);
+    ui->Tabs->setCurrentIndex(0);
+    connect(ui->ButtonClose, &QPushButton::clicked, [this]() { close(); });
+}
+
+DlgHelp::~DlgHelp()
+{
+    delete ui;
+}
+
+void DlgHelp::showDlgHelp()
+{
+    DlgHelp* dlg = new DlgHelp;
+    dlg->exec();
+    delete dlg;
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>407</width>
-    <height>261</height>
+    <width>508</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -28,6 +28,19 @@
        <widget class="QLineEdit" name="EditKeywords">
         <property name="acceptDrops">
          <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Type keywords here to filter TB</string>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="ButtonSearch">
+        <property name="text">
+         <string>Search</string>
         </property>
        </widget>
       </item>
