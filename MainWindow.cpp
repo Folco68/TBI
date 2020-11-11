@@ -58,6 +58,7 @@ MainWindow::MainWindow()
     , ActionDeleteTB(new ContextMenuAction(tr("Delete TB"), this, QKeySequence(Qt::Key_Delete)))
     , ActionCopyUrl(new ContextMenuAction(tr("Copy URL"), this, QKeySequence(Qt::CTRL + Qt::Key_C)))
     , ActionOpenUrl(new ContextMenuAction(tr("Open URL"), this, QKeySequence(Qt::CTRL + Qt::Key_O)))
+    , ActionDownloadRM(new ContextMenuAction(tr("Download RM"), this, QKeySequence(Qt::CTRL + Qt::Key_D)))
     , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
 {
     // Window
@@ -87,19 +88,20 @@ MainWindow::MainWindow()
     connect(this->ActionDeleteTB, &QAction::triggered, [this]() { deleteTB(); });
     connect(this->ActionCopyUrl, &QAction::triggered, [this]() { copyURLToClipboard(); });
     connect(this->ActionOpenUrl, &QAction::triggered, [this]() { openURL(); });
+    connect(this->ActionDownloadRM, &QAction::triggered, [this]() { downloadRM(); });
     connect(this->ActionHelp, &QAction::triggered, []() { DlgHelp::showDlgHelp(); });
 
     // Add actions to the context menu, an to the main window to allow kbd shortcuts
     QList<QAction*> actions;
-    actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionHelp;
+    actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionDownloadRM
+            << this->ActionHelp;
+    this->TableContextMenu->addActions(actions);
     this->TableContextMenu->insertSeparator(this->ActionCopyUrl);
     this->TableContextMenu->insertSeparator(this->ActionHelp);
-    this->TableContextMenu->addActions(actions);
     this->addActions(actions);
 
-    // Global shortcut
-    QShortcut* ShortcutSave = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this);
-    connect(ShortcutSave, &QShortcut::activated, [this]() {
+    // Save shortcut
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, [this]() {
         if (this->Modified)
             save();
     });
@@ -184,6 +186,7 @@ void MainWindow::updateUI()
     this->ActionDeleteTB->setEnabled(ItemSelected);
     this->ActionCopyUrl->setEnabled(ItemSelected);
     this->ActionOpenUrl->setEnabled(ItemSelected);
+    this->ActionDownloadRM->setEnabled(ItemSelected);
 }
 
 //  save
@@ -410,4 +413,12 @@ void MainWindow::openURL()
     int                      row       = selection.at(0)->row();
     TechnicalBulletin*       tb        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
     QDesktopServices::openUrl(QString(BASE_URL_TECH_PUB).arg(tb->number()));
+}
+
+void MainWindow::downloadRM()
+{
+    QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
+    int                      row       = selection.at(0)->row();
+    TechnicalBulletin*       tb        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    QDesktopServices::openUrl(QString(BASE_URL_RM).arg(tb->techpub()));
 }

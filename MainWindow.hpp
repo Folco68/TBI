@@ -57,6 +57,7 @@ class MainWindow : public QMainWindow
     ContextMenuAction* ActionDeleteTB;
     ContextMenuAction* ActionCopyUrl;
     ContextMenuAction* ActionOpenUrl;
+    ContextMenuAction* ActionDownloadRM;
     ContextMenuAction* ActionHelp;
 
     // Other action
@@ -81,6 +82,7 @@ class MainWindow : public QMainWindow
     // URL handling
     void copyURLToClipboard();
     void openURL();
+    void downloadRM();
 };
 
 // Table header index
