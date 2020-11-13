@@ -73,16 +73,16 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
 //
 // Create a TB using data provided UI
 //
-TechnicalBulletin::TechnicalBulletin(QString        number,
-                                     QString        title,
-                                     QString        category,
-                                     QString        rk,
-                                     QString        techpub,
-                                     QString        comment,
-                                     QDate          releasedate,
-                                     QString        registeredby,
-                                     QString        replaces,
-                                     QString        replacedby,
+TechnicalBulletin::TechnicalBulletin(QString number,
+                                     QString title,
+                                     QString category,
+                                     QString rk,
+                                     QString techpub,
+                                     QString comment,
+                                     QDate releasedate,
+                                     QString registeredby,
+                                     QString replaces,
+                                     QString replacedby,
                                      QList<QString> keywords)
     : Number(number)
     , Title(title)
@@ -102,16 +102,16 @@ TechnicalBulletin::TechnicalBulletin(QString        number,
 //
 // Update an existing TB
 //
-void TechnicalBulletin::setData(QString        number,
-                                QString        title,
-                                QString        category,
-                                QString        rk,
-                                QString        techpub,
-                                QString        comment,
-                                QDate          releasedate,
-                                QString        registeredby,
-                                QString        replaces,
-                                QString        replacedby,
+void TechnicalBulletin::setData(QString number,
+                                QString title,
+                                QString category,
+                                QString rk,
+                                QString techpub,
+                                QString comment,
+                                QDate releasedate,
+                                QString registeredby,
+                                QString replaces,
+                                QString replacedby,
                                 QList<QString> keywords)
 {
     this->Number       = number;
@@ -149,16 +149,16 @@ QString TechnicalBulletin::keywordsString() const
 // Unserialize a TB
 QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb)
 {
-    QString        Number;
-    QString        Title;
-    QString        Category;
-    QString        RK;
-    QString        TechPub;
-    QString        Comment;
-    QDate          ReleaseDate;
-    QString        RegisteredBy;
-    QString        Replaces;
-    QString        ReplacedBy;
+    QString Number;
+    QString Title;
+    QString Category;
+    QString RK;
+    QString TechPub;
+    QString Comment;
+    QDate ReleaseDate;
+    QString RegisteredBy;
+    QString Replaces;
+    QString ReplacedBy;
     QList<QString> Keywords;
 
     stream >> Number >> Title >> Category >> RK >> TechPub >> Comment >> ReleaseDate >> RegisteredBy >> Replaces >> ReplacedBy >> Keywords;

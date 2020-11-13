@@ -31,14 +31,16 @@
 #define DLGTB_WINDOW_WIDTH 800
 #define DLGTB_WINDOW_HEIGHT 600
 
+#define DLGSETTINGS_WINDOW_WIDTH 800
+
 // min macro
 #define min(a, b) (a < b ? a : b)
 
-// Base PIV URL
-#define BASE_URL_TECH_PUB "https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=%1"
-#define BASE_URL_RM "https://piv.tetrapak.com/piv-tp-service/api/techpubs/%1/file"
-
 // Keyword separator in UI
 #define KEYWORD_SEPARATOR " "
+
+// QCoreApplication settings (for QSettings)
+#define ORGANIZATION_NAME "FolcoSoft"
+#define APPLICATION_NAME "TBI"
 
 #endif // GLOBAL_HPP

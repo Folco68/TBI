@@ -37,54 +37,54 @@ class TechnicalBulletin
   public:
     TechnicalBulletin(){};
     TechnicalBulletin(QByteArray data);
-    TechnicalBulletin(QString        number,
-                      QString        title,
-                      QString        category,
-                      QString        rk,
-                      QString        techpub,
-                      QString        comment,
-                      QDate          releasedate,
-                      QString        registeredby,
-                      QString        replaces,
-                      QString        replacedby,
+    TechnicalBulletin(QString number,
+                      QString title,
+                      QString category,
+                      QString rk,
+                      QString techpub,
+                      QString comment,
+                      QDate releasedate,
+                      QString registeredby,
+                      QString replaces,
+                      QString replacedby,
                       QList<QString> keywords);
-    void setData(QString        number,
-                 QString        title,
-                 QString        category,
-                 QString        rk,
-                 QString        techpub,
-                 QString        comment,
-                 QDate          releasedate,
-                 QString        registeredby,
-                 QString        replaces,
-                 QString        replacedby,
+    void setData(QString number,
+                 QString title,
+                 QString category,
+                 QString rk,
+                 QString techpub,
+                 QString comment,
+                 QDate releasedate,
+                 QString registeredby,
+                 QString replaces,
+                 QString replacedby,
                  QList<QString> keywords);
 
-    QString        number() const { return this->Number; }
-    QString        title() const { return this->Title; }
-    QString        category() const { return this->Category; }
-    QString        rk() const { return this->RK; }
-    QString        techpub() const { return this->TechPub; }
-    QString        comment() const { return this->Comment; }
-    QDate          releaseDate() const { return this->ReleaseDate; }
-    QString        registeredBy() const { return this->RegisteredBy; }
-    QString        replaces() const { return this->Replaces; }
-    QString        replacedBy() const { return this->ReplacedBy; }
+    QString number() const { return this->Number; }
+    QString title() const { return this->Title; }
+    QString category() const { return this->Category; }
+    QString rk() const { return this->RK; }
+    QString techpub() const { return this->TechPub; }
+    QString comment() const { return this->Comment; }
+    QDate releaseDate() const { return this->ReleaseDate; }
+    QString registeredBy() const { return this->RegisteredBy; }
+    QString replaces() const { return this->Replaces; }
+    QString replacedBy() const { return this->ReplacedBy; }
     QList<QString> keywords() const { return this->Keywords; }
 
     QString keywordsString() const;
 
   private:
-    QString        Number;
-    QString        Title;
-    QString        Category;
-    QString        RK;
-    QString        TechPub;
-    QString        Comment;
-    QDate          ReleaseDate;
-    QString        RegisteredBy;
-    QString        Replaces;
-    QString        ReplacedBy;
+    QString Number;
+    QString Title;
+    QString Category;
+    QString RK;
+    QString TechPub;
+    QString Comment;
+    QDate ReleaseDate;
+    QString RegisteredBy;
+    QString Replaces;
+    QString ReplacedBy;
     QList<QString> Keywords;
 };
 

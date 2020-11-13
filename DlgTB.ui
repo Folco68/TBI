@@ -99,46 +99,15 @@
        <property name="acceptDrops">
         <bool>false</bool>
        </property>
-       <item>
-        <property name="text">
-         <string>MKC - Mandatory Kit Corrective</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MKD - Mandatory Kit on Demand</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MKS - Mandatory Kit Safety</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>SK - Solution Kit</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>UK - Update Kit</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>VCK - Volume Conversion Kit</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>General information</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Withdrawal</string>
-        </property>
-       </item>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentText">
+        <string/>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="2" column="2">

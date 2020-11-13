@@ -21,11 +21,13 @@
 
 #include "DlgTB.hpp"
 #include "Global.hpp"
+#include "Settings.hpp"
 #include "ui_DlgTB.h"
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
+#include <QStringList>
 
 //  DlgTB
 //
@@ -40,12 +42,17 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     setWindowTitle(title);
     setMinimumSize(DLGTB_WINDOW_WIDTH, DLGTB_WINDOW_HEIGHT);
     ui->EditReleaseDate->setDate(QDate::currentDate());
+    ui->ComboCategory->addItems(Settings::instance()->categories());
 
     // Connections
     connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
-    connect(ui->ButtonWebPage, &QPushButton::clicked, [this]() { QDesktopServices::openUrl(QString(BASE_URL_TECH_PUB).arg(ui->EditNumber->text())); });
-    connect(ui->ButtonDownloadRM, &QPushButton::clicked, [this]() { QDesktopServices::openUrl(QString(BASE_URL_RM).arg(ui->EditTechPub->text())); });
+    connect(ui->ButtonWebPage, &QPushButton::clicked, [this]() {
+        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(ui->EditNumber->text()));
+    });
+    connect(ui->ButtonDownloadRM, &QPushButton::clicked, [this]() {
+        QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(ui->EditTechPub->text()));
+    });
 
     // Enable/disable buttons
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
@@ -65,6 +72,19 @@ DlgTB::DlgTB(QWidget* parent, QString title, TechnicalBulletin* tb)
 DlgTB::~DlgTB()
 {
     delete ui;
+}
+
+void DlgTB::accept()
+{
+    QStringList list = Settings::instance()->categories();
+    QString category = ui->ComboCategory->currentText();
+    if (!list.contains(category, Qt::CaseInsensitive)) {
+        list << category;
+        Settings::instance()->setCategories(list);
+    }
+
+    // Finally, run QDialog accept
+    QDialog::accept();
 }
 
 //  fillUI

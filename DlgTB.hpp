@@ -43,9 +43,9 @@ class DlgTB : public QDialog
     Q_OBJECT
 
   public:
-    static TechnicalBulletin* newDlgTB(QWidget* parent);                         // New TB, created by hand
-    static TechnicalBulletin* newDlgTB(QWidget* parent, QByteArray data);        // New TB, created by drag'n drop
-    static bool               editDlgTB(QWidget* parent, TechnicalBulletin* tb); // Existing TB edition
+    static TechnicalBulletin* newDlgTB(QWidget* parent);                  // New TB, created by hand
+    static TechnicalBulletin* newDlgTB(QWidget* parent, QByteArray data); // New TB, created by drag'n drop
+    static bool editDlgTB(QWidget* parent, TechnicalBulletin* tb);        // Existing TB edition
 
   private:
     Ui::DlgTB* ui;
@@ -53,6 +53,7 @@ class DlgTB : public QDialog
     DlgTB(QWidget* parent, QString title);
     DlgTB(QWidget* parent, QString title, TechnicalBulletin* tb);
     ~DlgTB();
+    void accept() override;
 
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;

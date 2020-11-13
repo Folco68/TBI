@@ -11,7 +11,9 @@ CONFIG += c++11
 SOURCES += \
     ContextMenuAction.cpp \
     DlgHelp.cpp \
+    DlgSettings.cpp \
     DlgTB.cpp \
+    Settings.cpp \
     TechnicalBulletin.cpp \
     main.cpp \
     MainWindow.cpp
@@ -19,13 +21,16 @@ SOURCES += \
 HEADERS += \
     ContextMenuAction.hpp \
     DlgHelp.hpp \
+    DlgSettings.hpp \
     DlgTB.hpp \
     Global.hpp \
     MainWindow.hpp \
+    Settings.hpp \
     TechnicalBulletin.hpp
 
 FORMS += \
     DlgHelp.ui \
+    DlgSettings.ui \
     DlgTB.ui \
     MainWindow.ui
 

@@ -1,2 +1,1 @@
-- create a TB with a drop on program icon
-- display real count of displayed TB in status bar
+- disable "Visit web page" button if no data in Tech pub

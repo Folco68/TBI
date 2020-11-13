@@ -46,18 +46,21 @@ class MainWindow : public QMainWindow
 
   private:
     Ui::MainWindow* ui;
-    bool            Modified;
-    QLabel*         MessageTBCount;
-    QLabel*         MessagePendingModifications;
+    bool Modified;
+
+    // Status bar
+    QLabel* MessageTBCount;
+    QLabel* MessagePendingModifications;
 
     // Context menu
-    QMenu*             TableContextMenu;
+    QMenu* TableContextMenu;
     ContextMenuAction* ActionNewTB;
     ContextMenuAction* ActionEditTB;
     ContextMenuAction* ActionDeleteTB;
     ContextMenuAction* ActionCopyUrl;
     ContextMenuAction* ActionOpenUrl;
     ContextMenuAction* ActionDownloadRM;
+    ContextMenuAction* ActionSettings;
     ContextMenuAction* ActionHelp;
 
     // Other action

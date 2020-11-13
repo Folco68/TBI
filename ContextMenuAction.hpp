@@ -29,7 +29,7 @@
 class ContextMenuAction : public QAction
 {
   public:
-    ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut);
+    ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut = QKeySequence());
 };
 
 #endif // CONTEXTMENUACTION_HPP
