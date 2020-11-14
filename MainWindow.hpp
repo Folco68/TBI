@@ -31,6 +31,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QString>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -71,7 +72,7 @@ class MainWindow : public QMainWindow
     void editTB();
     void deleteTB();
     void save();
-    void search();
+    void search(bool ForceNewSearch = false);
     void addTB(TechnicalBulletin* tb);
     void updateTB(TechnicalBulletin* tb, int row);
 
@@ -108,5 +109,8 @@ typedef enum {
 
 // Data filename
 #define TBI_FILENAME "index.tbi"
+
+// Search option
+#define FORCE_SEARCH true
 
 #endif // MAINWINDOW_HPP

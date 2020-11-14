@@ -94,7 +94,9 @@ MainWindow::MainWindow()
     connect(this->ActionOpenUrl, &QAction::triggered, [this]() { openURL(); });
     connect(this->ActionDownloadRM, &QAction::triggered, [this]() { downloadRM(); });
     connect(this->ActionSettings, &QAction::triggered, [this]() {
-        DlgSettings::showDlgSettings();
+        if (DlgSettings::showDlgSettings()) {
+            search(FORCE_SEARCH);
+        }
         updateUI();
     });
     connect(this->ActionHelp, &QAction::triggered, []() { DlgHelp::showDlgHelp(); });
@@ -167,7 +169,7 @@ MainWindow::~MainWindow()
     // Save window size
     Settings::instance()->setMainWindowSize(size());
 
-    // Destroy Settings instance here and not in main(),
+    // Destroy Settings instance (ie. save settings) here and not in main(),
     // because QGuiApplication doesn't return on all platforms
     Settings::release();
 
@@ -300,20 +302,21 @@ void MainWindow::deleteTB()
 //
 // Search the TB with keywords
 //
-void MainWindow::search()
+void MainWindow::search(bool ForceNewSearch)
 {
-    ui->StatusBar->showMessage(tr("Searching..."));
-
     // Split and clean the list
     static QStringList keywords;
     QStringList UIkeywords = ui->EditKeywords->text().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
     UIkeywords.removeDuplicates();
 
-    // Early return if the list didn't change
-    if (UIkeywords == keywords) {
+    // Early return if the list didn't change and we don't force a new search
+    if ((UIkeywords == keywords) && !ForceNewSearch) {
         return;
     }
     keywords = UIkeywords;
+
+    // Display status bar message
+    ui->StatusBar->showMessage(tr("Searching..."));
 
     // Display all entries if there is no filter
     if (keywords.count() == 0) {
@@ -325,9 +328,43 @@ void MainWindow::search()
     else {
         // Else filter TBs with keywords
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-            TechnicalBulletin* tb         = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-            QStringList tbkeywords        = tb->keywords();
-            bool hidden                   = false;
+            TechnicalBulletin* tb  = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+            QStringList tbkeywords = tb->keywords();
+
+            // Add some fields to the keyword list, depending on global configuration
+            if (Settings::instance()->searchNumberEnabled()) {
+                tbkeywords << tb->number().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchTitleEnabled()) {
+                tbkeywords << tb->title().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchCategoryEnabled()) {
+                tbkeywords << tb->category().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchRKEnabled()) {
+                tbkeywords << tb->rk().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchTechPubEnabled()) {
+                tbkeywords << tb->techpub().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchReleaseDateEnabled()) {
+                tbkeywords << tb->releaseDate().toString().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchRegisteredByEnabled()) {
+                tbkeywords << tb->registeredBy().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchReplacesEnabled()) {
+                tbkeywords << tb->replaces().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchReplacedByEnabled()) {
+                tbkeywords << tb->replacedBy().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+            if (Settings::instance()->searchCommentEnabled()) {
+                tbkeywords << tb->comment().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+            }
+
+            // Default: current row must be hidden
+            bool hidden = false;
 
             // Only exact matches are allowed
             if (Settings::instance()->wholeWordsOnlyEnabled()) {

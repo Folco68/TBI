@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>440</width>
-    <height>319</height>
+    <height>443</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QGroupBox" name="BoxURLs">
      <property name="title">
@@ -78,20 +78,115 @@
      <property name="title">
       <string>Search</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QCheckBox" name="CheckRTSearch">
-        <property name="text">
-         <string>Real-time search</string>
+       <layout class="QHBoxLayout" name="HLayoutSearch">
+        <item>
+         <widget class="QCheckBox" name="CheckRTSearch">
+          <property name="text">
+           <string>Real-time search</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="CheckWholeWordsOnly">
+          <property name="text">
+           <string>Whole words only</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="HLineSearch">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="CheckWholeWordsOnly">
-        <property name="text">
-         <string>Whole words only</string>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="CheckSearchTechPub">
+          <property name="text">
+           <string>Tech. publication</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="CheckSearchReplaces">
+          <property name="text">
+           <string>Replaces</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QCheckBox" name="CheckSearchReleaseDate">
+          <property name="text">
+           <string>Release date</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QCheckBox" name="CheckSearchReplacedBy">
+          <property name="text">
+           <string>Replaced by</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="CheckSearchNumber">
+          <property name="text">
+           <string>Number</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QCheckBox" name="CheckSearchRegisteredBy">
+          <property name="text">
+           <string>Registered by</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="CheckSearchTitle">
+          <property name="text">
+           <string>Title</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="CheckSearchCategory">
+          <property name="text">
+           <string>Category</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="3">
+         <widget class="QLabel" name="LabelAdditionalSearch">
+          <property name="text">
+           <string>Additional search fields</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="CheckSearchRK">
+          <property name="text">
+           <string>RK number</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="CheckSearchNotes">
+          <property name="text">
+           <string>Notes</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -105,6 +200,19 @@
       <item>
        <layout class="QHBoxLayout" name="HLayoutCategories">
         <item>
+         <spacer name="HSpacerCategories1">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QPushButton" name="ButtonClearCategories">
           <property name="text">
            <string>Reset category items</string>
@@ -112,7 +220,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="HSpacerCategories">
+         <spacer name="HSpacerCategories2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -178,6 +286,37 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>EditRK</tabstop>
+  <tabstop>ButtonResetRK</tabstop>
+  <tabstop>EditRM</tabstop>
+  <tabstop>ButtonResetRM</tabstop>
+  <tabstop>CheckRTSearch</tabstop>
+  <tabstop>CheckWholeWordsOnly</tabstop>
+  <tabstop>CheckSearchNumber</tabstop>
+  <tabstop>CheckSearchTitle</tabstop>
+  <tabstop>CheckSearchCategory</tabstop>
+  <tabstop>CheckSearchRK</tabstop>
+  <tabstop>CheckSearchTechPub</tabstop>
+  <tabstop>CheckSearchReleaseDate</tabstop>
+  <tabstop>CheckSearchRegisteredBy</tabstop>
+  <tabstop>CheckSearchReplaces</tabstop>
+  <tabstop>CheckSearchReplacedBy</tabstop>
+  <tabstop>ButtonClearCategories</tabstop>
+  <tabstop>ButtonOK</tabstop>
+  <tabstop>ButtonCancel</tabstop>
+  <tabstop>CheckWholeWordsOnly_2</tabstop>
+  <tabstop>CheckRTSearch_2</tabstop>
+  <tabstop>checkBox_10</tabstop>
+  <tabstop>checkBox_11</tabstop>
+  <tabstop>checkBox_12</tabstop>
+  <tabstop>checkBox_13</tabstop>
+  <tabstop>checkBox_14</tabstop>
+  <tabstop>checkBox_15</tabstop>
+  <tabstop>checkBox_16</tabstop>
+  <tabstop>checkBox_17</tabstop>
+  <tabstop>checkBox_18</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
