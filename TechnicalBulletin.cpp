@@ -69,6 +69,7 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
     // Save data into members
     setData(Strings.at(0), Strings.at(1), Strings.at(2), Strings.at(3), Strings.at(4), Comment, Date, Strings.at(5), Strings.at(6), Strings.at(7), Keywords);
 }
+
 //  TechnicalBulletin
 //
 // Create a TB using data provided UI
@@ -149,20 +150,30 @@ QString TechnicalBulletin::keywordsString() const
 // Unserialize a TB
 QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb)
 {
-    QString Number;
-    QString Title;
-    QString Category;
-    QString RK;
-    QString TechPub;
-    QString Comment;
+    QByteArray Number;
+    QByteArray Title;
+    QByteArray Category;
+    QByteArray RK;
+    QByteArray TechPub;
+    QByteArray Comment;
     QDate ReleaseDate;
-    QString RegisteredBy;
-    QString Replaces;
-    QString ReplacedBy;
+    QByteArray RegisteredBy;
+    QByteArray Replaces;
+    QByteArray ReplacedBy;
     QList<QString> Keywords;
 
     stream >> Number >> Title >> Category >> RK >> TechPub >> Comment >> ReleaseDate >> RegisteredBy >> Replaces >> ReplacedBy >> Keywords;
-    tb->setData(Number, Title, Category, RK, TechPub, Comment, ReleaseDate, RegisteredBy, Replaces, ReplacedBy, Keywords);
+    tb->setData(QString::fromUtf8(Number),
+                QString::fromUtf8(Title),
+                QString::fromUtf8(Category),
+                QString::fromUtf8(RK),
+                QString::fromUtf8(TechPub),
+                QString::fromUtf8(Comment),
+                ReleaseDate,
+                QString::fromUtf8(RegisteredBy),
+                QString::fromUtf8(Replaces),
+                QString::fromUtf8(ReplacedBy),
+                Keywords);
     return stream;
 }
 
@@ -172,7 +183,7 @@ QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb)
 //
 QDataStream& operator<<(QDataStream& stream, const TechnicalBulletin& tb)
 {
-    stream << tb.number() << tb.title() << tb.category() << tb.rk() << tb.techpub() << tb.comment() << tb.releaseDate() << tb.registeredBy() << tb.replaces()
-           << tb.replacedBy() << tb.keywords();
+    stream << tb.number().toUtf8() << tb.title().toUtf8() << tb.category().toUtf8() << tb.rk().toUtf8() << tb.techpub().toUtf8() << tb.comment().toUtf8()
+           << tb.releaseDate() << tb.registeredBy().toUtf8() << tb.replaces().toUtf8() << tb.replacedBy().toUtf8() << tb.keywords();
     return stream;
 }

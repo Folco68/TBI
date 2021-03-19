@@ -31,7 +31,10 @@
      <item row="0" column="0">
       <widget class="QLabel" name="LabelNumber">
        <property name="text">
-        <string>Number:</string>
+        <string>&amp;Number:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditNumber</cstring>
        </property>
       </widget>
      </item>
@@ -45,7 +48,10 @@
      <item row="0" column="2">
       <widget class="QLabel" name="LabelReleaseDate">
        <property name="text">
-        <string>Release date:</string>
+        <string>Release &amp;date:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditReleaseDate</cstring>
        </property>
       </widget>
      </item>
@@ -62,7 +68,10 @@
      <item row="1" column="0">
       <widget class="QLabel" name="LabelTitle">
        <property name="text">
-        <string>Title:</string>
+        <string>&amp;Title:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditTitle</cstring>
        </property>
       </widget>
      </item>
@@ -76,7 +85,10 @@
      <item row="1" column="2">
       <widget class="QLabel" name="LabelRegisteredBy">
        <property name="text">
-        <string>Registered by:</string>
+        <string>&amp;Registered by:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditRegisteredBy</cstring>
        </property>
       </widget>
      </item>
@@ -90,7 +102,10 @@
      <item row="2" column="0">
       <widget class="QLabel" name="LabelCategory">
        <property name="text">
-        <string>Category:</string>
+        <string>&amp;Category:</string>
+       </property>
+       <property name="buddy">
+        <cstring>ComboCategory</cstring>
        </property>
       </widget>
      </item>
@@ -113,7 +128,10 @@
      <item row="2" column="2">
       <widget class="QLabel" name="LabelReplaces">
        <property name="text">
-        <string>Replaces:</string>
+        <string>&amp;Replaces:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditReplaces</cstring>
        </property>
       </widget>
      </item>
@@ -127,7 +145,10 @@
      <item row="3" column="0">
       <widget class="QLabel" name="LabelRK">
        <property name="text">
-        <string>RK:</string>
+        <string>R&amp;K:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditRK</cstring>
        </property>
       </widget>
      </item>
@@ -141,7 +162,10 @@
      <item row="3" column="2">
       <widget class="QLabel" name="LabelReplacedBy">
        <property name="text">
-        <string>Replaced by:</string>
+        <string>&amp;Replaced by:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditReplacedBy</cstring>
        </property>
       </widget>
      </item>
@@ -155,7 +179,10 @@
      <item row="4" column="0">
       <widget class="QLabel" name="LabelTechPub">
        <property name="text">
-        <string>Tech Pub:</string>
+        <string>Tech &amp;Pub:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditTechPub</cstring>
        </property>
       </widget>
      </item>
@@ -169,7 +196,10 @@
      <item row="5" column="0">
       <widget class="QLabel" name="LabelComment">
        <property name="text">
-        <string>Comment:</string>
+        <string>Co&amp;mment:</string>
+       </property>
+       <property name="buddy">
+        <cstring>TexteditComment</cstring>
        </property>
       </widget>
      </item>
@@ -192,7 +222,10 @@
      <item row="6" column="0">
       <widget class="QLabel" name="LabelKeywords">
        <property name="text">
-        <string>Keywords:</string>
+        <string>Ke&amp;ywords:</string>
+       </property>
+       <property name="buddy">
+        <cstring>EditKeywords</cstring>
        </property>
       </widget>
      </item>

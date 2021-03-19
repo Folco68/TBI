@@ -1,0 +1,5 @@
++ set the keyword field as the default one when dropping a TB
++ decrease data file size using UTF-8 instead of UTF-16
+- offer to remove replaced TB when adding a new one
+- remove new warnings...
++ set buddies for fast access in TB edition dialog

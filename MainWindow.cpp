@@ -101,7 +101,7 @@ MainWindow::MainWindow()
     });
     connect(this->ActionHelp, &QAction::triggered, []() { DlgHelp::showDlgHelp(); });
 
-    // Add actions to the context menu, an to the main window to allow kbd shortcuts
+    // Add actions to the context menu and to the main window to allow kbd shortcuts
     QList<QAction*> actions;
     actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionDownloadRM
             << this->ActionSettings << this->ActionHelp;

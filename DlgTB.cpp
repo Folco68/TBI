@@ -57,6 +57,9 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     // Enable/disable buttons
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
     connect(ui->EditTechPub, &QLineEdit::textChanged, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
+
+    // Set the edit keyword field as the current one
+    ui->EditKeywords->setFocus();
 }
 
 //  DlgTB
@@ -76,6 +79,7 @@ DlgTB::~DlgTB()
 
 void DlgTB::accept()
 {
+    // Save the category in the category list if it's a new one
     QStringList list = Settings::instance()->categories();
     QString category = ui->ComboCategory->currentText();
     if (!list.contains(category, Qt::CaseInsensitive)) {

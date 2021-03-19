@@ -80,7 +80,7 @@ class MainWindow : public QMainWindow
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
 
-    // Close handling (prevent from closing with unsaved data
+    // Close handling (prevent from closing with unsaved data)
     void closeEvent(QCloseEvent* event) override;
 
     // URL handling
