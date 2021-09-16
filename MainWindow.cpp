@@ -44,7 +44,6 @@
 #include <QPushButton>
 #include <QShortcut>
 #include <QStatusBar>
-#include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 
@@ -55,12 +54,12 @@ MainWindow::MainWindow()
     , MessageTBCount(new QLabel)
     , MessagePendingModifications(new QLabel)
     , TableContextMenu(new QMenu(this))
-    , ActionNewTB(new ContextMenuAction(tr("New TB"), this, QKeySequence(Qt::CTRL + Qt::Key_N)))
-    , ActionEditTB(new ContextMenuAction(tr("Edit TB"), this, QKeySequence(Qt::CTRL + Qt::Key_E)))
+    , ActionNewTB(new ContextMenuAction(tr("New TB"), this, QKeySequence(Qt::CTRL | Qt::Key_N)))
+    , ActionEditTB(new ContextMenuAction(tr("Edit TB"), this, QKeySequence(Qt::CTRL | Qt::Key_E)))
     , ActionDeleteTB(new ContextMenuAction(tr("Delete TB"), this, QKeySequence(Qt::Key_Delete)))
-    , ActionCopyUrl(new ContextMenuAction(tr("Copy URL"), this, QKeySequence(Qt::CTRL + Qt::Key_C)))
-    , ActionOpenUrl(new ContextMenuAction(tr("Open URL"), this, QKeySequence(Qt::CTRL + Qt::Key_O)))
-    , ActionDownloadRM(new ContextMenuAction(tr("Download RM"), this, QKeySequence(Qt::CTRL + Qt::Key_D)))
+    , ActionCopyUrl(new ContextMenuAction(tr("Copy URL"), this, QKeySequence(Qt::CTRL | Qt::Key_C)))
+    , ActionOpenUrl(new ContextMenuAction(tr("Open URL"), this, QKeySequence(Qt::CTRL | Qt::Key_O)))
+    , ActionDownloadRM(new ContextMenuAction(tr("Download RM"), this, QKeySequence(Qt::CTRL | Qt::Key_D)))
     , ActionSettings(new ContextMenuAction(tr("Settings"), this))
     , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
 {
@@ -306,7 +305,7 @@ void MainWindow::search(bool ForceNewSearch)
 {
     // Split and clean the list
     static QStringList keywords;
-    QStringList UIkeywords = ui->EditKeywords->text().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+    QStringList UIkeywords = ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
     UIkeywords.removeDuplicates();
 
     // Early return if the list didn't change and we don't force a new search
@@ -333,34 +332,34 @@ void MainWindow::search(bool ForceNewSearch)
 
             // Add some fields to the keyword list, depending on global configuration
             if (Settings::instance()->searchNumberEnabled()) {
-                tbkeywords << tb->number().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->number().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchTitleEnabled()) {
-                tbkeywords << tb->title().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->title().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchCategoryEnabled()) {
-                tbkeywords << tb->category().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->category().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchRKEnabled()) {
-                tbkeywords << tb->rk().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->rk().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchTechPubEnabled()) {
-                tbkeywords << tb->techpub().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->techpub().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchReleaseDateEnabled()) {
-                tbkeywords << tb->releaseDate().toString().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->releaseDate().toString().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchRegisteredByEnabled()) {
-                tbkeywords << tb->registeredBy().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->registeredBy().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchReplacesEnabled()) {
-                tbkeywords << tb->replaces().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->replaces().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchReplacedByEnabled()) {
-                tbkeywords << tb->replacedBy().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->replacedBy().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchCommentEnabled()) {
-                tbkeywords << tb->comment().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts);
+                tbkeywords << tb->comment().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
 
             // Default: current row must be hidden
@@ -401,6 +400,47 @@ void MainWindow::search(bool ForceNewSearch)
 //
 void MainWindow::addTB(TechnicalBulletin* tb)
 {
+    // TODO: only one single loop!!! //
+
+    // Check that the TB doesn't exist yet
+    for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+        if (tb->number() == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
+            QMessageBox::critical(this, tr("Error"), tr("This TB already exists in the database"), QMessageBox::Ok);
+            return;
+        }
+    }
+
+    // Check if there is a newer TB
+    if (!tb->replacedBy().isNull()) {
+        for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+            if (tb->replacedBy() == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
+                if (QMessageBox::question(this,
+                                          tr("Newer TB exists"),
+                                          tr("A newer TB already exists in the database. Do you want to add this one?"),
+                                          QMessageBox::Yes | QMessageBox::No)
+                    == QMessageBox::No) {
+                    return;
+                }
+            }
+        }
+    }
+
+    // Check for older TB
+    for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+        if (tb->replaces() == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
+            int question1 = QMessageBox::question(
+                this, tr("Replace previous TB"), tr("This TB replaces an older one. Do you want to remove it?"), QMessageBox::Yes | QMessageBox::No);
+            if (question1 == QMessageBox::Yes) {
+                int question2 = QMessageBox::question(this, tr("Keywords"), tr("Do you want to merge keywords?"), QMessageBox::Yes | QMessageBox::No);
+                if (question2 == QMessageBox::Yes) {
+                    // Merge keywords
+                }
+
+                // Delete old TB
+            }
+        }
+    }
+
     // Update table size
     int rowcount = ui->TableTB->rowCount();
     ui->TableTB->setRowCount(rowcount + 1);
@@ -443,8 +483,9 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
 //
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
-    if (event->mimeData()->hasFormat("text/plain"))
+    if (event->mimeData()->hasFormat("text/plain")) {
         event->acceptProposedAction();
+    }
 }
 
 //  dropEvent

@@ -126,7 +126,7 @@ void DlgTB::fillTB(TechnicalBulletin* tb)
                 ui->EditRegisteredBy->text(),
                 ui->EditReplaces->text(),
                 ui->EditReplacedBy->text(),
-                ui->EditKeywords->text().split(KEYWORD_SEPARATOR, QString::SkipEmptyParts));
+                ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts));
 }
 
 //  newDlgTB (static)

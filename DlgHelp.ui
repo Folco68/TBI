@@ -60,8 +60,7 @@ Framework:      Qt 5.15.1
 Purpose
 -------
 
-The goal of this program is to index technical bulletin (TB), using official release data, and a list of custom keywords,
-to easily find a publicated kit.
+The goal of this program is to index technical bulletin (TB), using official release data, and a list of custom keywords, to easily find a publicated kit.
 
 
 How to use
@@ -72,11 +71,10 @@ It will pop the TB creation dialog, filling the fields for you, and offering to 
 Validating the dialog will make the TB to be saved in the list and indexed.
 
 By right-clicking on the TB table, you can create, edit or delete a TB.
-You also can copy its URL, or open the PIV web pageof the TB in your default browser.
+You also can copy its URL, or open the PIV web page of the TB in your default browser.
 Obviously, you need to be connected to TP intranet to perform this.
 
-When adding a new TB, fill the keywords field with your own words: this field is used
-to quickly find a TB you have added beforehand.
+When adding a new TB, fill the keywords field with your own words: this field is used to quickly find a TB you have added beforehand.
 
 Note: the index file (index.tbi) is saved in the program current directory.
 </string>
