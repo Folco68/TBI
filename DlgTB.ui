@@ -60,6 +60,9 @@
        <property name="acceptDrops">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Format is yyyy/mm/dd</string>
+       </property>
        <property name="displayFormat">
         <string>yyyy/MM/dd</string>
        </property>

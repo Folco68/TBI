@@ -21,6 +21,7 @@
 
 #include "TechnicalBulletin.hpp"
 #include "Global.hpp"
+#include <QByteArrayView>
 
 //  TechnicalBulletin
 //
@@ -29,7 +30,7 @@
 //
 TechnicalBulletin::TechnicalBulletin(QByteArray data)
 {
-    int start, end;
+    qsizetype start, end;
 
     // Parse most of the strings
     QList<QString> Strings;
@@ -44,16 +45,29 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
                  << "Replaced by:";
 
     for (int i = 0; i < StringLabels.count(); i++) {
-        start = data.indexOf(StringLabels.at(i));                          // Look for a label
-        start = data.indexOf('\t', start) + 1;                             // Skip the label, and find the fist byte of the data string
-        end   = min(data.indexOf('\t', start), data.indexOf('\n', start)); // End of data string. May terminate with a Tab or a New Line
-        Strings << data.mid(start, end - start);                           // Grab and save data
+        start = data.indexOf(QByteArrayView(StringLabels.at(i).toUtf8())); // Look for a label
+        if (start == -1) {
+            // No label found, don't write anything in the field
+            Strings << "";
+        }
+        else {
+            // Label found
+            start = data.indexOf('\t', start) + 1;                             // Skip the label, and find the fist byte of the data string
+            end   = min(data.indexOf('\t', start), data.indexOf('\n', start)); // End of data string. May terminate with a Tab or a New Line
+            Strings << data.mid(start, end - start);                           // Grab and save data
+        }
     }
 
-    // Comment box
+    // Comment box. Don't fill it if no comment field is found
     start = data.indexOf("Comments:");
-    start = data.indexOf('\t', start) + 1;
-    end   = data.indexOf('\t', start);
+    if (start == -1) {
+        start = 0;
+        end   = 0;
+    }
+    else {
+        start = data.indexOf('\t', start) + 1;
+        end   = data.indexOf('\t', start);
+    }
     QString Comment(data.mid(start, end - start));
 
     // Release date
@@ -148,6 +162,7 @@ QString TechnicalBulletin::keywordsString() const
 //  >>
 //
 // Unserialize a TB
+//
 QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb)
 {
     QByteArray Number;

@@ -138,7 +138,7 @@ TechnicalBulletin* DlgTB::newDlgTB(QWidget* parent)
     TechnicalBulletin* tb = nullptr;
 
     // Create and exec dialog
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE).arg(tr("Add a new Technical Bulletin")));
+    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
     if (dlg->exec() == QDialog::Accepted) {
         tb = new TechnicalBulletin;
         dlg->fillTB(tb);
@@ -157,7 +157,7 @@ TechnicalBulletin* DlgTB::newDlgTB(QWidget* parent, QByteArray data)
     TechnicalBulletin* tb = new TechnicalBulletin(data);
 
     // Create and exec dialog. Update TB if dialog was accepted, else destroy it
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE).arg(tr("Import Technical Bulletin: ")).arg(tb->number()), tb);
+    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), tb->number()), tb);
     if (dlg->exec() == QDialog::Accepted) {
         dlg->fillTB(tb);
     }
@@ -178,7 +178,7 @@ bool DlgTB::editDlgTB(QWidget* parent, TechnicalBulletin* tb)
 {
     bool ret = false;
 
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE).arg(tr("Edit Technical Bulletin")).arg(tb->number()), tb);
+    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()), tb);
     if (dlg->exec() == QDialog::Accepted) {
         dlg->fillTB(tb);
         ret = true;
