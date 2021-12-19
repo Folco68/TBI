@@ -76,7 +76,9 @@ Obviously, you need to be connected to TP intranet to perform this.
 
 When adding a new TB, fill the keywords field with your own words: this field is used to quickly find a TB you have added beforehand.
 
-Note: the index file (index.tbi) is saved in the program current directory.
+Notes:
+- the index file (index.tbi) is saved in the program current directory.
+- run the program with the --check-database to force DB check at startup
 </string>
          </property>
         </widget>

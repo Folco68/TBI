@@ -19,13 +19,15 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
+#include "Global.hpp"
 #include "MainWindow.hpp"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow   w;
+    bool ForceDBCheck = a.arguments().contains(OPTION_FORCE_DATABASE_CHECK);
+    MainWindow w(ForceDBCheck);
     w.show();
     return a.exec();
 }

@@ -69,66 +69,68 @@ class Settings : public QSettings
     static Settings* instance();
     static void release();
 
-    QString baseURLTechnicalPublication() { return value(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB).toString(); };
-    void setBaseURLTechnicalPublications(QString url) { setValue(KEY_BASE_URL_TECH_PUB, url); };
-    void resetBaseURLTechnicalPublications() { setValue(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB); };
+    QString baseURLTechnicalPublication() { return value(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB).toString(); }
+    void setBaseURLTechnicalPublications(QString url) { setValue(KEY_BASE_URL_TECH_PUB, url); }
+    void resetBaseURLTechnicalPublications() { setValue(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB); }
 
-    QString baseURLRebuildingManual() { return value(KEY_BASE_URL_RM, DEFAULT_BASE_URL_RM).toString(); };
-    void setBaseURLRebuildingManual(QString url) { setValue(KEY_BASE_URL_RM, url); };
-    void resetBaseURLRebuildingManual() { setValue(KEY_BASE_URL_RM, DEFAULT_BASE_URL_RM); };
+    QString baseURLRebuildingManual() { return value(KEY_BASE_URL_RM, DEFAULT_BASE_URL_RM).toString(); }
+    void setBaseURLRebuildingManual(QString url) { setValue(KEY_BASE_URL_RM, url); }
+    void resetBaseURLRebuildingManual() { setValue(KEY_BASE_URL_RM, DEFAULT_BASE_URL_RM); }
 
-    bool realTimeSearchEnabled() { return value(KEY_REAL_TIME_SEARCH, DEFAULT_REAL_TIME_SEARCH).toBool(); };
-    void setRealTimeSearchEnabled(bool enabled) { setValue(KEY_REAL_TIME_SEARCH, enabled); };
+    bool realTimeSearchEnabled() { return value(KEY_REAL_TIME_SEARCH, DEFAULT_REAL_TIME_SEARCH).toBool(); }
+    void setRealTimeSearchEnabled(bool enabled) { setValue(KEY_REAL_TIME_SEARCH, enabled); }
 
-    bool wholeWordsOnlyEnabled() { return value(KEY_WHOLE_WORDS_ONLY, DEFAULT_WHOLE_WORDS_ONLY).toBool(); };
-    void setWholeWordsOnlyEnabled(bool enabled) { setValue(KEY_WHOLE_WORDS_ONLY, enabled); };
+    bool wholeWordsOnlyEnabled() { return value(KEY_WHOLE_WORDS_ONLY, DEFAULT_WHOLE_WORDS_ONLY).toBool(); }
+    void setWholeWordsOnlyEnabled(bool enabled) { setValue(KEY_WHOLE_WORDS_ONLY, enabled); }
 
-    QStringList categories() { return value(KEY_CATEGORY_LIST).toStringList(); };
+    QStringList categories() { return value(KEY_CATEGORY_LIST).toStringList(); }
     void setCategories(QStringList categories)
     {
         categories.sort(Qt::CaseInsensitive);
         setValue(KEY_CATEGORY_LIST, categories);
-    };
-    void resetCategories() { remove(KEY_CATEGORY_LIST); };
+    }
+    void resetCategories() { remove(KEY_CATEGORY_LIST); }
 
-    QSize mainWindowSize() { return value(KEY_MAIN_WINDOW_SIZE, DEFAULT_MAIN_WINDOW_SIZE).toSize(); };
-    void setMainWindowSize(QSize size) { setValue(KEY_MAIN_WINDOW_SIZE, size); };
+    QSize mainWindowSize() { return value(KEY_MAIN_WINDOW_SIZE, DEFAULT_MAIN_WINDOW_SIZE).toSize(); }
+    void setMainWindowSize(QSize size) { setValue(KEY_MAIN_WINDOW_SIZE, size); }
 
-    bool searchNumberEnabled() { return value(KEY_SEARCH_NUMBER, DEFAULT_SEARCH_NUMBER).toBool(); };
-    void setSearchNumber(bool enabled) { setValue(KEY_SEARCH_NUMBER, enabled); };
+    bool searchNumberEnabled() { return value(KEY_SEARCH_NUMBER, DEFAULT_SEARCH_NUMBER).toBool(); }
+    void setSearchNumber(bool enabled) { setValue(KEY_SEARCH_NUMBER, enabled); }
 
-    bool searchTitleEnabled() { return value(KEY_SEARCH_TITLE, DEFAULT_SEARCH_TITLE).toBool(); };
-    void setSearchTitle(bool enabled) { setValue(KEY_SEARCH_TITLE, enabled); };
+    bool searchTitleEnabled() { return value(KEY_SEARCH_TITLE, DEFAULT_SEARCH_TITLE).toBool(); }
+    void setSearchTitle(bool enabled) { setValue(KEY_SEARCH_TITLE, enabled); }
 
-    bool searchCategoryEnabled() { return value(KEY_SEARCH_CATEGORY, DEFAULT_SEARCH_CATEGORY).toBool(); };
-    void setSearchCategory(bool enabled) { setValue(KEY_SEARCH_CATEGORY, enabled); };
+    bool searchCategoryEnabled() { return value(KEY_SEARCH_CATEGORY, DEFAULT_SEARCH_CATEGORY).toBool(); }
+    void setSearchCategory(bool enabled) { setValue(KEY_SEARCH_CATEGORY, enabled); }
 
-    bool searchRKEnabled() { return value(KEY_SEARCH_RK, DEFAULT_SEARCH_RK).toBool(); };
-    void setSearchRK(bool enabled) { setValue(KEY_SEARCH_RK, enabled); };
+    bool searchRKEnabled() { return value(KEY_SEARCH_RK, DEFAULT_SEARCH_RK).toBool(); }
+    void setSearchRK(bool enabled) { setValue(KEY_SEARCH_RK, enabled); }
 
-    bool searchTechPubEnabled() { return value(KEY_SEARCH_TECH_PUB, DEFAULT_SEARCH_TECH_PUB).toBool(); };
-    void setSearchTechPub(bool enabled) { setValue(KEY_SEARCH_TECH_PUB, enabled); };
+    bool searchTechPubEnabled() { return value(KEY_SEARCH_TECH_PUB, DEFAULT_SEARCH_TECH_PUB).toBool(); }
+    void setSearchTechPub(bool enabled) { setValue(KEY_SEARCH_TECH_PUB, enabled); }
 
-    bool searchReleaseDateEnabled() { return value(KEY_SEARCH_RELEASE_DATE, DEFAULT_SEARCH_RELEASE_DATE).toBool(); };
-    void setSearchReleaseDate(bool enabled) { setValue(KEY_SEARCH_RELEASE_DATE, enabled); };
+    bool searchReleaseDateEnabled() { return value(KEY_SEARCH_RELEASE_DATE, DEFAULT_SEARCH_RELEASE_DATE).toBool(); }
+    void setSearchReleaseDate(bool enabled) { setValue(KEY_SEARCH_RELEASE_DATE, enabled); }
 
-    bool searchRegisteredByEnabled() { return value(KEY_SEARCH_REGISTERED_BY, DEFAULT_SEARCH_REGISTERED_BY).toBool(); };
-    void setSearchRegisteredBy(bool enabled) { setValue(KEY_SEARCH_REGISTERED_BY, enabled); };
+    bool searchRegisteredByEnabled() { return value(KEY_SEARCH_REGISTERED_BY, DEFAULT_SEARCH_REGISTERED_BY).toBool(); }
+    void setSearchRegisteredBy(bool enabled) { setValue(KEY_SEARCH_REGISTERED_BY, enabled); }
 
-    bool searchReplacesEnabled() { return value(KEY_SEARCH_REPLACES, DEFAULT_SEARCH_REPLACES).toBool(); };
-    void setSearchReplaces(bool enabled) { setValue(KEY_SEARCH_REPLACES, enabled); };
+    bool searchReplacesEnabled() { return value(KEY_SEARCH_REPLACES, DEFAULT_SEARCH_REPLACES).toBool(); }
+    void setSearchReplaces(bool enabled) { setValue(KEY_SEARCH_REPLACES, enabled); }
 
-    bool searchReplacedByEnabled() { return value(KEY_SEARCH_REPLACED_BY, DEFAULT_SEARCH_REPLACED_BY).toBool(); };
-    void setSearchReplacedBy(bool enabled) { setValue(KEY_SEARCH_REPLACED_BY, enabled); };
+    bool searchReplacedByEnabled() { return value(KEY_SEARCH_REPLACED_BY, DEFAULT_SEARCH_REPLACED_BY).toBool(); }
+    void setSearchReplacedBy(bool enabled) { setValue(KEY_SEARCH_REPLACED_BY, enabled); }
 
-    bool searchCommentEnabled() { return value(KEY_SEARCH_COMMENT, DEFAULT_SEARCH_COMMENT).toBool(); };
-    void setSearchComment(bool enabled) { setValue(KEY_SEARCH_COMMENT, enabled); };
+    bool searchCommentEnabled() { return value(KEY_SEARCH_COMMENT, DEFAULT_SEARCH_COMMENT).toBool(); }
+    void setSearchComment(bool enabled) { setValue(KEY_SEARCH_COMMENT, enabled); }
 
   private:
     static Settings* settings;
 
     Settings(QString organization, QString application)
-        : QSettings(organization, application){};
-    };
+        : QSettings(organization, application)
+    {
+    }
+};
 
 #endif // SETTINGS_HPP

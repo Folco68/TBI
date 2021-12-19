@@ -43,4 +43,11 @@
 #define ORGANIZATION_NAME "FolcoSoft"
 #define APPLICATION_NAME "TBI"
 
+// Command line option
+#define OPTION_FORCE_DATABASE_CHECK "--check-database"
+
+// Data filename
+#define TBI_BACKUP_FILENAME "index.bak"
+#define TBI_FILENAME "index.tbi"
+
 #endif // GLOBAL_HPP

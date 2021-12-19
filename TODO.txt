@@ -7,3 +7,7 @@
 - automatically update obsolete TB
 + don't fill fields with garbage on user drop
 + tooltip with date format in new TB dialog
++ change MainWindow::addTB by adding a "nocheck" version, called on program startup (with default arg)
++ add a command line switch to force database check at startup
++ MainWindow::addTB: read TB* only once
++ Make error messages more explicit in MainWindow::addTB

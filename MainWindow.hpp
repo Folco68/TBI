@@ -42,7 +42,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow();
+    MainWindow(bool ForceDBCheck);
     ~MainWindow();
 
   private:
@@ -73,7 +73,7 @@ class MainWindow : public QMainWindow
     void deleteTB();
     void save();
     void search(bool ForceNewSearch = false);
-    void addTB(TechnicalBulletin* tb);
+    void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
 
     // Drag & drop stuff
@@ -107,10 +107,10 @@ typedef enum {
 #define TB_ROLE Qt::UserRole
 #define COLUMN_METADATA COLUMN_NUMBER
 
-// Data filename
-#define TBI_FILENAME "index.tbi"
-
 // Search option
 #define FORCE_SEARCH true
+
+// Enable consistency and update checks when adding a TB
+#define PERFORM_ADD_CHECKS true
 
 #endif // MAINWINDOW_HPP

@@ -48,7 +48,7 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(bool ForceDBCheck)
     : QMainWindow()
     , ui(new Ui::MainWindow)
     , Modified(false)
@@ -141,7 +141,7 @@ MainWindow::MainWindow()
             // Read a TB and add it to UI
             TechnicalBulletin* tb = new TechnicalBulletin;
             stream >> tb;
-            addTB(tb);
+            addTB(tb, ForceDBCheck);
 
             // Check stream status
             if (stream.status() != QDataStream::Ok) {
@@ -218,6 +218,16 @@ void MainWindow::updateUI()
 //
 void MainWindow::save()
 {
+    // First, create a backup by renaming the current index database
+    // Remove current backup
+    QFile::remove(TBI_BACKUP_FILENAME);
+
+    if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
+        if (QMessageBox::question(this, WINDOW_TITLE, tr("Couldn't create database backup. Save anyway?")) == QMessageBox::No) {
+            return;
+        }
+    }
+
     // Try to open the file
     QFile file(TBI_FILENAME);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -253,7 +263,7 @@ void MainWindow::newTB()
     TechnicalBulletin* tb = DlgTB::newDlgTB(this);
     if (tb != nullptr) {
         this->Modified = true;
-        addTB(tb);
+        addTB(tb, PERFORM_ADD_CHECKS);
     }
 }
 
@@ -399,63 +409,67 @@ void MainWindow::search(bool ForceNewSearch)
 //
 // Add a TB at the bottom of the table
 //
-void MainWindow::addTB(TechnicalBulletin* tb)
+void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
 {
-    for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-        // Check that the TB doesn't exist yet
-        // Don't allow to add twice the same TB
-        if (tb->number() == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
-            QMessageBox::critical(this, tr("Error"), tr("This TB already exists in the database"), QMessageBox::Ok);
-            return;
-        }
+    if (PerformAddChecks) {
+        for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+            TechnicalBulletin* CurrentTB = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
 
-        // Check for newer TB
-        // Don't allow to add an old TB
-        QString ReplacedBy = tb->replacedBy();
-        if (!ReplacedBy.isNull()) {
-            if (ReplacedBy == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
-                QMessageBox::critical(this, tr("Error"), tr("A new version of this TB already exists in the database"), QMessageBox::Ok);
-                return;
-            }
-        }
-
-        // Check for older TB
-        // Don't allow to keep old TB
-        // Offer to merge keywords
-        if (tb->replaces() == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
-            QMessageBox* MessageBox
-                = new QMessageBox(QMessageBox::Question, tr("Replace previous TB"), tr("An older version of this TB is present. Do you want to update it?"));
-            MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
-            QPushButton* ButtonMerge  = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
-            QPushButton* ButtonCancel = MessageBox->addButton(tr("Cancel"), QMessageBox::RejectRole);
-
-            MessageBox->exec();
-            QAbstractButton* ClickedButton = MessageBox->clickedButton();
-            delete MessageBox;
-
-            // Nothing to do if the user cancelled the dialog
-            if (ClickedButton == ButtonCancel) {
+            // Check that the TB doesn't exist yet
+            // Don't allow to add twice the same TB
+            if (tb->number() == CurrentTB->number()) {
+                QMessageBox::critical(this, tr("Error"), tr("TB %1 already exists in the database").arg(tb->title()), QMessageBox::Ok);
                 return;
             }
 
-            // Merge keywords
-            if (ClickedButton == ButtonMerge) {
-                QList<QString> NewKeywords = tb->keywords();
-                QList<QString> OldKeywords = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->keywords();
-                for (int j = 0; j < OldKeywords.count(); j++) {
-                    if (!NewKeywords.contains(OldKeywords.at(j))) {
-                        NewKeywords << OldKeywords.at(j);
-                    }
+            // Check for newer TB
+            // Don't allow to add an old TB
+            QString ReplacedBy = tb->replacedBy();
+            if ((!ReplacedBy.isNull()) && (ReplacedBy == CurrentTB->number())) {
+                QMessageBox::critical(this, tr("Error"), tr("A new version of TB %1 already exists in the database").arg(CurrentTB->title()), QMessageBox::Ok);
+                return;
+            }
+
+            // Check for older TB
+            // Don't allow to keep old TB
+            // Offer to merge keywords
+            if (tb->replaces() == CurrentTB->number()) {
+                QMessageBox* MessageBox = new QMessageBox(QMessageBox::Question,
+                                                          tr("Replace previous TB"),
+                                                          tr("An older version of TB %1 is present. Do you want to update it?").arg(CurrentTB->title()));
+                MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
+                QPushButton* ButtonMerge  = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
+                QPushButton* ButtonCancel = MessageBox->addButton(tr("Cancel"), QMessageBox::RejectRole);
+
+                MessageBox->exec();
+                QAbstractButton* ClickedButton = MessageBox->clickedButton();
+                delete MessageBox;
+
+                // Nothing to do if the user cancelled the dialog
+                if (ClickedButton == ButtonCancel) {
+                    return;
                 }
-                tb->setKeywords(NewKeywords);
+
+                // Merge keywords
+                if (ClickedButton == ButtonMerge) {
+                    QList<QString> NewKeywords = tb->keywords();
+                    QList<QString> OldKeywords = CurrentTB->keywords();
+                    for (int j = 0; j < OldKeywords.count(); j++) {
+                        if (!NewKeywords.contains(OldKeywords.at(j))) {
+                            NewKeywords << OldKeywords.at(j);
+                        }
+                    }
+                    tb->setKeywords(NewKeywords);
+                }
+
+                // Delete old TB
+                delete CurrentTB;
+                ui->TableTB->removeRow(i);
+
+                // Finally, quit the loop to add the new TB
+                this->Modified = true;
+                break;
             }
-
-            // Delete old TB
-            delete ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-            ui->TableTB->removeRow(i);
-
-            // Finally, quit the loop to add the new TB
-            break;
         }
     }
 
@@ -515,7 +529,7 @@ void MainWindow::dropEvent(QDropEvent* event)
     TechnicalBulletin* tb = DlgTB::newDlgTB(this, event->mimeData()->data("text/plain"));
     if (tb != nullptr) {
         this->Modified = true;
-        addTB(tb);
+        addTB(tb, PERFORM_ADD_CHECKS);
     }
 }
 
