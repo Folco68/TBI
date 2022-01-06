@@ -34,7 +34,7 @@ class DlgSettings : public QDialog
 
   public:
     static bool showDlgSettings(QWidget* parent = nullptr);
-    ~DlgSettings();
+    ~DlgSettings() override;
 
   private:
     Ui::DlgSettings* ui;

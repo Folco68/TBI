@@ -43,7 +43,7 @@ class MainWindow : public QMainWindow
 
   public:
     MainWindow(bool ForceDBCheck);
-    ~MainWindow();
+    ~MainWindow() override;
 
   private:
     Ui::MainWindow* ui;
@@ -64,8 +64,6 @@ class MainWindow : public QMainWindow
     ContextMenuAction* ActionSettings;
     ContextMenuAction* ActionHelp;
 
-    // Other action
-
     // TBs
     void updateUI();
     void newTB();
@@ -79,6 +77,9 @@ class MainWindow : public QMainWindow
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
+
+    // Paste TB from mail to UI
+    void paste();
 
     // Close handling (prevent from closing with unsaved data)
     void closeEvent(QCloseEvent* event) override;

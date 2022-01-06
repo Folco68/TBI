@@ -34,7 +34,7 @@ class DlgHelp : public QDialog
 
   public:
     static void showDlgHelp();
-    ~DlgHelp();
+    ~DlgHelp() override;
 
   private:
     explicit DlgHelp(QWidget* parent = nullptr);

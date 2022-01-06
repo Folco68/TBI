@@ -35,7 +35,7 @@
 class TechnicalBulletin
 {
   public:
-    TechnicalBulletin(){};
+    TechnicalBulletin() {}
     TechnicalBulletin(QByteArray data);
     TechnicalBulletin(QString number,
                       QString title,
@@ -74,7 +74,7 @@ class TechnicalBulletin
 
     QString keywordsString() const;
 
-    void setKeywords(QList<QString> keywords) { this->keywords() = keywords; };
+    void setKeywords(QList<QString> keywords) { this->keywords() = keywords; }
 
   private:
     QString Number;

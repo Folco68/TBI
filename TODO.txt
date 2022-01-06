@@ -4,10 +4,11 @@
 + remove new warnings...
 + set buddies for fast access in TB edition dialog
 + check that there is no duplicate TB
-- automatically update obsolete TB
 + don't fill fields with garbage on user drop
 + tooltip with date format in new TB dialog
 + change MainWindow::addTB by adding a "nocheck" version, called on program startup (with default arg)
 + add a command line switch to force database check at startup
 + MainWindow::addTB: read TB* only once
 + Make error messages more explicit in MainWindow::addTB
++ accept paste AND drop events in MainWindow, to import a new TB
+- automatically update obsolete TB

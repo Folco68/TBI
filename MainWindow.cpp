@@ -110,6 +110,9 @@ MainWindow::MainWindow(bool ForceDBCheck)
     this->TableContextMenu->insertSeparator(this->ActionSettings);
     this->addActions(actions);
 
+    // Paste shortcut
+    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this), &QShortcut::activated, [this]() { paste(); });
+
     // Save shortcut
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, [this]() {
         if (this->Modified)
@@ -219,9 +222,8 @@ void MainWindow::updateUI()
 void MainWindow::save()
 {
     // First, create a backup by renaming the current index database
-    // Remove current backup
+    // Remove current backup because File::rename() won't overwrite backup file
     QFile::remove(TBI_BACKUP_FILENAME);
-
     if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
         if (QMessageBox::question(this, WINDOW_TITLE, tr("Couldn't create database backup. Save anyway?")) == QMessageBox::No) {
             return;
@@ -530,6 +532,22 @@ void MainWindow::dropEvent(QDropEvent* event)
     if (tb != nullptr) {
         this->Modified = true;
         addTB(tb, PERFORM_ADD_CHECKS);
+    }
+}
+
+//  paste
+//
+// Accept TB copy/pasted from mails
+//
+void MainWindow::paste()
+{
+    const QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard->mimeData()->hasFormat("text/plain")) {
+        TechnicalBulletin* tb = DlgTB::newDlgTB(this, clipboard->mimeData()->data("text/plain"));
+        if (tb != nullptr) {
+            this->Modified = true;
+            addTB(tb, PERFORM_ADD_CHECKS);
+        }
     }
 }
 

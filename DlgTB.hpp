@@ -52,7 +52,7 @@ class DlgTB : public QDialog
 
     DlgTB(QWidget* parent, QString title);
     DlgTB(QWidget* parent, QString title, TechnicalBulletin* tb);
-    ~DlgTB();
+    ~DlgTB() override;
     void accept() override;
 
     // Drag & drop stuff
