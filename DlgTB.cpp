@@ -49,9 +49,11 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
     connect(ui->ButtonWebPage, &QPushButton::clicked, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(ui->EditNumber->text()));
+        ui->EditKeywords->setFocus();
     });
     connect(ui->ButtonDownloadRM, &QPushButton::clicked, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(ui->EditTechPub->text()));
+        ui->EditKeywords->setFocus();        
     });
 
     // Enable/disable buttons
