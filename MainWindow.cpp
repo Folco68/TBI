@@ -475,6 +475,9 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
         }
     }
 
+    // Disable table sorting to prevent a null ptr dereferencing
+    ui->TableTB->setSortingEnabled(false);
+
     // Update table size
     int rowcount = ui->TableTB->rowCount();
     ui->TableTB->setRowCount(rowcount + 1);
@@ -486,6 +489,9 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
 
     // Display new TB in the new line
     updateTB(tb, rowcount);
+
+    // Re-enable table sorting
+    ui->TableTB->setSortingEnabled(true);
 }
 
 //  updateTB
