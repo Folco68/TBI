@@ -11,6 +11,6 @@
 + MainWindow::addTB: read TB* only once
 + Make error messages more explicit in MainWindow::addTB
 + accept paste AND drop events in MainWindow, to import a new TB
-- automatically update obsolete TB
 + set focus on the Keyword field in the new TB dialog after a link is opened
-- when adding a TB, put focus on it and make it visible
+- automatically update obsolete TB (how? To be designed)
++ when adding a TB, put focus on it and make it visible

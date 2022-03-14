@@ -375,7 +375,7 @@ void MainWindow::search(bool ForceNewSearch)
                 tbkeywords << tb->comment().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
 
-            // Default: current row must be hidden
+            // Default: current row must be shown
             bool hidden = false;
 
             // Only exact matches are allowed
@@ -487,11 +487,16 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
         ui->TableTB->setItem(rowcount, i, new QTableWidgetItem);
     }
 
+    // Save an item ptr to make the last entry become the current one
+    QTableWidgetItem* item = ui->TableTB->item(rowcount, 0);
+
     // Display new TB in the new line
     updateTB(tb, rowcount);
 
-    // Re-enable table sorting
+    // Re-enable table sorting, and set the TB as the current one
     ui->TableTB->setSortingEnabled(true);
+    ui->TableTB->setCurrentItem(item);
+    ui->TableTB->scrollToItem(item);
 }
 
 //  updateTB
