@@ -33,9 +33,6 @@
 
 #define DLGSETTINGS_WINDOW_WIDTH 800
 
-// min macro
-#define min(a, b) (a < b ? a : b)
-
 // Keyword separator in UI
 #define KEYWORD_SEPARATOR " "
 
@@ -49,5 +46,8 @@
 // Data filename
 #define TBI_BACKUP_FILENAME "index.bak"
 #define TBI_FILENAME "index.tbi"
+
+// Screenshot file extension
+#define SCREENSHOT_EXTENSION ".png"
 
 #endif // GLOBAL_HPP

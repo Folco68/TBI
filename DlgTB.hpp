@@ -59,6 +59,12 @@ class DlgTB : public QDialog
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
 
+    // Menus actions
+    void copyScreenshot();
+    void saveToFile();
+    void copyFormattedData();
+    void copyRAWData();
+
     // Misc
     void fillUI(TechnicalBulletin* tb);
     void fillTB(TechnicalBulletin* tb);

@@ -23,9 +23,16 @@
 #include "Global.hpp"
 #include "Settings.hpp"
 #include "ui_DlgTB.h"
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <QDesktopServices>
+#include <QDir>
+#include <QFileDialog>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QPixmap>
 #include <QPushButton>
 #include <QStringList>
 
@@ -44,6 +51,18 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     ui->EditReleaseDate->setDate(QDate::currentDate());
     ui->ComboCategory->addItems(Settings::instance()->categories());
 
+    // Create the Screen menu
+    QMenu* ScreenMenu             = new QMenu(this);
+    QAction* ActionCopyScreenshot = ScreenMenu->addAction("Copy to clipboard");
+    QAction* ActionSaveToFile     = ScreenMenu->addAction("Save to file");
+    ui->ButtonScreen->setMenu(ScreenMenu);
+
+    // Create the Copy menu
+    QMenu* CopyMenu                  = new QMenu(this);
+    QAction* ActionCopyRawData       = CopyMenu->addAction("RAW data");
+    QAction* ActionCopyFormattedData = CopyMenu->addAction("Formatted data");
+    ui->ButtonCopy->setMenu(CopyMenu);
+
     // Connections
     connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
@@ -53,8 +72,14 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     });
     connect(ui->ButtonDownloadRM, &QPushButton::clicked, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(ui->EditTechPub->text()));
-        ui->EditKeywords->setFocus();        
+        ui->EditKeywords->setFocus();
     });
+
+    // Menus actions
+    connect(ActionCopyScreenshot, &QAction::triggered, [this]() { copyScreenshot(); });
+    connect(ActionSaveToFile, &QAction::triggered, [this]() { saveToFile(); });
+    connect(ActionCopyRawData, &QAction::triggered, [this]() { copyRAWData(); });
+    connect(ActionCopyFormattedData, &QAction::triggered, [this]() { copyFormattedData(); });
 
     // Enable/disable buttons
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
@@ -209,4 +234,47 @@ void DlgTB::dropEvent(QDropEvent* event)
     TechnicalBulletin* tb = new TechnicalBulletin(event->mimeData()->data("text/plain"));
     fillUI(tb);
     delete tb;
+}
+
+void DlgTB::copyScreenshot()
+{
+    QPixmap screenshot = this->grab();
+    QApplication::clipboard()->setPixmap(screenshot);
+}
+
+void DlgTB::saveToFile()
+{
+    // Build filename:
+    // - get title
+    // - split it and set to upper case every first char
+    // - join
+    QString Filename  = ui->EditTitle->text();
+    QStringList Words = Filename.split(' ', Qt::SkipEmptyParts);
+    Filename          = QDir::homePath() + '/';
+
+    for (int i = 0; i < Words.count(); i++) {
+        QString Word = Words.at(i);
+        Filename += Word.at(0).toUpper() + Word.mid(1);
+    }
+    Filename += SCREENSHOT_EXTENSION;
+
+    // Prompt to save the file
+    Filename = QFileDialog::getSaveFileName(this, tr("Select the destination file"), Filename, tr("Images (*.png)"));
+    if (Filename.isEmpty()) {
+        return;
+    }
+
+    // Perform the screenshot and try to save it
+    QPixmap screen = this->grab();
+    if (!screen.save(Filename)) {
+        QMessageBox::critical(this, WINDOW_TITLE, tr("Can't save the screenshot"));
+    }
+}
+
+void DlgTB::copyFormattedData()
+{
+}
+
+void DlgTB::copyRAWData()
+{
 }

@@ -244,6 +244,20 @@
    <item>
     <layout class="QHBoxLayout" name="HLayoutButtons">
      <item>
+      <widget class="QPushButton" name="ButtonScreen">
+       <property name="text">
+        <string>Screen...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonCopy">
+       <property name="text">
+        <string>Copy..</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="HSpacerButtons">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
