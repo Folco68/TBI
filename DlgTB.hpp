@@ -62,8 +62,10 @@ class DlgTB : public QDialog
     // Menus actions
     void copyScreenshot();
     void saveToFile();
-    void copyFormattedData();
-    void copyRAWData();
+    void copyHeader();
+    void copyAll();
+
+    QString getHeader();
 
     // Misc
     void fillUI(TechnicalBulletin* tb);

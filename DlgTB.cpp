@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPixmap>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QStringList>
 
@@ -58,9 +59,9 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     ui->ButtonScreen->setMenu(ScreenMenu);
 
     // Create the Copy menu
-    QMenu* CopyMenu                  = new QMenu(this);
-    QAction* ActionCopyRawData       = CopyMenu->addAction("RAW data");
-    QAction* ActionCopyFormattedData = CopyMenu->addAction("Formatted data");
+    QMenu* CopyMenu           = new QMenu(this);
+    QAction* ActionCopyHeader = CopyMenu->addAction("Header");
+    QAction* ActionCopyAll    = CopyMenu->addAction("All");
     ui->ButtonCopy->setMenu(CopyMenu);
 
     // Connections
@@ -78,8 +79,8 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     // Menus actions
     connect(ActionCopyScreenshot, &QAction::triggered, [this]() { copyScreenshot(); });
     connect(ActionSaveToFile, &QAction::triggered, [this]() { saveToFile(); });
-    connect(ActionCopyRawData, &QAction::triggered, [this]() { copyRAWData(); });
-    connect(ActionCopyFormattedData, &QAction::triggered, [this]() { copyFormattedData(); });
+    connect(ActionCopyHeader, &QAction::triggered, [this]() { copyHeader(); });
+    connect(ActionCopyAll, &QAction::triggered, [this]() { copyAll(); });
 
     // Enable/disable buttons
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
@@ -238,8 +239,8 @@ void DlgTB::dropEvent(QDropEvent* event)
 
 void DlgTB::copyScreenshot()
 {
-    QPixmap screenshot = this->grab();
-    QApplication::clipboard()->setPixmap(screenshot);
+        QPixmap screenshot = this->grab();
+        QApplication::clipboard()->setPixmap(screenshot);
 }
 
 void DlgTB::saveToFile()
@@ -271,10 +272,40 @@ void DlgTB::saveToFile()
     }
 }
 
-void DlgTB::copyFormattedData()
+void DlgTB::copyHeader()
 {
+    QString Data = getHeader();
+    QApplication::clipboard()->setText(Data);
+}
+    
+void DlgTB::copyAll()
+{
+    QString Data = getHeader() + '\n';
+    Data.append("Notes: %1");
+    Data = Data.arg(ui->TexteditComment->toPlainText());
+    QApplication::clipboard()->setText(Data);
 }
 
-void DlgTB::copyRAWData()
+QString DlgTB::getHeader()
 {
+    QString Data;
+    Data.append("Bulletin No: %1\n")
+        .append("Title: %2\n")
+        .append("TB Category: %3\n")
+        .append("Rebuilding Kit: %4\n")
+        .append("Technical Publication: %5\n")
+        .append("Release date: %6\n")
+        .append("Registered by: %7\n")
+        .append("Replaces: %8\n")
+        .append("Replaced by: %9");
+
+    return Data.arg(ui->EditNumber->text(),
+                    ui->EditTitle->text(),
+                    ui->ComboCategory->currentText(),
+                    ui->EditRK->text(),
+                    ui->EditTechPub->text(),
+                    ui->EditReleaseDate->text(),
+                    ui->EditRegisteredBy->text(),
+                    ui->EditReplaces->text(),
+                    ui->EditReplacedBy->text());
 }
