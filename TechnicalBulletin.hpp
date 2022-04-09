@@ -74,7 +74,7 @@ class TechnicalBulletin
 
     QString keywordsString() const;
 
-    void setKeywords(QList<QString> keywords) { this->keywords() = keywords; }
+    void setKeywords(QList<QString> keywords) { this->Keywords = keywords; }
 
   private:
     QString Number;

@@ -1,1 +1,1 @@
-- the "merge keywords" option doesn't seems to work when updating a TB. Old keywords looks lost
+- FIXED: the "merge keywords" option doesn't seems to work when updating a TB. Old keywords looks lost
