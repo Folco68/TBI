@@ -233,7 +233,7 @@
       </widget>
      </item>
      <item row="6" column="1" colspan="3">
-      <widget class="QLineEdit" name="EditKeywords">
+      <widget class="LineEditNoFocus" name="EditKeywords">
        <property name="acceptDrops">
         <bool>false</bool>
        </property>
@@ -324,6 +324,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEditNoFocus</class>
+   <extends>QLineEdit</extends>
+   <header>LineEditNoFocus.hpp</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>EditNumber</tabstop>
   <tabstop>EditTitle</tabstop>

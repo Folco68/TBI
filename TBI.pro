@@ -13,6 +13,7 @@ SOURCES += \
     DlgHelp.cpp \
     DlgSettings.cpp \
     DlgTB.cpp \
+    LineEditNoFocus.cpp \
     Settings.cpp \
     TechnicalBulletin.cpp \
     main.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
     DlgSettings.hpp \
     DlgTB.hpp \
     Global.hpp \
+    LineEditNoFocus.hpp \
     MainWindow.hpp \
     Settings.hpp \
     TechnicalBulletin.hpp
@@ -40,4 +42,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    BUGS.txt \
     TODO.txt
