@@ -1,1 +1,2 @@
-- FIXED: the "merge keywords" option doesn't seems to work when updating a TB. Old keywords looks lost
+- FIXED: the "merge keywords" option doesn't seem to work when updating a TB. Old keywords looks lost
+- FIXED: Cursor is not visible in the Keywords field when editing a TB

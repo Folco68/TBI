@@ -6,7 +6,7 @@
 
 //  LineEditNoFocus
 //
-// This class prevent the QLineEdit widget to have its text selected when it get focused
+// This class prevent the QLineEdit widget to have its text selected when it gets focused
 // I don't know why the text is selected when compiling with MSVS, not with MinGW
 //
 class LineEditNoFocus : public QLineEdit

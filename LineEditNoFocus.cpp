@@ -11,6 +11,6 @@ LineEditNoFocus::~LineEditNoFocus()
 
 void LineEditNoFocus::focusInEvent(QFocusEvent* event)
 {
-    QWidget::focusInEvent(event);
+    QLineEdit::focusInEvent(event);
     deselect();
 }
