@@ -20,9 +20,9 @@
  */
 
 #include "MainWindow.hpp"
-#include "DlgHelp.hpp"
-#include "DlgSettings.hpp"
-#include "DlgTB.hpp"
+#include "Dialog/DlgHelp.hpp"
+#include "Dialog/DlgSettings.hpp"
+#include "Dialog/DlgTB.hpp"
 #include "Global.hpp"
 #include "Settings.hpp"
 #include "TechnicalBulletin.hpp"
