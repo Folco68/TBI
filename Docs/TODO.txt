@@ -12,7 +12,9 @@
 + Make error messages more explicit in MainWindow::addTB
 + accept paste AND drop events in MainWindow, to import a new TB
 + set focus on the Keyword field in the new TB dialog after a link is opened
-- automatically update obsolete TB (how? To be designed)
 + when adding a TB, put focus on it and make it visible
 + add a "Copy infos to clipboard" button in the TB edition dialog
 + deselect keywords when opening a TB (because it's selected when compiling with MSVS)
++ fixed typo in About dialog
++ added a title to the About dialog
+- automatically update obsolete TB (how? To be designed)

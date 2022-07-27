@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>About TBI</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -78,7 +78,7 @@ When adding a new TB, fill the keywords field with your own words: this field is
 
 Notes:
 - the index file (index.tbi) is saved in the program current directory.
-- run the program with the --check-database to force DB check at startup
+- run the program with --check-database to force DB check at startup
 </string>
          </property>
         </widget>
