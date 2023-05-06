@@ -41,7 +41,7 @@
 //
 // New TB from scratch
 //
-DlgTB::DlgTB(QWidget* parent, QString title)
+DlgTB::DlgTB(MainWindow* parent, QString title)
     : QDialog(parent)
     , ui(new Ui::DlgTB)
 {
@@ -86,18 +86,23 @@ DlgTB::DlgTB(QWidget* parent, QString title)
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
     connect(ui->EditTechPub, &QLineEdit::textChanged, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
 
+    // Default: don't display the warning about an existing older TB
+    ui->LabelReplaceExistent->setVisible(false);
+
     // Set the edit keyword field as the current one
     ui->EditKeywords->setFocus();
+
 }
 
 //  DlgTB
 //
 // New TB from drop, or TB edition
 //
-DlgTB::DlgTB(QWidget* parent, QString title, TechnicalBulletin* tb)
+DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
     : DlgTB(parent, title)
 {
     fillUI(tb);
+    ui->LabelReplaceExistent->setVisible(parent->replaceExistent(tb));
 }
 
 DlgTB::~DlgTB()
@@ -161,7 +166,7 @@ void DlgTB::fillTB(TechnicalBulletin* tb)
 //
 // New TB from scratch
 //
-TechnicalBulletin* DlgTB::newDlgTB(QWidget* parent)
+TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
 {
     TechnicalBulletin* tb = nullptr;
 
@@ -180,11 +185,11 @@ TechnicalBulletin* DlgTB::newDlgTB(QWidget* parent)
 //
 // New TB from drop
 //
-TechnicalBulletin* DlgTB::newDlgTB(QWidget* parent, QByteArray data)
+TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
 {
     TechnicalBulletin* tb = new TechnicalBulletin(data);
 
-    // Create and exec dialog. Update TB if dialog was accepted, else destroy it
+    // Create and exec the dialog. Update TB if the dialog was accepted, else destroy it
     DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), tb->number()), tb);
     if (dlg->exec() == QDialog::Accepted) {
         dlg->fillTB(tb);
@@ -202,7 +207,7 @@ TechnicalBulletin* DlgTB::newDlgTB(QWidget* parent, QByteArray data)
 //
 // Existing TB edition
 //
-bool DlgTB::editDlgTB(QWidget* parent, TechnicalBulletin* tb)
+bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
 {
     bool ret = false;
 
@@ -277,7 +282,7 @@ void DlgTB::copyHeader()
     QString Data = getHeader();
     QApplication::clipboard()->setText(Data);
 }
-    
+
 void DlgTB::copyAll()
 {
     QString Data = getHeader() + '\n';

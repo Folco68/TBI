@@ -44,6 +44,7 @@ class MainWindow : public QMainWindow
   public:
     MainWindow(bool ForceDBCheck);
     ~MainWindow() override;
+    bool replaceExistent(TechnicalBulletin* tb);
 
   private:
     Ui::MainWindow* ui;

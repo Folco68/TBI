@@ -242,6 +242,28 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="LabelReplaceExistent">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 0, 0);</string>
+     </property>
+     <property name="text">
+      <string>The database contains an older version of this Technical Bulletin</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="HLayoutButtons">
      <item>
       <widget class="QPushButton" name="ButtonScreen">

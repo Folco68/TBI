@@ -22,6 +22,7 @@
 #ifndef DLGTB_HPP
 #define DLGTB_HPP
 
+#include "MainWindow.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QByteArray>
 #include <QDialog>
@@ -43,15 +44,15 @@ class DlgTB : public QDialog
     Q_OBJECT
 
   public:
-    static TechnicalBulletin* newDlgTB(QWidget* parent);                  // New TB, created by hand
-    static TechnicalBulletin* newDlgTB(QWidget* parent, QByteArray data); // New TB, created by drag'n drop
-    static bool editDlgTB(QWidget* parent, TechnicalBulletin* tb);        // Existing TB edition
+    static TechnicalBulletin* newDlgTB(MainWindow* parent);                     // New TB, created by hand
+    static TechnicalBulletin* newDlgTB(MainWindow* parent, QByteArray data); // New TB, created by drag'n drop
+    static bool editDlgTB(MainWindow* parent, TechnicalBulletin* tb);           // Existing TB edition
 
   private:
     Ui::DlgTB* ui;
 
-    DlgTB(QWidget* parent, QString title);
-    DlgTB(QWidget* parent, QString title, TechnicalBulletin* tb);
+    DlgTB(MainWindow* parent, QString title);
+    DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb);
     ~DlgTB() override;
     void accept() override;
 

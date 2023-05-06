@@ -18,3 +18,4 @@
 + fixed typo in About dialog
 + added a title to the About dialog
 - automatically update obsolete TB (how? To be designed)
+- when dropping a TB, indicate if there is already a previous version in the DB

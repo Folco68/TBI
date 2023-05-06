@@ -562,6 +562,23 @@ void MainWindow::paste()
     }
 }
 
+//  replaceExistent
+//
+// Return true if an older TB exits in the database
+//
+bool MainWindow::replaceExistent(TechnicalBulletin* tb)
+{
+    QString CurrentNumber = tb->replaces();
+    if (!CurrentNumber.isNull()) {
+        for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+            if (CurrentNumber == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //  closeEvent
 //
 // Prevent the program from closing with modified data
