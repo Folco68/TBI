@@ -86,14 +86,16 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // TB table context menu
     ui->TableTB->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->TableTB, &QWidget::customContextMenuRequested, [this]() { this->TableContextMenu->exec(QCursor::pos()); });
-    connect(this->ActionNewTB, &QAction::triggered, [this]() { newTB(); });
-    connect(this->ActionEditTB, &QAction::triggered, [this]() { editTB(); });
-    connect(this->ActionDeleteTB, &QAction::triggered, [this]() { deleteTB(); });
-    connect(this->ActionCopyUrl, &QAction::triggered, [this]() { copyURLToClipboard(); });
-    connect(this->ActionOpenUrl, &QAction::triggered, [this]() { openURL(); });
-    connect(this->ActionDownloadRM, &QAction::triggered, [this]() { downloadRM(); });
-    connect(this->ActionSettings, &QAction::triggered, [this]() {
+    connect(ui->TableTB, &QWidget::customContextMenuRequested, this, [this]() {
+        this->TableContextMenu->exec(QCursor::pos());
+    });
+    connect(this->ActionNewTB, &QAction::triggered, this, [this]() { newTB(); });
+    connect(this->ActionEditTB, &QAction::triggered, this, [this]() { editTB(); });
+    connect(this->ActionDeleteTB, &QAction::triggered, this, [this]() { deleteTB(); });
+    connect(this->ActionCopyUrl, &QAction::triggered, this, [this]() { copyURLToClipboard(); });
+    connect(this->ActionOpenUrl, &QAction::triggered, this, [this]() { openURL(); });
+    connect(this->ActionDownloadRM, &QAction::triggered, this, [this]() { downloadRM(); });
+    connect(this->ActionSettings, &QAction::triggered, this, [this]() {
         if (DlgSettings::showDlgSettings()) {
             search(FORCE_SEARCH);
         }
@@ -103,7 +105,8 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // Add actions to the context menu and to the main window to allow kbd shortcuts
     QList<QAction*> actions;
-    actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionDownloadRM
+    actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB
+            << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionDownloadRM
             << this->ActionSettings << this->ActionHelp;
     this->TableContextMenu->addActions(actions);
     this->TableContextMenu->insertSeparator(this->ActionCopyUrl);
@@ -111,34 +114,40 @@ MainWindow::MainWindow(bool ForceDBCheck)
     this->addActions(actions);
 
     // Paste shortcut
-    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this), &QShortcut::activated, [this]() { paste(); });
+    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this),
+            &QShortcut::activated,
+            this,
+            [this]() { paste(); });
 
     // Save shortcut
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, [this]() {
-        if (this->Modified)
-            save();
-    });
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this),
+            &QShortcut::activated,
+            this,
+            [this]() {
+                if (this->Modified)
+                    save();
+            });
 
     // Buttons connections
-    connect(ui->ButtonSave, &QPushButton::clicked, [this]() { save(); });
-    connect(ui->ButtonSearch, &QPushButton::clicked, [this]() { search(); });
+    connect(ui->ButtonSave, &QPushButton::clicked, this, [this]() { save(); });
+    connect(ui->ButtonSearch, &QPushButton::clicked, this, [this]() { search(); });
 
     // Search connection
-    connect(ui->EditKeywords, &QLineEdit::returnPressed, [this]() { search(); });
-    connect(ui->EditKeywords, &QLineEdit::textChanged, [this]() {
+    connect(ui->EditKeywords, &QLineEdit::returnPressed, this, [this]() { search(); });
+    connect(ui->EditKeywords, &QLineEdit::textChanged, this, [this]() {
         if (ui->EditKeywords->text().isEmpty() || Settings::instance()->realTimeSearchEnabled())
             search();
     });
 
     // Table connections
-    connect(ui->TableTB, &QTableWidget::itemSelectionChanged, [this]() { updateUI(); });
-    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, [this]() { editTB(); });
+    connect(ui->TableTB, &QTableWidget::itemSelectionChanged, this, [this]() { updateUI(); });
+    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, this, [this]() { editTB(); });
 
     // Open TBI if one exists
     QFile file(TBI_FILENAME);
     if (file.open(QIODevice::ReadOnly)) {
         QDataStream stream(&file);
-        int         count;
+        int count;
         stream >> count;
         for (int i = 0; i < count; i++) {
             // Read a TB and add it to UI
@@ -148,7 +157,9 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
             // Check stream status
             if (stream.status() != QDataStream::Ok) {
-                QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
+                QMessageBox::critical(this,
+                                      WINDOW_TITLE,
+                                      tr("Unable to read file %1").arg(TBI_FILENAME));
                 break;
             }
         }
@@ -197,10 +208,12 @@ void MainWindow::updateUI()
     ui->ButtonSearch->setVisible(!Settings::instance()->realTimeSearchEnabled());
 
     // Status bar
-    int count      = ui->TableTB->rowCount();
+    int count = ui->TableTB->rowCount();
     QString plural = count > 1 ? "s" : "";
-    this->MessageTBCount->setText(tr("%1 Technical Bulletin%2 registered   ").arg(count).arg(plural));
-    this->MessagePendingModifications->setText(this->Modified ? tr("Modifications have to be saved") : tr("Index is saved"));
+    this->MessageTBCount->setText(
+        tr("%1 Technical Bulletin%2 registered   ").arg(count).arg(plural));
+    this->MessagePendingModifications->setText(this->Modified ? tr("Modifications have to be saved")
+                                                              : tr("Index is saved"));
 
     // Adjust columns size
     for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
@@ -225,7 +238,10 @@ void MainWindow::save()
     // Remove current backup because File::rename() won't overwrite backup file
     QFile::remove(TBI_BACKUP_FILENAME);
     if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
-        if (QMessageBox::question(this, WINDOW_TITLE, tr("Couldn't create database backup. Save anyway?")) == QMessageBox::No) {
+        if (QMessageBox::question(this,
+                                  WINDOW_TITLE,
+                                  tr("Couldn't create database backup. Save anyway?"))
+            == QMessageBox::No) {
             return;
         }
     }
@@ -242,12 +258,15 @@ void MainWindow::save()
     stream << ui->TableTB->rowCount();
     for (int i = 0; i < ui->TableTB->rowCount(); i++) {
         // Get TB ptr
-        TechnicalBulletin* tb = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+        TechnicalBulletin* tb
+            = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
         stream << *tb;
 
         // Check stream status
         if (stream.status() != QDataStream::Ok) {
-            QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to save file %1").arg(TBI_FILENAME));
+            QMessageBox::critical(this,
+                                  WINDOW_TITLE,
+                                  tr("Failed to save file %1").arg(TBI_FILENAME));
             return;
         }
     }
@@ -276,8 +295,9 @@ void MainWindow::editTB()
 {
     // Get current TB
     QList<QTableWidgetItem*> items = ui->TableTB->selectedItems();
-    int row                        = items.at(0)->row();
-    TechnicalBulletin* tb          = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    int row = items.at(0)->row();
+    TechnicalBulletin* tb
+        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
 
     // Open edition dialog
     if (DlgTB::editDlgTB(this, tb)) {
@@ -294,12 +314,15 @@ void MainWindow::deleteTB()
 {
     // Get current TB
     QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
-    int row                            = selection.at(0)->row();
-    TechnicalBulletin* tb              = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    int row = selection.at(0)->row();
+    TechnicalBulletin* tb
+        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
 
     // Show a confirmation dialog
-    QMessageBox::StandardButton answer
-        = QMessageBox::question(this, WINDOW_TITLE, tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(tb->number(), tb->title()));
+    QMessageBox::StandardButton answer = QMessageBox::question(
+        this,
+        WINDOW_TITLE,
+        tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(tb->number(), tb->title()));
     if (answer == QMessageBox::Yes) {
         delete tb;
         ui->TableTB->removeRow(row);
@@ -336,11 +359,11 @@ void MainWindow::search(bool ForceNewSearch)
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
             ui->TableTB->setRowHidden(i, false);
         }
-    }
-    else {
+    } else {
         // Else filter TBs with keywords
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-            TechnicalBulletin* tb  = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+            TechnicalBulletin* tb
+                = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
             QStringList tbkeywords = tb->keywords();
 
             // Add some fields to the keyword list, depending on global configuration
@@ -360,7 +383,8 @@ void MainWindow::search(bool ForceNewSearch)
                 tbkeywords << tb->techpub().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchReleaseDateEnabled()) {
-                tbkeywords << tb->releaseDate().toString().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
+                tbkeywords << tb->releaseDate().toString().split(KEYWORD_SEPARATOR,
+                                                                 Qt::SkipEmptyParts);
             }
             if (Settings::instance()->searchRegisteredByEnabled()) {
                 tbkeywords << tb->registeredBy().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts);
@@ -415,12 +439,16 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
 {
     if (PerformAddChecks) {
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-            TechnicalBulletin* CurrentTB = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+            TechnicalBulletin* CurrentTB
+                = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
 
             // Check that the TB doesn't exist yet
             // Don't allow to add twice the same TB
             if (tb->number() == CurrentTB->number()) {
-                QMessageBox::critical(this, tr("Error"), tr("TB %1 already exists in the database").arg(tb->title()), QMessageBox::Ok);
+                QMessageBox::critical(this,
+                                      tr("Error"),
+                                      tr("TB %1 already exists in the database").arg(tb->title()),
+                                      QMessageBox::Ok);
                 return;
             }
 
@@ -428,7 +456,11 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
             // Don't allow to add an old TB
             QString ReplacedBy = tb->replacedBy();
             if ((!ReplacedBy.isNull()) && (ReplacedBy == CurrentTB->number())) {
-                QMessageBox::critical(this, tr("Error"), tr("A new version of TB %1 already exists in the database").arg(CurrentTB->title()), QMessageBox::Ok);
+                QMessageBox::critical(this,
+                                      tr("Error"),
+                                      tr("A new version of TB %1 already exists in the database")
+                                          .arg(CurrentTB->title()),
+                                      QMessageBox::Ok);
                 return;
             }
 
@@ -436,12 +468,15 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
             // Don't allow to keep old TB
             // Offer to merge keywords
             if (tb->replaces() == CurrentTB->number()) {
-                QMessageBox* MessageBox = new QMessageBox(QMessageBox::Question,
-                                                          tr("Replace previous TB"),
-                                                          tr("An older version of TB %1 is present. Do you want to update it?").arg(CurrentTB->title()));
+                QMessageBox* MessageBox = new QMessageBox(
+                    QMessageBox::Question,
+                    tr("Replace previous TB"),
+                    tr("An older version of TB %1 is present. Do you want to update it?")
+                        .arg(CurrentTB->title()));
                 MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
-                QPushButton* ButtonMerge  = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
+                QPushButton* ButtonMerge = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
                 QPushButton* ButtonCancel = MessageBox->addButton(tr("Cancel"), QMessageBox::RejectRole);
+                MessageBox->setDefaultButton(ButtonMerge);
 
                 MessageBox->exec();
                 QAbstractButton* ClickedButton = MessageBox->clickedButton();
@@ -571,7 +606,11 @@ bool MainWindow::replaceExistent(TechnicalBulletin* tb)
     QString CurrentNumber = tb->replaces();
     if (!CurrentNumber.isNull()) {
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-            if (CurrentNumber == ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>()->number()) {
+            if (CurrentNumber
+                == ui->TableTB->item(i, COLUMN_METADATA)
+                       ->data(TB_ROLE)
+                       .value<TechnicalBulletin*>()
+                       ->number()) {
                 return true;
             }
         }
@@ -586,8 +625,11 @@ bool MainWindow::replaceExistent(TechnicalBulletin* tb)
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (this->Modified) {
-        QMessageBox::StandardButtons answer = QMessageBox::question(
-            this, WINDOW_TITLE, tr("Do you want to save changes before exiting?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        QMessageBox::StandardButtons answer
+            = QMessageBox::question(this,
+                                    WINDOW_TITLE,
+                                    tr("Do you want to save changes before exiting?"),
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
         // User wants to save index
         if (answer == QMessageBox::Yes) {
             save();
@@ -608,23 +650,29 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::copyURLToClipboard()
 {
     QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
-    int row                            = selection.at(0)->row();
-    TechnicalBulletin* tb              = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QGuiApplication::clipboard()->setText(Settings::instance()->baseURLTechnicalPublication().arg(tb->number()));
+    int row = selection.at(0)->row();
+    TechnicalBulletin* tb
+        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    QGuiApplication::clipboard()->setText(
+        Settings::instance()->baseURLTechnicalPublication().arg(tb->number()));
 }
 
 void MainWindow::openURL()
 {
     QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
-    int row                            = selection.at(0)->row();
-    TechnicalBulletin* tb              = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(tb->number()));
+    int row = selection.at(0)->row();
+    TechnicalBulletin* tb
+        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    QDesktopServices::openUrl(
+        QString(Settings::instance()->baseURLTechnicalPublication()).arg(tb->number()));
 }
 
 void MainWindow::downloadRM()
 {
     QList<QTableWidgetItem*> selection = ui->TableTB->selectedItems();
-    int row                            = selection.at(0)->row();
-    TechnicalBulletin* tb              = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(tb->techpub()));
+    int row = selection.at(0)->row();
+    TechnicalBulletin* tb
+        = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    QDesktopServices::openUrl(
+        QString(Settings::instance()->baseURLRebuildingManual()).arg(tb->techpub()));
 }

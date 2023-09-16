@@ -18,4 +18,7 @@
 + fixed typo in About dialog
 + added a title to the About dialog
 - automatically update obsolete TB (how? To be designed)
-- when dropping a TB, indicate if there is already a previous version in the DB
++ when dropping a TB, indicate if there is already a previous version in the DB
++ set "Update old TB and merge keywords" as the default button of the Replace Previous TB dialog
+- add a version number to the db file
+- document the version formats

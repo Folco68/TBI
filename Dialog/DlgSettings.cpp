@@ -25,22 +25,22 @@
 #include "ui_DlgSettings.h"
 #include <QPushButton>
 
-DlgSettings::DlgSettings(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::DlgSettings)
+DlgSettings::DlgSettings(QWidget* parent)
+    : QDialog(parent)
+    , ui(new Ui::DlgSettings)
 {
     ui->setupUi(this);
     setMinimumWidth(DLGSETTINGS_WINDOW_WIDTH);
 
     // Connections
-    connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
-    connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
-    connect(ui->ButtonClearCategories, &QPushButton::clicked, []() { Settings::instance()->resetCategories(); });
-    connect(ui->ButtonResetRK, &QPushButton::clicked, [this]() {
+    connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
+    connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
+    connect(ui->ButtonClearCategories, &QPushButton::clicked, this, [this]() { Settings::instance()->resetCategories(); });
+    connect(ui->ButtonResetRK, &QPushButton::clicked, this, [this]() {
         Settings::instance()->resetBaseURLTechnicalPublications();
         ui->EditRK->setText(Settings::instance()->baseURLTechnicalPublication());
     });
-    connect(ui->ButtonResetRM, &QPushButton::clicked, [this]() {
+    connect(ui->ButtonResetRM, &QPushButton::clicked, this, [this]() {
         Settings::instance()->resetBaseURLRebuildingManual();
         ui->EditRM->setText(Settings::instance()->baseURLRebuildingManual());
     });
@@ -70,21 +70,21 @@ DlgSettings::~DlgSettings()
 bool DlgSettings::showDlgSettings(QWidget* parent)
 {
     bool SearchChanged = false;
-    DlgSettings* dlg   = new DlgSettings(parent);
+    DlgSettings* dlg = new DlgSettings(parent);
 
     // Save initial search state
-    bool OrgNumber         = dlg->ui->CheckSearchNumber->isChecked();
-    bool OrgTitle          = dlg->ui->CheckSearchTitle->isChecked();
-    bool OrgCaterogy       = dlg->ui->CheckSearchCategory->isChecked();
-    bool OrgRK             = dlg->ui->CheckSearchRK->isChecked();
-    bool OrgTechPub        = dlg->ui->CheckSearchTechPub->isChecked();
-    bool OrgReleaseDate    = dlg->ui->CheckSearchReleaseDate->isChecked();
-    bool OrgRegisteredBy   = dlg->ui->CheckSearchRegisteredBy->isChecked();
-    bool OrgReplaces       = dlg->ui->CheckSearchReplaces->isChecked();
-    bool OrgReplacedBy     = dlg->ui->CheckSearchReplacedBy->isChecked();
+    bool OrgNumber = dlg->ui->CheckSearchNumber->isChecked();
+    bool OrgTitle = dlg->ui->CheckSearchTitle->isChecked();
+    bool OrgCaterogy = dlg->ui->CheckSearchCategory->isChecked();
+    bool OrgRK = dlg->ui->CheckSearchRK->isChecked();
+    bool OrgTechPub = dlg->ui->CheckSearchTechPub->isChecked();
+    bool OrgReleaseDate = dlg->ui->CheckSearchReleaseDate->isChecked();
+    bool OrgRegisteredBy = dlg->ui->CheckSearchRegisteredBy->isChecked();
+    bool OrgReplaces = dlg->ui->CheckSearchReplaces->isChecked();
+    bool OrgReplacedBy = dlg->ui->CheckSearchReplacedBy->isChecked();
     bool OrgWholeWordsOnly = dlg->ui->CheckWholeWordsOnly->isChecked();
     bool OrgRealTimeSearch = dlg->ui->CheckRTSearch->isChecked();
-    bool OrgNotes          = dlg->ui->CheckSearchNotes->isChecked();
+    bool OrgNotes = dlg->ui->CheckSearchNotes->isChecked();
 
     if (dlg->exec() == QDialog::Accepted) {
         Settings::instance()->setBaseURLRebuildingManual(dlg->ui->EditRM->text());

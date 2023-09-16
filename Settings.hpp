@@ -129,8 +129,7 @@ class Settings : public QSettings
 
     Settings(QString organization, QString application)
         : QSettings(organization, application)
-    {
-    }
+    {}
 };
 
 #endif // SETTINGS_HPP

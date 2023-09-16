@@ -350,7 +350,7 @@
   <customwidget>
    <class>LineEditNoFocus</class>
    <extends>QLineEdit</extends>
-   <header>LineEditNoFocus.hpp</header>
+   <header>Dialog\LineEditNoFocus.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>

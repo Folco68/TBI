@@ -27,7 +27,8 @@
 //  TechnicalBulletin
 //
 // Create a TB using dropped data
-// This constructor is designed to handle standard mails sent via the subscription list
+// This constructor is designed to handle standard mails sent via the
+// subscription list
 //
 TechnicalBulletin::TechnicalBulletin(QByteArray data)
 {
@@ -50,12 +51,14 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
         if (start == -1) {
             // No label found, don't write anything in the field
             Strings << "";
-        }
-        else {
+        } else {
             // Label found
-            start = data.indexOf('\t', start) + 1;                                  // Skip the label, and find the fist byte of the data string
-            end   = std::min(data.indexOf('\t', start), data.indexOf('\n', start)); // End of data string. May terminate with a Tab or a New Line
-            Strings << data.mid(start, end - start);                                // Grab and save data
+            start = data.indexOf('\t', start) + 1; // Skip the label, and find the fist byte of the data string
+            end = std::min(data.indexOf('\t', start),
+                           data.indexOf('\n',
+                                        start));     // End of data string. May terminate
+                                                     // with a Tab or a New Line
+            Strings << data.mid(start, end - start); // Grab and save data
         }
     }
 
@@ -63,18 +66,17 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
     start = data.indexOf("Comments:");
     if (start == -1) {
         start = 0;
-        end   = 0;
-    }
-    else {
+        end = 0;
+    } else {
         start = data.indexOf('\t', start) + 1;
-        end   = data.indexOf('\t', start);
+        end = data.indexOf('\t', start);
     }
     QString Comment(data.mid(start, end - start));
 
     // Release date
     start = data.indexOf("Release date:");
     start = data.indexOf('\t', start) + 1;
-    end   = data.indexOf('\n', start);
+    end = data.indexOf('\n', start);
     QDate Date(QDate::fromString(data.mid(start, end - start), "yyyy-MM-dd"));
 
     // Keywords
@@ -111,8 +113,7 @@ TechnicalBulletin::TechnicalBulletin(QString number,
     , Replaces(replaces)
     , ReplacedBy(replacedby)
     , Keywords(keywords)
-{
-}
+{}
 
 //  setData
 //
@@ -130,17 +131,17 @@ void TechnicalBulletin::setData(QString number,
                                 QString replacedby,
                                 QList<QString> keywords)
 {
-    this->Number       = number;
-    this->Title        = title;
-    this->Category     = category;
-    this->RK           = rk;
-    this->TechPub      = techpub;
-    this->Comment      = comment;
-    this->ReleaseDate  = releasedate;
+    this->Number = number;
+    this->Title = title;
+    this->Category = category;
+    this->RK = rk;
+    this->TechPub = techpub;
+    this->Comment = comment;
+    this->ReleaseDate = releasedate;
     this->RegisteredBy = registeredby;
-    this->Replaces     = replaces;
-    this->ReplacedBy   = replacedby;
-    this->Keywords     = keywords;
+    this->Replaces = replaces;
+    this->ReplacedBy = replacedby;
+    this->Keywords = keywords;
 }
 
 //  keywordString
@@ -199,7 +200,7 @@ QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb)
 //
 QDataStream& operator<<(QDataStream& stream, const TechnicalBulletin& tb)
 {
-    stream << tb.number().toUtf8() << tb.title().toUtf8() << tb.category().toUtf8() << tb.rk().toUtf8() << tb.techpub().toUtf8() << tb.comment().toUtf8()
-           << tb.releaseDate() << tb.registeredBy().toUtf8() << tb.replaces().toUtf8() << tb.replacedBy().toUtf8() << tb.keywords();
+    stream << tb.number().toUtf8() << tb.title().toUtf8() << tb.category().toUtf8() << tb.rk().toUtf8() << tb.techpub().toUtf8() << tb.comment().toUtf8() << tb.releaseDate()
+           << tb.registeredBy().toUtf8() << tb.replaces().toUtf8() << tb.replacedBy().toUtf8() << tb.keywords();
     return stream;
 }

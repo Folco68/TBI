@@ -94,7 +94,8 @@ class TechnicalBulletin
 QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb);
 QDataStream& operator<<(QDataStream& stream, const TechnicalBulletin& tb);
 
-// A TB pointer is saved in metadata of every table line, in column COLUMN_METADATA
+// A TB pointer is saved in metadata of every table line, in column
+// COLUMN_METADATA
 Q_DECLARE_METATYPE(TechnicalBulletin*)
 
 #endif // TECHNICALBULLETIN_HPP

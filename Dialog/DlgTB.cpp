@@ -21,6 +21,7 @@
 
 #include "DlgTB.hpp"
 #include "Global.hpp"
+#include "LineEditNoFocus.hpp"
 #include "Settings.hpp"
 #include "ui_DlgTB.h"
 #include <QAction>
@@ -41,7 +42,7 @@
 //
 // New TB from scratch
 //
-DlgTB::DlgTB(MainWindow* parent, QString title)
+DlgTB::DlgTB(MainWindow *parent, QString title)
     : QDialog(parent)
     , ui(new Ui::DlgTB)
 {
@@ -53,52 +54,51 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     ui->ComboCategory->addItems(Settings::instance()->categories());
 
     // Create the Screen menu
-    QMenu* ScreenMenu             = new QMenu(this);
-    QAction* ActionCopyScreenshot = ScreenMenu->addAction("Copy to clipboard");
-    QAction* ActionSaveToFile     = ScreenMenu->addAction("Save to file");
+    QMenu *ScreenMenu = new QMenu(this);
+    QAction *ActionCopyScreenshot = ScreenMenu->addAction("Copy to clipboard");
+    QAction *ActionSaveToFile = ScreenMenu->addAction("Save to file");
     ui->ButtonScreen->setMenu(ScreenMenu);
 
     // Create the Copy menu
-    QMenu* CopyMenu           = new QMenu(this);
-    QAction* ActionCopyHeader = CopyMenu->addAction("Header");
-    QAction* ActionCopyAll    = CopyMenu->addAction("All");
+    QMenu *CopyMenu = new QMenu(this);
+    QAction *ActionCopyHeader = CopyMenu->addAction("Header");
+    QAction *ActionCopyAll = CopyMenu->addAction("All");
     ui->ButtonCopy->setMenu(CopyMenu);
 
     // Connections
-    connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
-    connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
-    connect(ui->ButtonWebPage, &QPushButton::clicked, [this]() {
+    connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
+    connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
+    connect(ui->ButtonWebPage, &QPushButton::clicked, this, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(ui->EditNumber->text()));
         ui->EditKeywords->setFocus();
     });
-    connect(ui->ButtonDownloadRM, &QPushButton::clicked, [this]() {
+    connect(ui->ButtonDownloadRM, &QPushButton::clicked, this, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(ui->EditTechPub->text()));
         ui->EditKeywords->setFocus();
     });
 
     // Menus actions
-    connect(ActionCopyScreenshot, &QAction::triggered, [this]() { copyScreenshot(); });
-    connect(ActionSaveToFile, &QAction::triggered, [this]() { saveToFile(); });
-    connect(ActionCopyHeader, &QAction::triggered, [this]() { copyHeader(); });
-    connect(ActionCopyAll, &QAction::triggered, [this]() { copyAll(); });
+    connect(ActionCopyScreenshot, &QAction::triggered, this, [this]() { copyScreenshot(); });
+    connect(ActionSaveToFile, &QAction::triggered, this, [this]() { saveToFile(); });
+    connect(ActionCopyHeader, &QAction::triggered, this, [this]() { copyHeader(); });
+    connect(ActionCopyAll, &QAction::triggered, this, [this]() { copyAll(); });
 
     // Enable/disable buttons
-    connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
-    connect(ui->EditTechPub, &QLineEdit::textChanged, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
+    connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
+    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
 
     // Default: don't display the warning about an existing older TB
     ui->LabelReplaceExistent->setVisible(false);
 
     // Set the edit keyword field as the current one
     ui->EditKeywords->setFocus();
-
 }
 
 //  DlgTB
 //
 // New TB from drop, or TB edition
 //
-DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
+DlgTB::DlgTB(MainWindow *parent, QString title, TechnicalBulletin *tb)
     : DlgTB(parent, title)
 {
     fillUI(tb);
@@ -128,7 +128,7 @@ void DlgTB::accept()
 //
 // Populate UI fields with an existing TB
 //
-void DlgTB::fillUI(TechnicalBulletin* tb)
+void DlgTB::fillUI(TechnicalBulletin *tb)
 {
     ui->EditNumber->setText(tb->number());
     ui->EditTitle->setText(tb->title());
@@ -147,7 +147,7 @@ void DlgTB::fillUI(TechnicalBulletin* tb)
 //
 // Grab UI data and save them in a TB
 //
-void DlgTB::fillTB(TechnicalBulletin* tb)
+void DlgTB::fillTB(TechnicalBulletin *tb)
 {
     tb->setData(ui->EditNumber->text(),
                 ui->EditTitle->text(),
@@ -166,12 +166,12 @@ void DlgTB::fillTB(TechnicalBulletin* tb)
 //
 // New TB from scratch
 //
-TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
+TechnicalBulletin *DlgTB::newDlgTB(MainWindow *parent)
 {
-    TechnicalBulletin* tb = nullptr;
+    TechnicalBulletin *tb = nullptr;
 
     // Create and exec dialog
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
+    DlgTB *dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
     if (dlg->exec() == QDialog::Accepted) {
         tb = new TechnicalBulletin;
         dlg->fillTB(tb);
@@ -185,16 +185,16 @@ TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
 //
 // New TB from drop
 //
-TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
+TechnicalBulletin *DlgTB::newDlgTB(MainWindow *parent, QByteArray data)
 {
-    TechnicalBulletin* tb = new TechnicalBulletin(data);
+    TechnicalBulletin *tb = new TechnicalBulletin(data);
 
-    // Create and exec the dialog. Update TB if the dialog was accepted, else destroy it
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), tb->number()), tb);
+    // Create and exec the dialog. Update TB if the dialog was accepted, else
+    // destroy it
+    DlgTB *dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), tb->number()), tb);
     if (dlg->exec() == QDialog::Accepted) {
         dlg->fillTB(tb);
-    }
-    else {
+    } else {
         delete tb;
         tb = nullptr;
     }
@@ -207,11 +207,11 @@ TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
 //
 // Existing TB edition
 //
-bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
+bool DlgTB::editDlgTB(MainWindow *parent, TechnicalBulletin *tb)
 {
     bool ret = false;
 
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()), tb);
+    DlgTB *dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()), tb);
     if (dlg->exec() == QDialog::Accepted) {
         dlg->fillTB(tb);
         ret = true;
@@ -225,7 +225,7 @@ bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
 //
 // Allow a drop to start if dragged data is valid
 //
-void DlgTB::dragEnterEvent(QDragEnterEvent* event)
+void DlgTB::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat("text/plain"))
         event->acceptProposedAction();
@@ -235,17 +235,17 @@ void DlgTB::dragEnterEvent(QDragEnterEvent* event)
 //
 // Offer to create a new TB from dropped data
 //
-void DlgTB::dropEvent(QDropEvent* event)
+void DlgTB::dropEvent(QDropEvent *event)
 {
-    TechnicalBulletin* tb = new TechnicalBulletin(event->mimeData()->data("text/plain"));
+    TechnicalBulletin *tb = new TechnicalBulletin(event->mimeData()->data("text/plain"));
     fillUI(tb);
     delete tb;
 }
 
 void DlgTB::copyScreenshot()
 {
-        QPixmap screenshot = this->grab();
-        QApplication::clipboard()->setPixmap(screenshot);
+    QPixmap screenshot = this->grab();
+    QApplication::clipboard()->setPixmap(screenshot);
 }
 
 void DlgTB::saveToFile()
@@ -254,9 +254,9 @@ void DlgTB::saveToFile()
     // - get title
     // - split it and set to upper case every first char
     // - join
-    QString Filename  = ui->EditTitle->text();
+    QString Filename = ui->EditTitle->text();
     QStringList Words = Filename.split(' ', Qt::SkipEmptyParts);
-    Filename          = QDir::homePath() + '/';
+    Filename = QDir::homePath() + '/';
 
     for (int i = 0; i < Words.count(); i++) {
         QString Word = Words.at(i);

@@ -23,7 +23,7 @@
 #include "MainWindow.hpp"
 #include <QApplication>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
     bool ForceDBCheck = a.arguments().contains(OPTION_FORCE_DATABASE_CHECK);
