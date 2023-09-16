@@ -22,3 +22,6 @@
 + set "Update old TB and merge keywords" as the default button of the Replace Previous TB dialog
 - add a version number to the db file
 - document the version formats
+- put the readme in an external file
+- complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
+- complete commentaries

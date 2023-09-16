@@ -48,19 +48,26 @@
 About
 -----
 
-Version:        1.0
-Author:         Martial Demolins
-Mail:           martial.demolins@gmail.com
-License:        GPL v3
-Repository:     https://github.com/Folcogh/TBI
-Langage:        C++
-Framework:      Qt 5.15.1
+Author:                           Martial Demolins
+Mail:                             martial.demolins@gmail.com, martial.demolins@tetrapak.com
+Position:                         Service Engineer (S2), Market France BeNeLux
+
+License:                          GPL v3. You can find it at https://www.gnu.org/licenses/gpl-3.0.en.html
+Version:                          1.1.1
+Language:                         C++
+Framework:                        Qt 6.5.2
+Source and binary repository:     https://github.com/Folcogh/TBI
+Changelog:                        https://github.com/Folcogh/TBI/commits/master
 
 
 Purpose
 -------
 
-The goal of this program is to index technical bulletin (TB), using official release data, and a list of custom keywords, to easily find a publicated kit.
+The goal of this program is to 
+- index technical bulletin (TB)
+- use official release data and a custom keywords to easily find a publicated kit
+- browse the official TB page in one click
+- download the documentation of a kit in one click
 
 
 How to use
@@ -72,14 +79,21 @@ Validating the dialog will make the TB to be saved in the list and indexed.
 
 By right-clicking on the TB table, you can create, edit or delete a TB.
 You also can copy its URL, or open the PIV web page of the TB in your default browser.
-Obviously, you need to be connected to TP intranet to perform this.
+Obviously, you need to be connected to Tetra Pak intranet with an officlal Tetra Pak computer to perform this.
 
 When adding a new TB, fill the keywords field with your own words: this field is used to quickly find a TB you have added beforehand.
 
 Notes:
-- the index file (index.tbi) is saved in the program current directory.
+- the index file (index.tbi) is saved in the program current directory
 - run the program with --check-database to force DB check at startup
-</string>
+
+
+Note
+----
+
+In case of a bug, please report to martial.demolins@tetrapak.com
+Your reports are the only way for me to improve this software.
+Thanks in advance!</string>
          </property>
         </widget>
        </item>

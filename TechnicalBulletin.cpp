@@ -40,8 +40,8 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
     StringLabels << "Bulletin No:"
                  << "Title:"
                  << "TB Category:"
-                 << "Rebuilding Kit:"
-                 << "Technical Publication:"
+                 << "Rebuilding Kit(s):"
+                 << "Technical Publication(s):"
                  << "Registered by:"
                  << "Replaces:"
                  << "Replaced by:";
