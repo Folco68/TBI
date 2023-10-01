@@ -21,7 +21,7 @@ o automatically update obsolete TB (how? To be designed)
 + when dropping a TB, indicate if there is already a previous version in the DB
 + set "Update old TB and merge keywords" as the default button of the Replace Previous TB dialog
 
-- add a version number to the db file (ATM, the file begins with TB count, so put (int)0 + magic + version would be a solution to identify unversionned DB)
++ add a version number to the db file (ATM, the file begins with TB count, so put (int)0 + magic + version would be a solution to identify unversionned DB)
 - document the version formats
 - make bool MainWindow::checkStream(QDataStream&) to remove code duplication
 

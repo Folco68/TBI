@@ -66,7 +66,6 @@ MainWindow::MainWindow(bool ForceDBCheck)
 {
     // Window
     ui->setupUi(this);
-    setWindowTitle(WINDOW_TITLE);
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
     resize(Settings::instance()->mainWindowSize());
 
@@ -152,7 +151,7 @@ MainWindow::MainWindow(bool ForceDBCheck)
         // The next versions set this counter to 0, then stores a magic, then the DB version.
         // This makes the old executables unable to open recent files.
         // And recent executables able to understand the old DB.
-        int count;
+        qint32 count;
         stream >> count;
 
         // If count == 0, two cases:
@@ -170,7 +169,7 @@ MainWindow::MainWindow(bool ForceDBCheck)
             if (stream.status() == QDataStream::Ok) {
                 if (magic == QString(TBI_MAGIC)) {
                     // If the magic is valid, read the version and open the file according to it
-                    int version;
+                    qint32 version;
                     stream >> version;
 
                     switch (version) {
@@ -289,14 +288,14 @@ void MainWindow::save()
     // Open a data stream and write into it
     QDataStream stream(&file);
 
-    // First, write (int)0 to support old DB
-    stream << 0;
+    // First, write 0 to support old DB
+    stream << (qint32) 0;
 
     // Then write magic + current version
-    stream << QString(TBI_MAGIC) << CURRENT_TBI_VERSION;
+    stream << QString(TBI_MAGIC) << (qint32) CURRENT_TBI_VERSION;
 
     // Write TB count
-    stream << ui->TableTB->rowCount();
+    stream << (qint32) (ui->TableTB->rowCount());
 
     // Serialize TBs
     for (int i = 0; i < ui->TableTB->rowCount(); i++) {
@@ -738,7 +737,7 @@ void MainWindow::openUnversionnedDB(int count, QDataStream& stream, bool ForceDB
 void MainWindow::openDBv1(QDataStream& stream, bool ForceDBCheck)
 {
     // Read the number of TB
-    int count;
+    qint32 count;
     stream >> count;
 
     for (int i = 0; i < count; i++) {
