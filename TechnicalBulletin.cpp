@@ -53,12 +53,9 @@ TechnicalBulletin::TechnicalBulletin(QByteArray data)
             Strings << "";
         } else {
             // Label found
-            start = data.indexOf('\t', start) + 1; // Skip the label, and find the fist byte of the data string
-            end = std::min(data.indexOf('\t', start),
-                           data.indexOf('\n',
-                                        start));     // End of data string. May terminate
-                                                     // with a Tab or a New Line
-            Strings << data.mid(start, end - start); // Grab and save data
+            start = data.indexOf('\t', start) + 1;                                // Skip the label, and find the fist byte of the data string
+            end = std::min(data.indexOf('\t', start), data.indexOf('\n', start)); // End of data string. May terminate with a Tab or a New Line
+            Strings << data.mid(start, end - start);                              // Grab and save data
         }
     }
 

@@ -44,11 +44,9 @@ class DlgTB : public QDialog
     Q_OBJECT
 
   public:
-    static TechnicalBulletin* newDlgTB(MainWindow* parent); // New TB, created by hand
-    static TechnicalBulletin* newDlgTB(MainWindow* parent,
-                                       QByteArray data); // New TB, created by drag'n drop
-    static bool editDlgTB(MainWindow* parent,
-                          TechnicalBulletin* tb); // Existing TB edition
+    static TechnicalBulletin* newDlgTB(MainWindow* parent);                  // New TB, created by hand
+    static TechnicalBulletin* newDlgTB(MainWindow* parent, QByteArray data); // New TB, created by drag'n drop
+    static bool editDlgTB(MainWindow* parent, TechnicalBulletin* tb);        // Existing TB edition
 
   private:
     Ui::DlgTB* ui;

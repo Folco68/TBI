@@ -77,6 +77,10 @@ class MainWindow : public QMainWindow
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
 
+    // TB opening
+    void openUnversionnedDB(int count, QDataStream& stream, bool ForceDBCheck);
+    void openDBv1(QDataStream& stream, bool ForceDBCheck);
+
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;

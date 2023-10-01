@@ -147,21 +147,54 @@ MainWindow::MainWindow(bool ForceDBCheck)
     QFile file(TBI_FILENAME);
     if (file.open(QIODevice::ReadOnly)) {
         QDataStream stream(&file);
+
+        // The first version of .tbi files were not versionned. They contain the number of TB as an int, then the serialized TB themselves.
+        // The next versions set this counter to 0, then stores a magic, then the DB version.
+        // This makes the old executables unable to open recent files.
+        // And recent executables able to understand the old DB.
         int count;
         stream >> count;
-        for (int i = 0; i < count; i++) {
-            // Read a TB and add it to UI
-            TechnicalBulletin* tb = new TechnicalBulletin;
-            stream >> tb;
-            addTB(tb, ForceDBCheck);
 
-            // Check stream status
-            if (stream.status() != QDataStream::Ok) {
-                QMessageBox::critical(this,
-                                      WINDOW_TITLE,
-                                      tr("Unable to read file %1").arg(TBI_FILENAME));
-                break;
+        // If count == 0, two cases:
+        // - it's an empty old file. Reading the magic will lead to a stream reading error. Let's fail silently the opening.
+        // - it's a versionned file. Read the magic then the version number to decide which opener must be used
+        if (count == 0) {
+            // Try to read a magic
+            QString magic;
+            stream >> magic;
+
+            // If the stream failed to read data, it "should" be an empty unversionned file.
+            // Ok, it could also be an USB stick pulled out when reading, but we cannot make the difference.
+            // Let's assume it's an old empty file and let's do nothing.
+            // So, we only consider streams with a successful magic reading.
+            if (stream.status() == QDataStream::Ok) {
+                if (magic == QString(TBI_MAGIC)) {
+                    // If the magic is valid, read the version and open the file according to it
+                    int version;
+                    stream >> version;
+
+                    switch (version) {
+                        case 1:
+                            openDBv1(stream, ForceDBCheck);
+                            break;
+
+                        default:
+                            // Version of the future, unhandled by this binary...
+                            QMessageBox::critical(this, WINDOW_TITLE, tr("The DB file is too recent for this executable. Please find a newer one. Opening aborted."));
+                    }
+                }
+
+                else {
+                    QMessageBox::critical(this,
+                                          WINDOW_TITLE,
+                                          tr("Invalid file identifier. It looks that the file %1 is corrupted or not authentic. Opening aborted.").arg(TBI_FILENAME));
+                }
             }
+        }
+
+        // If count != 0, it's an old file, no doubt.
+        else {
+            openUnversionnedDB(count, stream, ForceDBCheck);
         }
     }
     // Throw an error if the file exists and couldn't be opened
@@ -255,11 +288,20 @@ void MainWindow::save()
 
     // Open a data stream and write into it
     QDataStream stream(&file);
+
+    // First, write (int)0 to support old DB
+    stream << 0;
+
+    // Then write magic + current version
+    stream << QString(TBI_MAGIC) << CURRENT_TBI_VERSION;
+
+    // Write TB count
     stream << ui->TableTB->rowCount();
+
+    // Serialize TBs
     for (int i = 0; i < ui->TableTB->rowCount(); i++) {
         // Get TB ptr
-        TechnicalBulletin* tb
-            = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+        TechnicalBulletin* tb = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
         stream << *tb;
 
         // Check stream status
@@ -675,4 +717,40 @@ void MainWindow::downloadRM()
         = ui->TableTB->item(row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
     QDesktopServices::openUrl(
         QString(Settings::instance()->baseURLRebuildingManual()).arg(tb->techpub()));
+}
+
+void MainWindow::openUnversionnedDB(int count, QDataStream& stream, bool ForceDBCheck)
+{
+    for (int i = 0; i < count; i++) {
+        // Read a TB and add it to UI
+        TechnicalBulletin* tb = new TechnicalBulletin;
+        stream >> tb;
+        addTB(tb, ForceDBCheck);
+
+        // Check stream status
+        if (stream.status() != QDataStream::Ok) {
+            QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
+            break;
+        }
+    }
+}
+
+void MainWindow::openDBv1(QDataStream& stream, bool ForceDBCheck)
+{
+    // Read the number of TB
+    int count;
+    stream >> count;
+
+    for (int i = 0; i < count; i++) {
+        // Read a TB and add it to UI
+        TechnicalBulletin* tb = new TechnicalBulletin;
+        stream >> tb;
+        addTB(tb, ForceDBCheck);
+
+        // Check stream status
+        if (stream.status() != QDataStream::Ok) {
+            QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
+            break;
+        }
+    }
 }
