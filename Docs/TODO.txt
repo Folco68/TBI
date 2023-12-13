@@ -23,7 +23,7 @@ o automatically update obsolete TB (how? To be designed)
 
 + add a version number to the db file (ATM, the file begins with TB count, so put (int)0 + magic + version would be a solution to identify unversionned DB)
 - document the version formats
-- make bool MainWindow::checkStream(QDataStream&) to remove code duplication
+- implement bool MainWindow::checkStream(QDataStream&) to remove code duplication
 
 - put the readme in an external file
 - complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
@@ -33,4 +33,6 @@ o automatically update obsolete TB (how? To be designed)
 
 - separate TB index and UI (a singleton holding all the TBs?)
 
-- compile with MSVC
+- compile against MSVC
+
+- add Ctrl+F to focus the search field

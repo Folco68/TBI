@@ -400,7 +400,8 @@ void MainWindow::search(bool ForceNewSearch)
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
             ui->TableTB->setRowHidden(i, false);
         }
-    } else {
+    }
+    else {
         // Else filter TBs with keywords
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
             TechnicalBulletin* tb
