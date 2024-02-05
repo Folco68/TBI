@@ -127,6 +127,9 @@ MainWindow::MainWindow(bool ForceDBCheck)
                     save();
             });
 
+    // Search shortcut
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this), &QShortcut::activated, this, [this]() { ui->EditKeywords->setFocus(); });
+
     // Buttons connections
     connect(ui->ButtonSave, &QPushButton::clicked, this, [this]() { save(); });
     connect(ui->ButtonSearch, &QPushButton::clicked, this, [this]() { search(); });
