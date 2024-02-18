@@ -1,0 +1,45 @@
+============================================
+
+Version 0: Not versionned!
+Some binaries distributed
+
+============================================
+
+Format
+
+<
+qint32  Number of entries
+[TB]
+...
+>
+
+With TB:
+QByteArray Number
+QByteArray Title
+QByteArray Category
+QByteArray RK
+QByteArray TechPub
+QByteArray Comment
+QDate ReleaseDate
+QByteArray RegisteredBy
+QByteArray Replaces
+QByteArray ReplacedBy
+QList<QString> Keywords
+
+
+============================================
+
+Version 1: Just add version handling
+
+============================================
+
+Format
+
+<
+qint32  0
+QString magic
+qint32 count
+[TB]
+...
+
+TB is the same that in version 0

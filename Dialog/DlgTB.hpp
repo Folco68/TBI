@@ -28,6 +28,7 @@
 #include <QDialog>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QMenu>
 #include <QString>
 
 namespace Ui {
@@ -50,6 +51,7 @@ class DlgTB : public QDialog
 
   private:
     Ui::DlgTB* ui;
+    QMenu* DocMenu = nullptr;
 
     DlgTB(MainWindow* parent, QString title);
     DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb);

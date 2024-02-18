@@ -192,11 +192,17 @@ MainWindow::MainWindow(bool ForceDBCheck)
                                           tr("Invalid file identifier. It looks that the file %1 is corrupted or not authentic. Opening aborted.").arg(TBI_FILENAME));
                 }
             }
+
+            // Stream status control failed
+            // But don't throw a message, it just means that it was an empty and unversionned file
+            // else {
+            //     QMessageBox::critical(this, WINDOW_TITLE, tr("Invalid file %1").arg(TBI_FILENAME));
+            // }
         }
 
         // If count != 0, it's an old file, no doubt.
         else {
-            openUnversionnedDB(count, stream, ForceDBCheck);
+            openDBv0(count, stream, ForceDBCheck);
         }
     }
     // Throw an error if the file exists and couldn't be opened
@@ -722,7 +728,7 @@ void MainWindow::downloadRM()
         QString(Settings::instance()->baseURLRebuildingManual()).arg(tb->techpub()));
 }
 
-void MainWindow::openUnversionnedDB(int count, QDataStream& stream, bool ForceDBCheck)
+void MainWindow::openDBv0(int count, QDataStream& stream, bool ForceDBCheck)
 {
     for (int i = 0; i < count; i++) {
         // Read a TB and add it to UI

@@ -53,7 +53,7 @@ Mail:                             martial.demolins@gmail.com, martial.demolins@t
 Position:                         Service Engineer (S2), Market France BeNeLux
 
 License:                          GPL v3. You can find it at https://www.gnu.org/licenses/gpl-3.0.en.html
-Version:                          1.1.1
+Version:                          1.2.0
 Language:                         C++
 Framework:                        Qt 6.5.2
 Source and binary repository:     https://github.com/Folcogh/TBI
@@ -65,7 +65,7 @@ Purpose
 
 The goal of this program is to 
 - index technical bulletin (TB)
-- use official release data and a custom keywords to easily find a publicated kit
+- use official release data and custom keywords to easily find a publicated kit
 - browse the official TB page in one click
 - download the documentation of a kit in one click
 
@@ -73,7 +73,8 @@ The goal of this program is to
 How to use
 ----------
 
-Drag and drop the content of a TB Notification into the main window or the TB edition window.
+Drag and drop the content of a TB mail into the main window or the TB edition window (Ctrl-A + Drag&amp;Drop).
+You can also Copy the full content of a TB mail and paste it into the main window (Ctrl-A + Ctrl-C + Alt-Tab + Ctrl-V).
 It will pop the TB creation dialog, filling the fields for you, and offering to customize any field you want.
 Validating the dialog will make the TB to be saved in the list and indexed.
 

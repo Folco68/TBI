@@ -26,11 +26,11 @@
 #include "ui_DlgTB.h"
 #include <QAction>
 #include <QApplication>
+#include <QChar>
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
-#include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPixmap>
@@ -65,27 +65,54 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     QAction* ActionCopyAll = CopyMenu->addAction("All");
     ui->ButtonCopy->setMenu(CopyMenu);
 
-    // Connections
+    // Standard buttons
     connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
+
+    // Button Web page
+    connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
     connect(ui->ButtonWebPage, &QPushButton::clicked, this, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(ui->EditNumber->text()));
         ui->EditKeywords->setFocus();
     });
-    connect(ui->ButtonDownloadRM, &QPushButton::clicked, this, [this]() {
+
+    // Button Download
+    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
+    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() {
+        // Retrieve and split the documents names
+        QString Field = ui->EditTechPub->text();
+        QStringList DocList = Field.split(QChar(','), Qt::SkipEmptyParts, Qt::CaseInsensitive);
+
+        // Clear the previous menu if one exists and create a new one if needed
+        if (this->DocMenu != nullptr) {
+            delete this->DocMenu;
+            this->DocMenu = nullptr;
+        }
+        if (!DocList.isEmpty()) {
+            this->DocMenu = new QMenu;
+
+            // Add all the docs, creating their own lambda function when the download is triggered
+            for (int i = 0; i < DocList.count(); i++) {
+                QAction* DocAction = this->DocMenu->addAction(DocList.at(i));
+                connect(DocAction, &QAction::triggered, this, [DocAction]() {
+                    QString FullName = DocAction->text();
+                    QString Name = FullName.section(QChar('-'), 1);
+                    QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(Name));
+                });
+            }
+        }
+    });
+
+    /*    connect(ui->ButtonDownloadRM, &QPushButton::clicked, this, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(ui->EditTechPub->text()));
         ui->EditKeywords->setFocus();
-    });
+    });*/
 
     // Menus actions
     connect(ActionCopyScreenshot, &QAction::triggered, this, [this]() { copyScreenshot(); });
     connect(ActionSaveToFile, &QAction::triggered, this, [this]() { saveToFile(); });
     connect(ActionCopyHeader, &QAction::triggered, this, [this]() { copyHeader(); });
     connect(ActionCopyAll, &QAction::triggered, this, [this]() { copyAll(); });
-
-    // Enable/disable buttons
-    connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
-    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
 
     // Default: don't display the warning about an existing older TB
     ui->LabelReplaceExistent->setVisible(false);
