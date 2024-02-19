@@ -35,7 +35,7 @@ DlgSettings::DlgSettings(QWidget* parent)
     // Connections
     connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
-    connect(ui->ButtonClearCategories, &QPushButton::clicked, this, [this]() { Settings::instance()->resetCategories(); });
+    connect(ui->ButtonClearCategories, &QPushButton::clicked, this, []() { Settings::instance()->resetCategories(); });
     connect(ui->ButtonResetRK, &QPushButton::clicked, this, [this]() {
         Settings::instance()->resetBaseURLTechnicalPublications();
         ui->EditRK->setText(Settings::instance()->baseURLTechnicalPublication());

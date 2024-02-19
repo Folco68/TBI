@@ -303,7 +303,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="ButtonDownloadRM">
+      <widget class="QPushButton" name="ButtonDownload">
        <property name="enabled">
         <bool>false</bool>
        </property>

@@ -212,6 +212,7 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // Make UI consistent
     updateUI();
+    adjustColumnSize();
 }
 
 MainWindow::~MainWindow()
@@ -256,17 +257,19 @@ void MainWindow::updateUI()
     this->MessagePendingModifications->setText(this->Modified ? tr("Modifications have to be saved")
                                                               : tr("Index is saved"));
 
-    // Adjust columns size
-    for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
-        ui->TableTB->resizeColumnToContents(i);
-    }
-
     // Actions (context menu)
     this->ActionEditTB->setEnabled(ItemSelected);
     this->ActionDeleteTB->setEnabled(ItemSelected);
     this->ActionCopyUrl->setEnabled(ItemSelected);
     this->ActionOpenUrl->setEnabled(ItemSelected);
     this->ActionDownloadRM->setEnabled(ItemSelected);
+}
+
+void MainWindow::adjustColumnSize()
+{
+    for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
+        ui->TableTB->resizeColumnToContents(i);
+    }
 }
 
 //  save

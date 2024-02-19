@@ -69,6 +69,7 @@ class MainWindow : public QMainWindow
 
     // TBs
     void updateUI();
+    void adjustColumnSize();
     void newTB();
     void editTB();
     void deleteTB();

@@ -77,7 +77,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     });
 
     // Button Download
-    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { ui->ButtonDownloadRM->setDisabled(ui->EditTechPub->text().isEmpty()); });
+    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { ui->ButtonDownload->setDisabled(ui->EditTechPub->text().isEmpty()); });
     connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() {
         // Retrieve and split the documents names
         QString Field = ui->EditTechPub->text();
@@ -93,20 +93,19 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
 
             // Add all the docs, creating their own lambda function when the download is triggered
             for (int i = 0; i < DocList.count(); i++) {
-                QAction* DocAction = this->DocMenu->addAction(DocList.at(i));
-                connect(DocAction, &QAction::triggered, this, [DocAction]() {
+                QAction* DocAction = this->DocMenu->addAction(DocList.at(i).trimmed());
+                connect(DocAction, &QAction::triggered, this, [this, DocAction]() {
                     QString FullName = DocAction->text();
                     QString Name = FullName.section(QChar('-'), 1);
                     QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(Name));
+                    ui->EditKeywords->setFocus();
                 });
             }
+
+            // Finally, add the menu to the download button
+            ui->ButtonDownload->setMenu(this->DocMenu);
         }
     });
-
-    /*    connect(ui->ButtonDownloadRM, &QPushButton::clicked, this, [this]() {
-        QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(ui->EditTechPub->text()));
-        ui->EditKeywords->setFocus();
-    });*/
 
     // Menus actions
     connect(ActionCopyScreenshot, &QAction::triggered, this, [this]() { copyScreenshot(); });

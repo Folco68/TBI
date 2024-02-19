@@ -25,9 +25,10 @@ o automatically update obsolete TB (how? To be designed)
 + document the version formats
 + compile against MSVC (better integration with MSW?)
 o implement bool MainWindow::checkStream(QDataStream&) to remove code duplication
++ Download documentation depending of its availability
+- rename "RM URL" to "tech pub URL", everywhere (Settings, DlgSettings, MainWindow, ...)
 - complete commentaries
 - separate TB index and UI (a singleton holding all the TBs?)
-- Download documentation depending of its availability
 
 Help dlg revamping
 - put the readme in an external file
