@@ -19,22 +19,19 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#ifndef CONTEXTMENUACTION_HPP
-#define CONTEXTMENUACTION_HPP
+#include "LineEditDeselect.hpp"
 
-#include <QAction>
-#include <QKeySequence>
-#include <QWidget>
-
-//  ContextMenuAction
-//
-// This class allow to create a QAction with a shortcut
-// It makes the shortcut visible in the menu
-//
-class ContextMenuAction: public QAction
+LineEditDeselect::LineEditDeselect(QWidget* parent)
+    : QLineEdit(parent)
 {
-  public:
-    ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut = QKeySequence());
-};
+}
 
-#endif // CONTEXTMENUACTION_HPP
+LineEditDeselect::~LineEditDeselect()
+{
+}
+
+void LineEditDeselect::focusInEvent(QFocusEvent* event)
+{
+    QLineEdit::focusInEvent(event);
+    deselect();
+}

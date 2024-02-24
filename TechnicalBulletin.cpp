@@ -146,19 +146,23 @@ void TechnicalBulletin::setData(QString        number,
 
 //  keywordString
 //
-// Create a string, using the keyword list. Intended to display keywords in UI
+// Create a string, using the keyword list.
+// Intended to display keywords in UI
 //
 QString TechnicalBulletin::keywordsString() const
 {
-    if (this->Keywords.isEmpty()) {
-        return QString("");
+    // Default: no keyword registered
+    QString String("");
+
+    // If there are some keywords, build the string
+    if (!this->Keywords.isEmpty()) {
+        String = this->Keywords.at(0);
+        for (int i = 1; i < this->Keywords.count(); i++) {
+            String.append(KEYWORD_SEPARATOR).append(this->Keywords.at(i));
+        }
     }
 
-    QString Keywords = this->Keywords.at(0);
-    for (int i = 1; i < this->Keywords.count(); i++) {
-        Keywords.append(KEYWORD_SEPARATOR).append(this->Keywords.at(i));
-    }
-    return Keywords;
+    return String;
 }
 
 //  >>

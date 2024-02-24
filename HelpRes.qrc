@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/DlgHelp">
+        <file>Docs/TODO.txt</file>
+        <file>Docs/Help.txt</file>
+        <file>Docs/Changelog.txt</file>
+    </qresource>
+</RCC>

@@ -1,6 +1,0 @@
-Format of Index.tbi
-
-Version 1
----------
-
-qint32      Number of TB in the index

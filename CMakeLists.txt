@@ -26,8 +26,8 @@ set(PROJECT_SOURCES
         Dialog/DlgTB.cpp
         Dialog/DlgTB.hpp
         Dialog/DlgTB.ui
-        Dialog/LineEditNoFocus.cpp
-        Dialog/LineEditNoFocus.hpp
+        Dialog/LineEditDeselect.cpp
+        Dialog/LineEditDeselect.hpp
         main.cpp
         MainWindow.cpp
         MainWindow.hpp
@@ -45,8 +45,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         Docs/TBformats.txt
-        Docs/Formats.txt
+
         DownloadMenu.hpp DownloadMenu.cpp
+        HelpRes.qrc
+        Docs/Help.txt
+        Docs/Changelog.txt
 
     )
 # Define target properties for Android with Qt 6 as:

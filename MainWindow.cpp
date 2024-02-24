@@ -642,11 +642,13 @@ void MainWindow::paste()
     }
 }
 
-//  replaceExistent
+//  tbNumberAlreadyExists
 //
 // Return true if an older TB exits in the database
+// Used by DlgTB to display a message staying that
+// there is already an older version of the TB in the database
 //
-bool MainWindow::replaceExistent(TechnicalBulletin* tb)
+bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)
 {
     QString CurrentNumber = tb->replaces();
     if (!CurrentNumber.isNull()) {
@@ -685,6 +687,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
     }
 }
 
+//  copyURLToClipboard
+//
+// Copy the URL of the TB page in the global clipboard
+//
 void MainWindow::copyURLToClipboard()
 {
     QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
@@ -693,6 +699,10 @@ void MainWindow::copyURLToClipboard()
     QGuiApplication::clipboard()->setText(Settings::instance()->baseURLTechnicalBulletin().arg(TB->number()));
 }
 
+//  openURL
+//
+// Open the web page of the TB in the default browser
+//
 void MainWindow::openURL()
 {
     QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
@@ -701,30 +711,32 @@ void MainWindow::openURL()
     QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletin()).arg(TB->number()));
 }
 
-void MainWindow::downloadRM()
-{
-    QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
-    int                      Row       = Selection.at(0)->row();
-    TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(TB->techpub()));
-}
-
+//  openDBv0
+//
+// Open a DB in the legacy format
+//
 void MainWindow::openDBv0(int count, QDataStream& stream, bool ForceDBCheck)
 {
     for (int i = 0; i < count; i++) {
-        // Read a TB and add it to UI
+        // Read a TB
         TechnicalBulletin* TB = new TechnicalBulletin;
         stream >> TB;
-        addTB(TB, ForceDBCheck);
 
         // Check stream status
         if (stream.status() != QDataStream::Ok) {
             QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
+            delete TB;
             break;
         }
+
+        // Stream is OK, add the TB to the UI
+        addTB(TB, ForceDBCheck);
     }
 }
 
+//  openDBv1
+//
+// Open a DB version 1
 void MainWindow::openDBv1(QDataStream& stream, bool ForceDBCheck)
 {
     // Read the number of TB
@@ -732,15 +744,18 @@ void MainWindow::openDBv1(QDataStream& stream, bool ForceDBCheck)
     stream >> Count;
 
     for (int i = 0; i < Count; i++) {
-        // Read a TB and add it to UI
+        // Read a TB
         TechnicalBulletin* TB = new TechnicalBulletin;
         stream >> TB;
-        addTB(TB, ForceDBCheck);
 
         // Check stream status
         if (stream.status() != QDataStream::Ok) {
             QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
+            delete TB;
             break;
         }
+
+        // Stream is OK, add the TB to the UI
+        addTB(TB, ForceDBCheck);
     }
 }

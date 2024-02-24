@@ -63,6 +63,10 @@
 #define DEFAULT_SEARCH_REPLACED_BY   false
 #define DEFAULT_SEARCH_COMMENT       false
 
+//  Settings
+//
+// This class handles the global configuration of the software
+//
 class Settings: public QSettings
 {
   public:
@@ -126,11 +130,8 @@ class Settings: public QSettings
 
   private:
     static Settings* settings;
-
-    Settings(QString organization, QString application)
-        : QSettings(organization, application)
-    {
-    }
+    Settings(QString organization, QString application);
+    ~Settings();
 };
 
 #endif // SETTINGS_HPP

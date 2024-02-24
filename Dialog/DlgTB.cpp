@@ -21,7 +21,7 @@
 
 #include "DlgTB.hpp"
 #include "Global.hpp"
-#include "LineEditNoFocus.hpp"
+#include "LineEditDeselect.hpp"
 #include "Settings.hpp"
 #include "ui_DlgTB.h"
 #include <QAction>
@@ -108,7 +108,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
     : DlgTB(parent, title)
 {
     fillUI(tb);
-    ui->LabelReplaceExistent->setVisible(parent->replaceExistent(tb));
+    ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
 }
 
 DlgTB::~DlgTB()

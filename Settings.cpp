@@ -21,7 +21,17 @@
 
 #include "Settings.hpp"
 #include "Global.hpp"
-#
+
+Settings::Settings(QString organization, QString application)
+    : QSettings(organization, application)
+{
+}
+
+Settings::~Settings()
+{
+}
+
+// Singleton stuff
 Settings* Settings::settings = nullptr;
 
 Settings* Settings::instance()

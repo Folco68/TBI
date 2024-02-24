@@ -40,6 +40,10 @@ namespace Ui {
 }
 QT_END_NAMESPACE
 
+//  MainWindow
+//
+// This class handles the main window of the application
+//
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
@@ -47,7 +51,7 @@ class MainWindow: public QMainWindow
   public:
     MainWindow(bool ForceDBCheck);
     ~MainWindow() override;
-    bool replaceExistent(TechnicalBulletin* tb);
+    bool tbNumberAlreadyExists(TechnicalBulletin* tb);
 
   private:
     Ui::MainWindow* ui;
@@ -98,7 +102,6 @@ class MainWindow: public QMainWindow
     // URL handling
     void copyURLToClipboard();
     void openURL();
-    void downloadRM();
 };
 
 // Table header index

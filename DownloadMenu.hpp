@@ -27,6 +27,13 @@
 #include <QMenu>
 #include <QString>
 
+//  DownloadMenu
+//
+// The purpose of this class is to manage a menu which changes often and dynamically,
+// because the number of contained actions can vary, and when they are triggered,
+// the download target URL varies.
+// When an action is added, the triggered() slot is connected to a lambda
+//
 class DownloadMenu: public QMenu
 {
   public:

@@ -30,11 +30,10 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 + be consistent in local vars naming (lower case or camel case)
 + at startup, updateUI() is called twice per TB + once when the MainWindow is populated
 + Make download menus dynamic
-- complete commentaries
++ complete commentaries
 - separate TB index and UI (a singleton holding all the TBs?)
-- allow to drop a mail itself
 
 Help dlg revamping
-- put the readme in an external file
++ put the readme in an external file
 - complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
-- integrate Github changelog
++ integrate Github changelog

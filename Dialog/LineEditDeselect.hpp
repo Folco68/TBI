@@ -19,22 +19,27 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#ifndef CONTEXTMENUACTION_HPP
-#define CONTEXTMENUACTION_HPP
+#ifndef LINEEDITDESELECT_HPP
+#define LINEEDITDESELECT_HPP
 
-#include <QAction>
-#include <QKeySequence>
-#include <QWidget>
+#include <QFocusEvent>
+#include <QLineEdit>
 
-//  ContextMenuAction
+//  LineEditDeselect
 //
-// This class allow to create a QAction with a shortcut
-// It makes the shortcut visible in the menu
+// This class prevents the QLineEdit widget to have its text selected when it
+// gets focused.
+// I don't know why the text is selected when compiling with MSVC,
+// while it is not with MinGW
 //
-class ContextMenuAction: public QAction
+class LineEditDeselect: public QLineEdit
 {
   public:
-    ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut = QKeySequence());
+    LineEditDeselect(QWidget* parent);
+    ~LineEditDeselect() override;
+
+  protected:
+    void focusInEvent(QFocusEvent* event) override;
 };
 
-#endif // CONTEXTMENUACTION_HPP
+#endif // LINEEDITDESELECT_HPP
