@@ -143,7 +143,10 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // Table connections
     connect(ui->TableTB, &QTableWidget::itemSelectionChanged, this, [this]() { updateUI(); });
-    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, this, [this]() { editTB(); });
+    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, this, [this]() {
+        editTB();
+        updateUI();
+    });
 
     // Open TBI if one exists
 
