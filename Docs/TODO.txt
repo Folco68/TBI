@@ -32,6 +32,7 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 + Make download menus dynamic
 - complete commentaries
 - separate TB index and UI (a singleton holding all the TBs?)
+- allow to drop a mail itself
 
 Help dlg revamping
 - put the readme in an external file

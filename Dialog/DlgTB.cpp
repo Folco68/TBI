@@ -82,7 +82,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     // The download are available in the menu attached to the button
     connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() {
         QString DocsField = ui->EditTechPub->text();
-        this->DLMenu->setItems(DocsField);
+        this->DLMenu->setItems(DocsField, ui->EditKeywords);
         ui->ButtonDownload->setMenu(this->DLMenu);
         ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
     });

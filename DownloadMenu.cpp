@@ -41,7 +41,7 @@ void DownloadMenu::deleteActions()
     }
 }
 
-void DownloadMenu::setItems(QString DocsString)
+void DownloadMenu::setItems(QString DocsString, QWidget* WidgetToFocus)
 {
     deleteActions();
 
@@ -53,10 +53,14 @@ void DownloadMenu::setItems(QString DocsString)
         for (int i = 0; i < DocList.count(); i++) {
             QAction* DocAction = addAction(DocList.at(i).trimmed());
             this->ActionList << DocAction;
-            connect(DocAction, &QAction::triggered, this, [DocAction]() {
+            connect(DocAction, &QAction::triggered, this, [DocAction, WidgetToFocus]() {
                 QString FullName = DocAction->text();
                 QString Name     = FullName.section(QChar('-'), 1);
                 QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(Name));
+
+                if (WidgetToFocus != nullptr) {
+                    WidgetToFocus->setFocus();
+                }
             });
         }
     }
