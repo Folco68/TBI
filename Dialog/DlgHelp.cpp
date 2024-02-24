@@ -39,7 +39,7 @@ DlgHelp::~DlgHelp()
 
 void DlgHelp::showDlgHelp()
 {
-    DlgHelp* dlg = new DlgHelp;
-    dlg->exec();
-    delete dlg;
+    DlgHelp* Dlg = new DlgHelp;
+    Dlg->exec();
+    delete Dlg;
 }

@@ -53,7 +53,7 @@ Mail:                             martial.demolins@gmail.com, martial.demolins@t
 Position:                         Service Engineer (S2), Market France BeNeLux
 
 License:                          GPL v3. You can find it at https://www.gnu.org/licenses/gpl-3.0.en.html
-Version:                          1.3.0
+Version:                          1.4.0
 Language:                         C++
 Framework:                        Qt 6.5.2
 Source and binary repository:     https://github.com/Folcogh/TBI
@@ -66,7 +66,7 @@ Purpose
 The goal of this program is to 
 - index technical bulletin (TB)
 - use official release data and custom keywords to easily find a publicated kit
-- browse the official TB page in one click
+- browse the official TB page in one clickfile:///C:/Users/FRDEMOLINSM/OneDrive/Dev/TBI/Dialog/DlgHelp.ui
 - download the documentation of a kit in one click
 
 

@@ -19,15 +19,25 @@
  * mail: martial <dot> demolins <at> gmail <dot> com
  */
 
-#include "Global.hpp"
-#include "MainWindow.hpp"
-#include <QApplication>
+#ifndef DOWNLOADMENU_HPP
+#define DOWNLOADMENU_HPP
 
-int main(int argc, char* argv[])
+#include <QAction>
+#include <QList>
+#include <QMenu>
+#include <QString>
+
+class DownloadMenu: public QMenu
 {
-    QApplication Application(argc, argv);
-    bool         ForceDBCheck = Application.arguments().contains(OPTION_FORCE_DATABASE_CHECK);
-    MainWindow   Window(ForceDBCheck);
-    Window.show();
-    return Application.exec();
-}
+  public:
+    DownloadMenu(QWidget* parent = nullptr);
+    ~DownloadMenu();
+    void setItems(QString DocsString);
+
+  private:
+    QList<QAction*> ActionList;
+    void            deleteActions();
+};
+
+
+#endif // DOWNLOADMENU_HPP

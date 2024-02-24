@@ -25,10 +25,15 @@
 #include <QDialog>
 
 namespace Ui {
-class DlgHelp;
+    class DlgHelp;
 }
 
-class DlgHelp : public QDialog
+//  DlgHelp
+//
+// This class displays a static dialog with help, version, about, ...
+// It is accessed with a static member
+//
+class DlgHelp: public QDialog
 {
     Q_OBJECT
 

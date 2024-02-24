@@ -25,10 +25,15 @@
 #include <QDialog>
 
 namespace Ui {
-class DlgSettings;
+    class DlgSettings;
 }
 
-class DlgSettings : public QDialog
+//  DlgSettings
+//
+// This class allow to change global application settings
+// It is accessed with a static member
+//
+class DlgSettings: public QDialog
 {
     Q_OBJECT
 
@@ -37,9 +42,8 @@ class DlgSettings : public QDialog
     ~DlgSettings() override;
 
   private:
-    Ui::DlgSettings* ui;
-
     explicit DlgSettings(QWidget* parent = nullptr);
+    Ui::DlgSettings* ui;
 };
 
 #endif // DLGSETTINGS_HPP

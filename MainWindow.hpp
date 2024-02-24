@@ -23,6 +23,7 @@
 #define MAINWINDOW_HPP
 
 #include "ContextMenuAction.hpp"
+#include "DownloadMenu.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QByteArray>
 #include <QCloseEvent>
@@ -35,11 +36,11 @@
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class MainWindow: public QMainWindow
 {
     Q_OBJECT
 
@@ -50,26 +51,28 @@ class MainWindow : public QMainWindow
 
   private:
     Ui::MainWindow* ui;
-    bool Modified;
+    bool            Modified;
 
     // Status bar
     QLabel* MessageTBCount;
     QLabel* MessagePendingModifications;
 
     // Context menu
-    QMenu* TableContextMenu;
+    QMenu*             TableContextMenu;
     ContextMenuAction* ActionNewTB;
     ContextMenuAction* ActionEditTB;
     ContextMenuAction* ActionDeleteTB;
     ContextMenuAction* ActionCopyUrl;
     ContextMenuAction* ActionOpenUrl;
-    ContextMenuAction* ActionDownloadRM;
+    ContextMenuAction* ActionDownload;
     ContextMenuAction* ActionSettings;
     ContextMenuAction* ActionHelp;
 
+    // Download sub-menu
+    DownloadMenu* DLMenu;
+
     // TBs
     void updateUI();
-    void adjustColumnSize();
     void newTB();
     void editTB();
     void deleteTB();
@@ -113,7 +116,7 @@ typedef enum {
 } COLUMN_INDEX;
 
 // Role number of TB data ptr in TB table
-#define TB_ROLE Qt::UserRole
+#define TB_ROLE         Qt::UserRole
 #define COLUMN_METADATA COLUMN_NUMBER
 
 // Search option

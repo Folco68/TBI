@@ -2,9 +2,12 @@
 
 LineEditNoFocus::LineEditNoFocus(QWidget* parent)
     : QLineEdit(parent)
-{}
+{
+}
 
-LineEditNoFocus::~LineEditNoFocus() {}
+LineEditNoFocus::~LineEditNoFocus()
+{
+}
 
 void LineEditNoFocus::focusInEvent(QFocusEvent* event)
 {

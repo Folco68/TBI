@@ -29,53 +29,53 @@
 #include <QStringList>
 
 // Key names
-#define KEY_BASE_URL_TECH_PUB "baseUrlTechPub"
-#define KEY_BASE_URL_RM "baseUrlRM"
-#define KEY_REAL_TIME_SEARCH "realTimeSearch"
-#define KEY_WHOLE_WORDS_ONLY "wholeWordsOnly"
-#define KEY_CATEGORY_LIST "categoryList"
-#define KEY_MAIN_WINDOW_SIZE "mainWindowSize"
-#define KEY_SEARCH_NUMBER "searchNumber"
-#define KEY_SEARCH_TITLE "searchTitle"
-#define KEY_SEARCH_CATEGORY "searchCategory"
-#define KEY_SEARCH_RK "searchRK"
-#define KEY_SEARCH_TECH_PUB "searchTechPub"
-#define KEY_SEARCH_RELEASE_DATE "searchReleaseDate"
+#define KEY_BASE_URL_TB          "baseUrlTechPub"
+#define KEY_BASE_URL_TECH_PUB    "baseUrlRM"
+#define KEY_REAL_TIME_SEARCH     "realTimeSearch"
+#define KEY_WHOLE_WORDS_ONLY     "wholeWordsOnly"
+#define KEY_CATEGORY_LIST        "categoryList"
+#define KEY_MAIN_WINDOW_SIZE     "mainWindowSize"
+#define KEY_SEARCH_NUMBER        "searchNumber"
+#define KEY_SEARCH_TITLE         "searchTitle"
+#define KEY_SEARCH_CATEGORY      "searchCategory"
+#define KEY_SEARCH_RK            "searchRK"
+#define KEY_SEARCH_TECH_PUB      "searchTechPub"
+#define KEY_SEARCH_RELEASE_DATE  "searchReleaseDate"
 #define KEY_SEARCH_REGISTERED_BY "searchRegisteredBy"
-#define KEY_SEARCH_REPLACES "searchReplaces"
-#define KEY_SEARCH_REPLACED_BY "searchReplacedBy"
-#define KEY_SEARCH_COMMENT "searchComment"
+#define KEY_SEARCH_REPLACES      "searchReplaces"
+#define KEY_SEARCH_REPLACED_BY   "searchReplacedBy"
+#define KEY_SEARCH_COMMENT       "searchComment"
 
 // Default values
-#define DEFAULT_BASE_URL_TECH_PUB "https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=%1"
-#define DEFAULT_BASE_URL_RM "https://piv.tetrapak.com/piv-tp-service/api/techpubs/%1/file"
-#define DEFAULT_REAL_TIME_SEARCH false
-#define DEFAULT_WHOLE_WORDS_ONLY false
-#define DEFAULT_MAIN_WINDOW_SIZE QSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT)
-#define DEFAULT_SEARCH_NUMBER false
-#define DEFAULT_SEARCH_TITLE false
-#define DEFAULT_SEARCH_CATEGORY false
-#define DEFAULT_SEARCH_RK false
-#define DEFAULT_SEARCH_TECH_PUB false
-#define DEFAULT_SEARCH_RELEASE_DATE false
+#define DEFAULT_BASE_URL_TB          "https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=%1"
+#define DEFAULT_BASE_URL_TECH_PUB    "https://piv.tetrapak.com/piv-tp-service/api/techpubs/%1/file"
+#define DEFAULT_REAL_TIME_SEARCH     false
+#define DEFAULT_WHOLE_WORDS_ONLY     false
+#define DEFAULT_MAIN_WINDOW_SIZE     QSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT)
+#define DEFAULT_SEARCH_NUMBER        false
+#define DEFAULT_SEARCH_TITLE         false
+#define DEFAULT_SEARCH_CATEGORY      false
+#define DEFAULT_SEARCH_RK            false
+#define DEFAULT_SEARCH_TECH_PUB      false
+#define DEFAULT_SEARCH_RELEASE_DATE  false
 #define DEFAULT_SEARCH_REGISTERED_BY false
-#define DEFAULT_SEARCH_REPLACES false
-#define DEFAULT_SEARCH_REPLACED_BY false
-#define DEFAULT_SEARCH_COMMENT false
+#define DEFAULT_SEARCH_REPLACES      false
+#define DEFAULT_SEARCH_REPLACED_BY   false
+#define DEFAULT_SEARCH_COMMENT       false
 
-class Settings : public QSettings
+class Settings: public QSettings
 {
   public:
     static Settings* instance();
-    static void release();
+    static void      release();
+
+    QString baseURLTechnicalBulletin() { return value(KEY_BASE_URL_TB, DEFAULT_BASE_URL_TB).toString(); }
+    void    setBaseURLTechnicalBulletin(QString url) { setValue(KEY_BASE_URL_TB, url); }
+    void    resetBaseURLTechnicalBulletin() { setValue(KEY_BASE_URL_TB, DEFAULT_BASE_URL_TB); }
 
     QString baseURLTechnicalPublication() { return value(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB).toString(); }
-    void setBaseURLTechnicalPublications(QString url) { setValue(KEY_BASE_URL_TECH_PUB, url); }
-    void resetBaseURLTechnicalPublications() { setValue(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB); }
-
-    QString baseURLRebuildingManual() { return value(KEY_BASE_URL_RM, DEFAULT_BASE_URL_RM).toString(); }
-    void setBaseURLRebuildingManual(QString url) { setValue(KEY_BASE_URL_RM, url); }
-    void resetBaseURLRebuildingManual() { setValue(KEY_BASE_URL_RM, DEFAULT_BASE_URL_RM); }
+    void    setBaseURLTechnicalPublication(QString url) { setValue(KEY_BASE_URL_TECH_PUB, url); }
+    void    resetBaseURLTechnicalPublication() { setValue(KEY_BASE_URL_TECH_PUB, DEFAULT_BASE_URL_TECH_PUB); }
 
     bool realTimeSearchEnabled() { return value(KEY_REAL_TIME_SEARCH, DEFAULT_REAL_TIME_SEARCH).toBool(); }
     void setRealTimeSearchEnabled(bool enabled) { setValue(KEY_REAL_TIME_SEARCH, enabled); }
@@ -84,7 +84,7 @@ class Settings : public QSettings
     void setWholeWordsOnlyEnabled(bool enabled) { setValue(KEY_WHOLE_WORDS_ONLY, enabled); }
 
     QStringList categories() { return value(KEY_CATEGORY_LIST).toStringList(); }
-    void setCategories(QStringList categories)
+    void        setCategories(QStringList categories)
     {
         categories.sort(Qt::CaseInsensitive);
         setValue(KEY_CATEGORY_LIST, categories);
@@ -92,7 +92,7 @@ class Settings : public QSettings
     void resetCategories() { remove(KEY_CATEGORY_LIST); }
 
     QSize mainWindowSize() { return value(KEY_MAIN_WINDOW_SIZE, DEFAULT_MAIN_WINDOW_SIZE).toSize(); }
-    void setMainWindowSize(QSize size) { setValue(KEY_MAIN_WINDOW_SIZE, size); }
+    void  setMainWindowSize(QSize size) { setValue(KEY_MAIN_WINDOW_SIZE, size); }
 
     bool searchNumberEnabled() { return value(KEY_SEARCH_NUMBER, DEFAULT_SEARCH_NUMBER).toBool(); }
     void setSearchNumber(bool enabled) { setValue(KEY_SEARCH_NUMBER, enabled); }
@@ -129,7 +129,8 @@ class Settings : public QSettings
 
     Settings(QString organization, QString application)
         : QSettings(organization, application)
-    {}
+    {
+    }
 };
 
 #endif // SETTINGS_HPP

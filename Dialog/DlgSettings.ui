@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
-    <height>443</height>
+    <width>486</width>
+    <height>477</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,38 +21,38 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="LabelRK">
+       <widget class="QLabel" name="LabelTBurl">
         <property name="text">
-         <string>Rebuilding Kit:</string>
+         <string>Technical Bulletin:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="EditRK">
+       <widget class="QLineEdit" name="EditTBurl">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="ButtonResetRK">
+       <widget class="QPushButton" name="ButtonResetTBurl">
         <property name="text">
          <string>Reset</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="LabelRM">
+       <widget class="QLabel" name="LabelTechPubUrl">
         <property name="text">
-         <string>Rebuilding Manual:</string>
+         <string>Technical Documents:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="EditRM"/>
+       <widget class="QLineEdit" name="EditTechPubUrl"/>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="ButtonResetRM">
+       <widget class="QPushButton" name="ButtonResetTechPubUrl">
         <property name="text">
          <string>Reset</string>
         </property>
@@ -137,7 +137,7 @@
         <item row="1" column="0">
          <widget class="QCheckBox" name="CheckSearchNumber">
           <property name="text">
-           <string>Number</string>
+           <string>TB Number</string>
           </property>
          </widget>
         </item>
@@ -287,10 +287,10 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>EditRK</tabstop>
-  <tabstop>ButtonResetRK</tabstop>
-  <tabstop>EditRM</tabstop>
-  <tabstop>ButtonResetRM</tabstop>
+  <tabstop>EditTBurl</tabstop>
+  <tabstop>ButtonResetTBurl</tabstop>
+  <tabstop>EditTechPubUrl</tabstop>
+  <tabstop>ButtonResetTechPubUrl</tabstop>
   <tabstop>CheckRTSearch</tabstop>
   <tabstop>CheckWholeWordsOnly</tabstop>
   <tabstop>CheckSearchNumber</tabstop>

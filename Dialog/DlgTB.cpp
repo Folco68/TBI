@@ -45,6 +45,7 @@
 DlgTB::DlgTB(MainWindow* parent, QString title)
     : QDialog(parent)
     , ui(new Ui::DlgTB)
+    , DLMenu(new DownloadMenu)
 {
     // UI
     ui->setupUi(this);
@@ -54,15 +55,15 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     ui->ComboCategory->addItems(Settings::instance()->categories());
 
     // Create the Screen menu
-    QMenu* ScreenMenu = new QMenu(this);
+    QMenu*   ScreenMenu           = new QMenu(this);
     QAction* ActionCopyScreenshot = ScreenMenu->addAction("Copy to clipboard");
-    QAction* ActionSaveToFile = ScreenMenu->addAction("Save to file");
+    QAction* ActionSaveToFile     = ScreenMenu->addAction("Save to file");
     ui->ButtonScreen->setMenu(ScreenMenu);
 
     // Create the Copy menu
-    QMenu* CopyMenu = new QMenu(this);
+    QMenu*   CopyMenu         = new QMenu(this);
     QAction* ActionCopyHeader = CopyMenu->addAction("Header");
-    QAction* ActionCopyAll = CopyMenu->addAction("All");
+    QAction* ActionCopyAll    = CopyMenu->addAction("All");
     ui->ButtonCopy->setMenu(CopyMenu);
 
     // Standard buttons
@@ -72,39 +73,18 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     // Button Web page
     connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
     connect(ui->ButtonWebPage, &QPushButton::clicked, this, [this]() {
-        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublication()).arg(ui->EditNumber->text()));
+        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletin()).arg(ui->EditNumber->text()));
         ui->EditKeywords->setFocus();
     });
 
     // Button Download
-    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { ui->ButtonDownload->setDisabled(ui->EditTechPub->text().isEmpty()); });
+    // The button is enabled if there is at least one technical publication downloadable.
+    // The download are available in the menu attached to the button
     connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() {
-        // Retrieve and split the documents names
-        QString Field = ui->EditTechPub->text();
-        QStringList DocList = Field.split(QChar(','), Qt::SkipEmptyParts, Qt::CaseInsensitive);
-
-        // Clear the previous menu if one exists and create a new one if needed
-        if (this->DocMenu != nullptr) {
-            delete this->DocMenu;
-            this->DocMenu = nullptr;
-        }
-        if (!DocList.isEmpty()) {
-            this->DocMenu = new QMenu;
-
-            // Add all the docs, creating their own lambda function when the download is triggered
-            for (int i = 0; i < DocList.count(); i++) {
-                QAction* DocAction = this->DocMenu->addAction(DocList.at(i).trimmed());
-                connect(DocAction, &QAction::triggered, this, [this, DocAction]() {
-                    QString FullName = DocAction->text();
-                    QString Name = FullName.section(QChar('-'), 1);
-                    QDesktopServices::openUrl(QString(Settings::instance()->baseURLRebuildingManual()).arg(Name));
-                    ui->EditKeywords->setFocus();
-                });
-            }
-
-            // Finally, add the menu to the download button
-            ui->ButtonDownload->setMenu(this->DocMenu);
-        }
+        QString DocsField = ui->EditTechPub->text();
+        this->DLMenu->setItems(DocsField);
+        ui->ButtonDownload->setMenu(this->DLMenu);
+        ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
     });
 
     // Menus actions
@@ -134,16 +114,17 @@ DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
 DlgTB::~DlgTB()
 {
     delete ui;
+    delete this->DLMenu;
 }
 
 void DlgTB::accept()
 {
-    // Save the category in the category list if it's a new one
-    QStringList list = Settings::instance()->categories();
-    QString category = ui->ComboCategory->currentText();
-    if (!list.contains(category, Qt::CaseInsensitive)) {
-        list << category;
-        Settings::instance()->setCategories(list);
+    // Save the category if it does not exist in the list yet
+    QStringList List     = Settings::instance()->categories();
+    QString     Category = ui->ComboCategory->currentText();
+    if (!List.contains(Category, Qt::CaseInsensitive)) {
+        List << Category;
+        Settings::instance()->setCategories(List);
     }
 
     // Finally, run QDialog accept
@@ -194,17 +175,17 @@ void DlgTB::fillTB(TechnicalBulletin* tb)
 //
 TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
 {
-    TechnicalBulletin* tb = nullptr;
+    TechnicalBulletin* TB = nullptr;
 
     // Create and exec dialog
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
-    if (dlg->exec() == QDialog::Accepted) {
-        tb = new TechnicalBulletin;
-        dlg->fillTB(tb);
+    DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
+    if (Dlg->exec() == QDialog::Accepted) {
+        TB = new TechnicalBulletin;
+        Dlg->fillTB(TB);
     }
 
-    delete dlg;
-    return tb;
+    delete Dlg;
+    return TB;
 }
 
 //  newDlgTB (static)
@@ -213,20 +194,20 @@ TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
 //
 TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
 {
-    TechnicalBulletin* tb = new TechnicalBulletin(data);
+    TechnicalBulletin* TB = new TechnicalBulletin(data);
 
     // Create and exec the dialog. Update TB if the dialog was accepted, else destroy it
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), tb->number()), tb);
-    if (dlg->exec() == QDialog::Accepted) {
-        dlg->fillTB(tb);
+    DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), TB->number()), TB);
+    if (Dlg->exec() == QDialog::Accepted) {
+        Dlg->fillTB(TB);
     }
     else {
-        delete tb;
-        tb = nullptr;
+        delete TB;
+        TB = nullptr;
     }
 
-    delete dlg;
-    return tb;
+    delete Dlg;
+    return TB;
 }
 
 //  editDlgTB (static)
@@ -235,16 +216,16 @@ TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
 //
 bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
 {
-    bool ret = false;
+    bool Ret = false;
 
-    DlgTB* dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()), tb);
-    if (dlg->exec() == QDialog::Accepted) {
-        dlg->fillTB(tb);
-        ret = true;
+    DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()), tb);
+    if (Dlg->exec() == QDialog::Accepted) {
+        Dlg->fillTB(tb);
+        Ret = true;
     }
 
-    delete dlg;
-    return ret;
+    delete Dlg;
+    return Ret;
 }
 
 //  dragEnterEvent
@@ -263,15 +244,15 @@ void DlgTB::dragEnterEvent(QDragEnterEvent* event)
 //
 void DlgTB::dropEvent(QDropEvent* event)
 {
-    TechnicalBulletin* tb = new TechnicalBulletin(event->mimeData()->data("text/plain"));
-    fillUI(tb);
-    delete tb;
+    TechnicalBulletin* TB = new TechnicalBulletin(event->mimeData()->data("text/plain"));
+    fillUI(TB);
+    delete TB;
 }
 
 void DlgTB::copyScreenshot()
 {
-    QPixmap screenshot = this->grab();
-    QApplication::clipboard()->setPixmap(screenshot);
+    QPixmap Screenshot = this->grab();
+    QApplication::clipboard()->setPixmap(Screenshot);
 }
 
 void DlgTB::saveToFile()
@@ -280,9 +261,9 @@ void DlgTB::saveToFile()
     // - get title
     // - split it and set to upper case every first char
     // - join
-    QString Filename = ui->EditTitle->text();
-    QStringList Words = Filename.split(' ', Qt::SkipEmptyParts);
-    Filename = QDir::homePath() + '/';
+    QString     Filename = ui->EditTitle->text();
+    QStringList Words    = Filename.split(' ', Qt::SkipEmptyParts);
+    Filename             = QDir::homePath() + '/';
 
     for (int i = 0; i < Words.count(); i++) {
         QString Word = Words.at(i);
@@ -297,8 +278,8 @@ void DlgTB::saveToFile()
     }
 
     // Perform the screenshot and try to save it
-    QPixmap screen = this->grab();
-    if (!screen.save(Filename)) {
+    QPixmap Screenshot = this->grab();
+    if (!Screenshot.save(Filename)) {
         QMessageBox::critical(this, WINDOW_TITLE, tr("Can't save the screenshot"));
     }
 }
@@ -321,14 +302,14 @@ QString DlgTB::getHeader()
 {
     QString Data;
     Data.append("Bulletin No: %1\n")
-        .append("Title: %2\n")
-        .append("TB Category: %3\n")
-        .append("Rebuilding Kit: %4\n")
-        .append("Technical Publication: %5\n")
-        .append("Release date: %6\n")
-        .append("Registered by: %7\n")
-        .append("Replaces: %8\n")
-        .append("Replaced by: %9");
+      .append("Title: %2\n")
+      .append("TB Category: %3\n")
+      .append("Rebuilding Kit: %4\n")
+      .append("Technical Publication: %5\n")
+      .append("Release date: %6\n")
+      .append("Registered by: %7\n")
+      .append("Replaces: %8\n")
+      .append("Replaced by: %9");
 
     return Data.arg(ui->EditNumber->text(),
                     ui->EditTitle->text(),

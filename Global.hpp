@@ -25,10 +25,10 @@
 // Window parameters
 #define WINDOW_TITLE "Technical Bulletin Indexer"
 
-#define MAIN_MINIMUM_WIDTH 1024
+#define MAIN_MINIMUM_WIDTH  1024
 #define MAIN_MINIMUM_HEIGHT 768
 
-#define DLGTB_WINDOW_WIDTH 800
+#define DLGTB_WINDOW_WIDTH  800
 #define DLGTB_WINDOW_HEIGHT 600
 
 #define DLGSETTINGS_WINDOW_WIDTH 800
@@ -38,14 +38,14 @@
 
 // QCoreApplication settings (for QSettings)
 #define ORGANIZATION_NAME "FolcoSoft"
-#define APPLICATION_NAME "TBI"
+#define APPLICATION_NAME  "TBI"
 
 // Command line option
 #define OPTION_FORCE_DATABASE_CHECK "--check-database"
 
 // Data filename
 #define TBI_BACKUP_FILENAME "index.bak"
-#define TBI_FILENAME "index.tbi"
+#define TBI_FILENAME        "index.tbi"
 
 // Screenshot file extension
 #define SCREENSHOT_EXTENSION ".png"

@@ -36,18 +36,18 @@ DlgSettings::DlgSettings(QWidget* parent)
     connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
     connect(ui->ButtonClearCategories, &QPushButton::clicked, this, []() { Settings::instance()->resetCategories(); });
-    connect(ui->ButtonResetRK, &QPushButton::clicked, this, [this]() {
-        Settings::instance()->resetBaseURLTechnicalPublications();
-        ui->EditRK->setText(Settings::instance()->baseURLTechnicalPublication());
+    connect(ui->ButtonResetTBurl, &QPushButton::clicked, this, [this]() {
+        Settings::instance()->resetBaseURLTechnicalBulletin();
+        ui->EditTBurl->setText(Settings::instance()->baseURLTechnicalBulletin());
     });
-    connect(ui->ButtonResetRM, &QPushButton::clicked, this, [this]() {
-        Settings::instance()->resetBaseURLRebuildingManual();
-        ui->EditRM->setText(Settings::instance()->baseURLRebuildingManual());
+    connect(ui->ButtonResetTechPubUrl, &QPushButton::clicked, this, [this]() {
+        Settings::instance()->resetBaseURLTechnicalPublication();
+        ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublication());
     });
 
     // Fill UI
-    ui->EditRK->setText(Settings::instance()->baseURLTechnicalPublication());
-    ui->EditRM->setText(Settings::instance()->baseURLRebuildingManual());
+    ui->EditTBurl->setText(Settings::instance()->baseURLTechnicalBulletin());
+    ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublication());
     ui->CheckRTSearch->setChecked(Settings::instance()->realTimeSearchEnabled());
     ui->CheckWholeWordsOnly->setChecked(Settings::instance()->wholeWordsOnlyEnabled());
     ui->CheckSearchNumber->setChecked(Settings::instance()->searchNumberEnabled());
@@ -69,48 +69,50 @@ DlgSettings::~DlgSettings()
 
 bool DlgSettings::showDlgSettings(QWidget* parent)
 {
-    bool SearchChanged = false;
-    DlgSettings* dlg = new DlgSettings(parent);
+    bool         SearchChanged = false;
+    DlgSettings* Dlg           = new DlgSettings(parent);
 
     // Save initial search state
-    bool OrgNumber = dlg->ui->CheckSearchNumber->isChecked();
-    bool OrgTitle = dlg->ui->CheckSearchTitle->isChecked();
-    bool OrgCaterogy = dlg->ui->CheckSearchCategory->isChecked();
-    bool OrgRK = dlg->ui->CheckSearchRK->isChecked();
-    bool OrgTechPub = dlg->ui->CheckSearchTechPub->isChecked();
-    bool OrgReleaseDate = dlg->ui->CheckSearchReleaseDate->isChecked();
-    bool OrgRegisteredBy = dlg->ui->CheckSearchRegisteredBy->isChecked();
-    bool OrgReplaces = dlg->ui->CheckSearchReplaces->isChecked();
-    bool OrgReplacedBy = dlg->ui->CheckSearchReplacedBy->isChecked();
-    bool OrgWholeWordsOnly = dlg->ui->CheckWholeWordsOnly->isChecked();
-    bool OrgRealTimeSearch = dlg->ui->CheckRTSearch->isChecked();
-    bool OrgNotes = dlg->ui->CheckSearchNotes->isChecked();
+    bool OrgNumber         = Dlg->ui->CheckSearchNumber->isChecked();
+    bool OrgTitle          = Dlg->ui->CheckSearchTitle->isChecked();
+    bool OrgCaterogy       = Dlg->ui->CheckSearchCategory->isChecked();
+    bool OrgRK             = Dlg->ui->CheckSearchRK->isChecked();
+    bool OrgTechPub        = Dlg->ui->CheckSearchTechPub->isChecked();
+    bool OrgReleaseDate    = Dlg->ui->CheckSearchReleaseDate->isChecked();
+    bool OrgRegisteredBy   = Dlg->ui->CheckSearchRegisteredBy->isChecked();
+    bool OrgReplaces       = Dlg->ui->CheckSearchReplaces->isChecked();
+    bool OrgReplacedBy     = Dlg->ui->CheckSearchReplacedBy->isChecked();
+    bool OrgWholeWordsOnly = Dlg->ui->CheckWholeWordsOnly->isChecked();
+    bool OrgRealTimeSearch = Dlg->ui->CheckRTSearch->isChecked();
+    bool OrgNotes          = Dlg->ui->CheckSearchNotes->isChecked();
 
-    if (dlg->exec() == QDialog::Accepted) {
-        Settings::instance()->setBaseURLRebuildingManual(dlg->ui->EditRM->text());
-        Settings::instance()->setBaseURLTechnicalPublications(dlg->ui->EditRK->text());
-        Settings::instance()->setRealTimeSearchEnabled(dlg->ui->CheckRTSearch->isChecked());
-        Settings::instance()->setWholeWordsOnlyEnabled(dlg->ui->CheckWholeWordsOnly->isChecked());
-        Settings::instance()->setSearchNumber(dlg->ui->CheckSearchNumber->isChecked());
-        Settings::instance()->setSearchTitle(dlg->ui->CheckSearchTitle->isChecked());
-        Settings::instance()->setSearchCategory(dlg->ui->CheckSearchCategory->isChecked());
-        Settings::instance()->setSearchRK(dlg->ui->CheckSearchRK->isChecked());
-        Settings::instance()->setSearchTechPub(dlg->ui->CheckSearchTechPub->isChecked());
-        Settings::instance()->setSearchReleaseDate(dlg->ui->CheckSearchReleaseDate->isChecked());
-        Settings::instance()->setSearchRegisteredBy(dlg->ui->CheckSearchRegisteredBy->isChecked());
-        Settings::instance()->setSearchReplaces(dlg->ui->CheckSearchReplaces->isChecked());
-        Settings::instance()->setSearchReplacedBy(dlg->ui->CheckSearchReplacedBy->isChecked());
-        Settings::instance()->setSearchComment(dlg->ui->CheckSearchNotes->isChecked());
+    // Execute the dialog
+    // Save the settings if it was accepted
+    if (Dlg->exec() == QDialog::Accepted) {
+        Settings::instance()->setBaseURLTechnicalPublication(Dlg->ui->EditTechPubUrl->text());
+        Settings::instance()->setBaseURLTechnicalBulletin(Dlg->ui->EditTBurl->text());
+        Settings::instance()->setRealTimeSearchEnabled(Dlg->ui->CheckRTSearch->isChecked());
+        Settings::instance()->setWholeWordsOnlyEnabled(Dlg->ui->CheckWholeWordsOnly->isChecked());
+        Settings::instance()->setSearchNumber(Dlg->ui->CheckSearchNumber->isChecked());
+        Settings::instance()->setSearchTitle(Dlg->ui->CheckSearchTitle->isChecked());
+        Settings::instance()->setSearchCategory(Dlg->ui->CheckSearchCategory->isChecked());
+        Settings::instance()->setSearchRK(Dlg->ui->CheckSearchRK->isChecked());
+        Settings::instance()->setSearchTechPub(Dlg->ui->CheckSearchTechPub->isChecked());
+        Settings::instance()->setSearchReleaseDate(Dlg->ui->CheckSearchReleaseDate->isChecked());
+        Settings::instance()->setSearchRegisteredBy(Dlg->ui->CheckSearchRegisteredBy->isChecked());
+        Settings::instance()->setSearchReplaces(Dlg->ui->CheckSearchReplaces->isChecked());
+        Settings::instance()->setSearchReplacedBy(Dlg->ui->CheckSearchReplacedBy->isChecked());
+        Settings::instance()->setSearchComment(Dlg->ui->CheckSearchNotes->isChecked());
 
         // We return true if search conditions have changed
-        SearchChanged = (OrgNumber != dlg->ui->CheckSearchNumber->isChecked()) || (OrgTitle != dlg->ui->CheckSearchTitle->isChecked())
-                        || (OrgCaterogy != dlg->ui->CheckSearchCategory->isChecked()) || (OrgRK != dlg->ui->CheckSearchRK->isChecked())
-                        || (OrgTechPub != dlg->ui->CheckSearchTechPub->isChecked()) || (OrgReleaseDate != dlg->ui->CheckSearchReleaseDate->isChecked())
-                        || (OrgRegisteredBy != dlg->ui->CheckSearchRegisteredBy->isChecked()) || (OrgReplaces != dlg->ui->CheckSearchReplaces->isChecked())
-                        || (OrgReplacedBy != dlg->ui->CheckSearchReplacedBy->isChecked()) || (OrgWholeWordsOnly != dlg->ui->CheckWholeWordsOnly->isChecked())
-                        || (OrgRealTimeSearch != dlg->ui->CheckRTSearch->isChecked()) || (OrgNotes != dlg->ui->CheckSearchNotes->isChecked());
+        SearchChanged = (OrgNumber != Dlg->ui->CheckSearchNumber->isChecked()) || (OrgTitle != Dlg->ui->CheckSearchTitle->isChecked())
+                     || (OrgCaterogy != Dlg->ui->CheckSearchCategory->isChecked()) || (OrgRK != Dlg->ui->CheckSearchRK->isChecked())
+                     || (OrgTechPub != Dlg->ui->CheckSearchTechPub->isChecked()) || (OrgReleaseDate != Dlg->ui->CheckSearchReleaseDate->isChecked())
+                     || (OrgRegisteredBy != Dlg->ui->CheckSearchRegisteredBy->isChecked()) || (OrgReplaces != Dlg->ui->CheckSearchReplaces->isChecked())
+                     || (OrgReplacedBy != Dlg->ui->CheckSearchReplacedBy->isChecked()) || (OrgWholeWordsOnly != Dlg->ui->CheckWholeWordsOnly->isChecked())
+                     || (OrgRealTimeSearch != Dlg->ui->CheckRTSearch->isChecked()) || (OrgNotes != Dlg->ui->CheckSearchNotes->isChecked());
     }
 
-    delete dlg;
+    delete Dlg;
     return SearchChanged;
 }

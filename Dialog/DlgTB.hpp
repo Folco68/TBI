@@ -22,17 +22,19 @@
 #ifndef DLGTB_HPP
 #define DLGTB_HPP
 
+#include "DownloadMenu.hpp"
 #include "MainWindow.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QByteArray>
 #include <QDialog>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QList>
 #include <QMenu>
 #include <QString>
 
 namespace Ui {
-class DlgTB;
+    class DlgTB;
 }
 
 //  DlgTB
@@ -40,23 +42,24 @@ class DlgTB;
 // Class managing the UI allowing TB creation/edition
 // Static methods are used to call the dialog
 //
-class DlgTB : public QDialog
+class DlgTB: public QDialog
 {
     Q_OBJECT
 
   public:
-    static TechnicalBulletin* newDlgTB(MainWindow* parent);                  // New TB, created by hand
-    static TechnicalBulletin* newDlgTB(MainWindow* parent, QByteArray data); // New TB, created by drag'n drop
-    static bool editDlgTB(MainWindow* parent, TechnicalBulletin* tb);        // Existing TB edition
+    static TechnicalBulletin* newDlgTB(MainWindow* parent);                         // New TB, created by hand
+    static TechnicalBulletin* newDlgTB(MainWindow* parent, QByteArray data);        // New TB, created by drag'n drop or Copy/Paste
+    static bool               editDlgTB(MainWindow* parent, TechnicalBulletin* tb); // Existing TB, edition
 
   private:
     Ui::DlgTB* ui;
-    QMenu* DocMenu = nullptr;
+    DownloadMenu* DLMenu = nullptr; // Technical publications download menu, cleared then rebuilt at each relevant event
 
+    // Class
     DlgTB(MainWindow* parent, QString title);
     DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb);
     ~DlgTB() override;
-    void accept() override;
+    void accept() override; // Override this method to update the list of TB category if the current one is a new one
 
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -73,6 +76,7 @@ class DlgTB : public QDialog
     // Misc
     void fillUI(TechnicalBulletin* tb);
     void fillTB(TechnicalBulletin* tb);
+    void deleteMenuAndActions();
 };
 
 #endif // DLGTB_HPP

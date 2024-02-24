@@ -26,7 +26,7 @@
 #include <QKeySequence>
 #include <QWidget>
 
-class ContextMenuAction : public QAction
+class ContextMenuAction: public QAction
 {
   public:
     ContextMenuAction(const QString& text, QObject* parent, QKeySequence shortcut = QKeySequence());
