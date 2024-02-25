@@ -78,15 +78,9 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     });
 
     // Button Download
-    // The button is enabled if there is at least one technical publication downloadable.
-    // The download are available in the menu attached to the button
-    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() {
-        QString DocsField = ui->EditTechPub->text();
-        QString NumberField = ui->EditNumber->text().trimmed();
-        this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
-        ui->ButtonDownload->setMenu(this->DLMenu);
-        ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
-    });
+    // The downloads are available in the menu attached to the button
+    connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { updateButtonDownload(); });
+    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { updateButtonDownload(); });
 
     // Menus actions
     connect(ActionCopyScreenshot, &QAction::triggered, this, [this]() { copyScreenshot(); });
@@ -180,6 +174,7 @@ TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
 
     // Create and exec dialog
     DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
+    Dlg->updateButtonDownload();
     if (Dlg->exec() == QDialog::Accepted) {
         TB = new TechnicalBulletin;
         Dlg->fillTB(TB);
@@ -297,6 +292,15 @@ void DlgTB::copyAll()
     Data.append("Notes: %1");
     Data = Data.arg(ui->TexteditComment->toPlainText());
     QApplication::clipboard()->setText(Data);
+}
+
+void DlgTB::updateButtonDownload()
+{
+    QString DocsField   = ui->EditTechPub->text();
+    QString NumberField = ui->EditNumber->text().trimmed();
+    this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
+    ui->ButtonDownload->setMenu(this->DLMenu);
+    ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
 }
 
 QString DlgTB::getHeader()

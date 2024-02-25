@@ -70,6 +70,7 @@ class DlgTB: public QDialog
     void saveToFile();
     void copyHeader();
     void copyAll();
+    void updateButtonDownload();
 
     QString getHeader();
 

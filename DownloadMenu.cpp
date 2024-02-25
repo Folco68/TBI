@@ -45,26 +45,28 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
 {
     deleteActions();
 
-    // Always add the TB (pfd)
-    QAction* PdfAction = addAction("Technical Bulletin");
-    this->ActionList.append(PdfAction);
-    connect(PdfAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
-        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
-        if (WidgetToFocus != nullptr) {
-            WidgetToFocus->setFocus();
-        }
-    });
+    if (!TBnumber.isEmpty()) {
+        // Add the TB (pfd)
+        QAction* PdfAction = addAction("Technical Bulletin");
+        this->ActionList.append(PdfAction);
+        connect(PdfAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
+            QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
+            if (WidgetToFocus != nullptr) {
+                WidgetToFocus->setFocus();
+            }
+        });
 
-    // Always add the TB CTI (pfd)
-    QAction* CTIAction = addAction("Customer Technical Information");
-    this->ActionList.append(CTIAction);
-    TBnumber += CTI_SUFFIX;
-    connect(CTIAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
-        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
-        if (WidgetToFocus != nullptr) {
-            WidgetToFocus->setFocus();
-        }
-    });
+        // Add the TB CTI (pfd)
+        QAction* CTIAction = addAction("Customer Technical Information");
+        this->ActionList.append(CTIAction);
+        TBnumber += CTI_SUFFIX;
+        connect(CTIAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
+            QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
+            if (WidgetToFocus != nullptr) {
+                WidgetToFocus->setFocus();
+            }
+        });
+    }
 
     // Split the documents names
     QStringList DocList = DocsString.split(QChar(','), Qt::SkipEmptyParts, Qt::CaseInsensitive);
