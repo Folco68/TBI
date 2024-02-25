@@ -39,7 +39,7 @@ class DownloadMenu: public QMenu
   public:
     DownloadMenu(QWidget* parent = nullptr);
     ~DownloadMenu();
-    void setItems(QString DocsString, QWidget* WidgetToFocus = nullptr);
+    void setItems(QString DocsString, QString TBnumber, QWidget* WidgetToFocus = nullptr);
 
   private:
     QList<QAction*> ActionList;

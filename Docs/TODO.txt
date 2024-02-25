@@ -34,6 +34,6 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 + put the readme in an external file
 + complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
 + integrate Github changelog
-- download TB (pdf)
++ download TB (pdf) and CTI (TB + "_CTI")
 - download everything in a dedicated location when saving the TB
 - separate TB index and UI (a singleton holding all the TBs?)

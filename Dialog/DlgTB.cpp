@@ -73,7 +73,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     // Button Web page
     connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
     connect(ui->ButtonWebPage, &QPushButton::clicked, this, [this]() {
-        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletin()).arg(ui->EditNumber->text()));
+        QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinWebpage()).arg(ui->EditNumber->text()));
         ui->EditKeywords->setFocus();
     });
 
@@ -82,7 +82,8 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     // The download are available in the menu attached to the button
     connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() {
         QString DocsField = ui->EditTechPub->text();
-        this->DLMenu->setItems(DocsField, ui->EditKeywords);
+        QString NumberField = ui->EditNumber->text().trimmed();
+        this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
         ui->ButtonDownload->setMenu(this->DLMenu);
         ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
     });

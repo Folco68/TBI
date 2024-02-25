@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>486</width>
-    <height>477</height>
+    <width>516</width>
+    <height>507</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,45 +20,7 @@
       <string>Base URLs</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="LabelTBurl">
-        <property name="text">
-         <string>Technical Bulletin:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="EditTBurl">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="ButtonResetTBurl">
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="LabelTechPubUrl">
-        <property name="text">
-         <string>Technical Documents:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="EditTechPubUrl"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="ButtonResetTechPubUrl">
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QLabel" name="LabelTip">
         <property name="font">
          <font>
@@ -67,6 +29,61 @@
         </property>
         <property name="text">
          <string>&quot;%1&quot; will be replaced by the document number</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="ButtonResetTBwebpageUrl">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="LabelTBwebpageUrl">
+        <property name="text">
+         <string>Technical Bulletin webpage:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="EditTechPubUrl"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="ButtonResetTechPubUrl">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="EditTBwebpageUrl">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="LabelTechPubUrl">
+        <property name="text">
+         <string>Technical Documents:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="ButtonResetTBpdfUrl">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="EditTBpdfUrl"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="LabelTBpdfUrl">
+        <property name="text">
+         <string>Technical Bulletin PDF:</string>
         </property>
        </widget>
       </item>
@@ -287,8 +304,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>EditTBurl</tabstop>
-  <tabstop>ButtonResetTBurl</tabstop>
+  <tabstop>EditTBwebpageUrl</tabstop>
+  <tabstop>ButtonResetTBwebpageUrl</tabstop>
   <tabstop>EditTechPubUrl</tabstop>
   <tabstop>ButtonResetTechPubUrl</tabstop>
   <tabstop>CheckRTSearch</tabstop>

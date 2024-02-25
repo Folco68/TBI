@@ -25,6 +25,9 @@
 Settings::Settings(QString organization, QString application)
     : QSettings(organization, application)
 {
+    // Remove some old keys to clean up the Windows Registry
+    remove("baseUrlTechPub");
+    remove("baseUrlRM");
 }
 
 Settings::~Settings()

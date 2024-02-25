@@ -137,3 +137,8 @@
 
 25/02/2024
 - revamped the DlgHelp dialog (new tabs, dynamic strings, usage of QRC to embed text files)
+
+25/02/2024
+- added the ability to download Technical Bulletin and Customer Technical Information files
+- renamed some Windows Registry keys
+- automatically clean some old keys (once per application run)

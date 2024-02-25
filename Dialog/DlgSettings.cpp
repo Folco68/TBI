@@ -36,18 +36,23 @@ DlgSettings::DlgSettings(QWidget* parent)
     connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
     connect(ui->ButtonClearCategories, &QPushButton::clicked, this, []() { Settings::instance()->resetCategories(); });
-    connect(ui->ButtonResetTBurl, &QPushButton::clicked, this, [this]() {
-        Settings::instance()->resetBaseURLTechnicalBulletin();
-        ui->EditTBurl->setText(Settings::instance()->baseURLTechnicalBulletin());
+    connect(ui->ButtonResetTBwebpageUrl, &QPushButton::clicked, this, [this]() {
+        Settings::instance()->resetBaseURLTechnicalBulletinWebpage();
+        ui->EditTBwebpageUrl->setText(Settings::instance()->baseURLTechnicalBulletinWebpage());
+    });
+    connect(ui->ButtonResetTBpdfUrl, &QPushButton::clicked, this, [this]() {
+        Settings::instance()->resetBaseURLTechnicalBulletinPDF();
+        ui->EditTBpdfUrl->setText(Settings::instance()->baseURLTechnicalBulletinPDF());
     });
     connect(ui->ButtonResetTechPubUrl, &QPushButton::clicked, this, [this]() {
-        Settings::instance()->resetBaseURLTechnicalPublication();
-        ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublication());
+        Settings::instance()->resetBaseURLTechnicalPublications();
+        ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublications());
     });
 
     // Fill UI
-    ui->EditTBurl->setText(Settings::instance()->baseURLTechnicalBulletin());
-    ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublication());
+    ui->EditTBwebpageUrl->setText(Settings::instance()->baseURLTechnicalBulletinWebpage());
+    ui->EditTBpdfUrl->setText(Settings::instance()->baseURLTechnicalBulletinPDF());
+    ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublications());
     ui->CheckRTSearch->setChecked(Settings::instance()->realTimeSearchEnabled());
     ui->CheckWholeWordsOnly->setChecked(Settings::instance()->wholeWordsOnlyEnabled());
     ui->CheckSearchNumber->setChecked(Settings::instance()->searchNumberEnabled());
@@ -89,8 +94,9 @@ bool DlgSettings::showDlgSettings(QWidget* parent)
     // Execute the dialog
     // Save the settings if it was accepted
     if (Dlg->exec() == QDialog::Accepted) {
-        Settings::instance()->setBaseURLTechnicalPublication(Dlg->ui->EditTechPubUrl->text());
-        Settings::instance()->setBaseURLTechnicalBulletin(Dlg->ui->EditTBurl->text());
+        Settings::instance()->setBaseURLTechnicalPublications(Dlg->ui->EditTechPubUrl->text());
+        Settings::instance()->setBaseURLTechnicalBulletinPDF(Dlg->ui->EditTBpdfUrl->text());
+        Settings::instance()->setBaseURLTechnicalBulletinWepbage(Dlg->ui->EditTBwebpageUrl->text());
         Settings::instance()->setRealTimeSearchEnabled(Dlg->ui->CheckRTSearch->isChecked());
         Settings::instance()->setWholeWordsOnlyEnabled(Dlg->ui->CheckWholeWordsOnly->isChecked());
         Settings::instance()->setSearchNumber(Dlg->ui->CheckSearchNumber->isChecked());

@@ -36,6 +36,9 @@
 // Keyword separator in UI
 #define KEYWORD_SEPARATOR " "
 
+// Suffix of a CTI PDF file, added to the regular TB PDF file
+#define CTI_SUFFIX "_CTI"
+
 // QCoreApplication settings (for QSettings)
 #define ORGANIZATION_NAME "FolcoSoft"
 #define APPLICATION_NAME  "TBI"

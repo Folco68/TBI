@@ -279,7 +279,8 @@ void MainWindow::updateUI()
     if (ItemSelected) {
         int     Row       = ui->TableTB->currentRow();
         QString DocsField = ui->TableTB->item(Row, COLUMN_TECH_PUB)->text();
-        this->DLMenu->setItems(DocsField);
+        QString TBnumberField = ui->TableTB->item(Row, COLUMN_NUMBER)->text().trimmed();
+        this->DLMenu->setItems(DocsField, TBnumberField);
         this->ActionDownload->setMenu(this->DLMenu);
         this->ActionDownload->setDisabled(this->DLMenu->isEmpty());
     }
@@ -696,7 +697,7 @@ void MainWindow::copyURLToClipboard()
     QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
     int                      Row       = Selection.at(0)->row();
     TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QGuiApplication::clipboard()->setText(Settings::instance()->baseURLTechnicalBulletin().arg(TB->number()));
+    QGuiApplication::clipboard()->setText(Settings::instance()->baseURLTechnicalBulletinWebpage().arg(TB->number()));
 }
 
 //  openURL
@@ -708,7 +709,7 @@ void MainWindow::openURL()
     QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
     int                      Row       = Selection.at(0)->row();
     TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletin()).arg(TB->number()));
+    QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinWebpage()).arg(TB->number()));
 }
 
 //  openDBv0
