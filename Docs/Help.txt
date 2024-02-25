@@ -1,34 +1,8 @@
-============================
-/                            \
-| Technical Bulletin Indexer |
-\                            /
-============================
-
-
-About
------
-
-Author:                           Martial Demolins
-Mail:                             martial.demolins@gmail.com, martial.demolins@tetrapak.com
-Position:                         Service Engineer (S2), Market France BeNeLux
-
-License:                          GPL v3. You can find it at https://www.gnu.org/licenses/gpl-3.0.en.html
-Version:                          1.4.1
-Language:                         C++
-Framework:                        Qt 6.5.2
-Source and binary repository:     https://github.com/Folcogh/TBI
-Changelog:                        https://github.com/Folcogh/TBI/commits/master
-
-
-Purpose
--------
-
-The goal of this program is to
-- index technical bulletin (TB)
-- use official release data and custom keywords to easily find a publicated kit
-- browse the official TB page in one clickfile:///C:/Users/FRDEMOLINSM/OneDrive/Dev/TBI/Dialog/DlgHelp.ui
-- download the documentation of a kit in one click
-
+                          ============================
+                         /                            \
+                         | Technical Bulletin Indexer |
+                         \                            /
+                          ============================
 
 How to use
 ----------

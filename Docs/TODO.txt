@@ -24,16 +24,16 @@ o automatically update obsolete TB (how? To be designed)
 + add Ctrl+F to focus the search field of the main window
 + document the version formats
 + compile against MSVC (better integration with MSW?)
-o implement bool MainWindow::checkStream(QDataStream&) to remove code duplication
+o implement bool MainWindow::checkStream(QDataStream&) to remove code duplication (not done because few space to to save, some specific cases, ...)
 + Download documentation depending of its availability
 + rename "RM URL" to "tech pub URL", everywhere (Settings, DlgSettings, MainWindow, ...)
 + be consistent in local vars naming (lower case or camel case)
 + at startup, updateUI() is called twice per TB + once when the MainWindow is populated
 + Make download menus dynamic
 + complete commentaries
-- separate TB index and UI (a singleton holding all the TBs?)
-
-Help dlg revamping
 + put the readme in an external file
-- complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
++ complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
 + integrate Github changelog
+- download TB (pdf)
+- download everything in a dedicated location when saving the TB
+- separate TB index and UI (a singleton holding all the TBs?)

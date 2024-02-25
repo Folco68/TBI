@@ -134,3 +134,6 @@
 - started to build the DlgHelp with external ressources (HelpRes.qrc)
 - added a lot of comment
 - renamed some files/methods/variables to be more consistent
+
+25/02/2024
+- revamped the DlgHelp dialog (new tabs, dynamic strings, usage of QRC to embed text files)

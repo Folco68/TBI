@@ -46,4 +46,10 @@ class DlgHelp: public QDialog
     Ui::DlgHelp* ui;
 };
 
+// Strings replaced in the about file at run time
+#define REPLACE_APPLICATION_VERSION_STR "REPLACE_APPLICATION_VERSION_STR"
+#define REPLACE_POSITION_STR            "REPLACE_POSITION_STR"
+#define REPLACE_COPYRIGHT_STR           "REPLACE_COPYRIGHT_STR"
+#define REPLACE_QT_VERSION_STR          "REPLACE_QT_VERSION_STR"
+
 #endif // DLGHELP_HPP

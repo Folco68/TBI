@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="Tabs">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="TabAbout">
       <attribute name="title">
@@ -31,7 +31,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QPlainTextEdit" name="plainTextEdit_2">
+        <widget class="QPlainTextEdit" name="TextEditAbout">
          <property name="font">
           <font>
            <family>Consolas</family>
@@ -44,13 +44,45 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="TabHelp">
+      <attribute name="title">
+       <string>Help</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QPlainTextEdit" name="TextEditHelp">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabChangelog">
+      <attribute name="title">
+       <string>Changelog</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QPlainTextEdit" name="TextEditChangelog">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="TabLicense">
       <attribute name="title">
        <string>License</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QPlainTextEdit" name="plainTextEdit">
+        <widget class="QPlainTextEdit" name="TextEditLicense">
          <property name="plainText">
           <string>                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -673,6 +705,22 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabToDo">
+      <attribute name="title">
+       <string>To Do</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QPlainTextEdit" name="TextEditToDo">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+          </font>
          </property>
         </widget>
        </item>
