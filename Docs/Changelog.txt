@@ -144,5 +144,8 @@
 - automatically clean some old keys (once per application run)
 
 25/02/2024
-- Fixed the DL sub-menu not offering to download TB PDF/CTI
-- Fixed the DL sub-menu offering to download TB PDF/CTI even if there is no  RK number
+- fixed the DL sub-menu not offering to download TB PDF/CTI
+- fixed the DL sub-menu offering to download TB PDF/CTI even if there is no  RK number
+
+26/02/2024
+- bumped to version 1.6.0

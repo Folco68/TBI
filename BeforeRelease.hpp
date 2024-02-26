@@ -6,7 +6,7 @@
 // Update Changelog.txt with the git changelog
 // Update TODO.txt if necessary
 //
-#define APPLICATION_VERSION_STR "1.5.1"
+#define APPLICATION_VERSION_STR "1.6.0"
 #define POSITION_STR            "Service Engineer (S2), Market France/BeNeLux"
 #define COPYRIGHT_STR           "(c)2020-2024 Martial Demolins"
 
