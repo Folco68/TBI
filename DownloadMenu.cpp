@@ -78,7 +78,11 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
             this->ActionList.append(DocAction);
             connect(DocAction, &QAction::triggered, this, [DocAction, WidgetToFocus]() {
                 QString FullName = DocAction->text();
-                QString Name     = FullName.section(QChar('-'), 1);
+                // Support old BT style, don't remove the first part of the doc numbe rif there is not the prefix RM-/UP-/...
+                QString Name(FullName);
+                if (FullName.at(1).category() != QChar::Number_DecimalDigit) {
+                    Name = FullName.section(QChar('-'), 1);
+                }
                 QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublications()).arg(Name));
 
                 if (WidgetToFocus != nullptr) {

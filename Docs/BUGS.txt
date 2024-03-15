@@ -1,4 +1,5 @@
 - FIXED: the "merge keywords" option doesn't seem to work when updating a TB. Old keywords looks lost
 - FIXED: Cursor is not visible in the Keywords field when editing a TB
-- MainWindow.cpp, line 384. contains() highlighted for a warning
+- FIXED: MainWindow.cpp, line 384. contains() highlighted for a warning
 - FIXED: The download sub-menu doesn't offer anything in the DlgTB windows, while it should display at least PDF + CTI
+- FIXED: Impossible to download the RM of old-style TB, because the first part of the doc number is trimmed (the name should not be trimmed if it starts with a figure)

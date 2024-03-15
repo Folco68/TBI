@@ -265,7 +265,7 @@ void MainWindow::updateUI()
     // Status bar
     int     Count  = ui->TableTB->rowCount();
     QString Plural = Count > 1 ? "s" : "";
-    this->MessageTBCount->setText(tr("%1 Technical Bulletin%2 registered   %3").arg(Count).arg(Plural));
+    this->MessageTBCount->setText(tr("%1 Technical Bulletin%2 registered").arg(Count).arg(Plural));
     this->MessagePendingModifications->setText(this->Modified ? tr("Modifications pending") : tr("Index is saved"));
 
     // Actions (context menu)

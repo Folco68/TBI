@@ -149,3 +149,7 @@
 
 26/02/2024
 - bumped to version 1.6.0
+
+16/03/2024
+- FIXED: Impossible to download the RM of old-style TB, because the first part of the doc number is trimmed (the name should not be trimmed if it starts with a figure)
+- Removed a debug string chunk in the status line of MainWindow
