@@ -37,3 +37,4 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 + download TB (pdf) and CTI (TB + "_CTI")
 - download everything in a dedicated location when saving the TB
 - separate TB index and UI (a singleton holding all the TBs?)
+- RT search starts to show some slight lags with around 450 TB. Perform the search in a thread separated from the UI
