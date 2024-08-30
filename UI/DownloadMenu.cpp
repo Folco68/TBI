@@ -46,7 +46,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
     deleteActions();
 
     if (!TBnumber.isEmpty()) {
-        // Add the TB (pfd)
+        // Add the TB (pdf)
         QAction* PdfAction = addAction("Technical Bulletin");
         this->ActionList.append(PdfAction);
         connect(PdfAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
@@ -56,11 +56,11 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
             }
         });
 
-        // Add the TB CTI (pfd)
-        QAction* CTIAction = addAction("Customer Technical Information");
-        this->ActionList.append(CTIAction);
+        // Add the TB CTI (pdf)
+        QAction* CtiAction = addAction("Customer Technical Information");
+        this->ActionList.append(CtiAction);
         TBnumber += CTI_SUFFIX;
-        connect(CTIAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
+        connect(CtiAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
             QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
             if (WidgetToFocus != nullptr) {
                 WidgetToFocus->setFocus();
@@ -72,19 +72,18 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
     QStringList DocList = DocsString.split(QChar(','), Qt::SkipEmptyParts, Qt::CaseInsensitive);
 
     if (!DocList.isEmpty()) {
-        // Add all the docs, creating their own lambda function to start the download when the menu item is triggered
+        // Add all the docs, creating for each one a lambda function to start the download when the menu item is triggered
         for (int i = 0; i < DocList.count(); i++) {
             QAction* DocAction = addAction(DocList.at(i).trimmed());
             this->ActionList.append(DocAction);
             connect(DocAction, &QAction::triggered, this, [DocAction, WidgetToFocus]() {
                 QString FullName = DocAction->text();
-                // Support old BT style, don't remove the first part of the doc numbe rif there is not the prefix RM-/UP-/...
+                // Support old TB style, don't remove the first part of the doc number if there is not the prefix RM-/UP-/...
                 QString Name(FullName);
                 if (FullName.at(1).category() != QChar::Number_DecimalDigit) {
                     Name = FullName.section(QChar('-'), 1);
                 }
                 QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalPublications()).arg(Name));
-
                 if (WidgetToFocus != nullptr) {
                     WidgetToFocus->setFocus();
                 }

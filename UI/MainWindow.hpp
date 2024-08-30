@@ -22,9 +22,10 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+#include "../Index/TechnicalBulletin.hpp" // Probably to be removed after the data handling revamping?
+#include "../Index/ThreadIndex.hpp"
 #include "ContextMenuAction.hpp"
 #include "DownloadMenu.hpp"
-#include "TechnicalBulletin.hpp"
 #include <QByteArray>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -49,13 +50,14 @@ class MainWindow: public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(bool ForceDBCheck);
+    MainWindow(bool ForceIndexCheck);
     ~MainWindow() override;
-    bool tbNumberAlreadyExists(TechnicalBulletin* tb);
+    bool tbNumberAlreadyExists(TechnicalBulletin* tb); // To be removed when DlgTB requests the Index directly
 
   private:
     Ui::MainWindow* ui;
-    bool            Modified;
+    ThreadIndex*    Index;
+    bool            SaveInProgress;
 
     // Status bar
     QLabel* MessageTBCount;
@@ -80,28 +82,44 @@ class MainWindow: public QMainWindow
     void newTB();
     void editTB();
     void deleteTB();
-    void save();
     void search(bool ForceNewSearch = false);
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
 
-    // TB opening
-    void openDBv0(int count, QDataStream& stream, bool ForceDBCheck);
-    void openDBv1(QDataStream& stream, bool ForceDBCheck);
-
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
+    //    void dropEvent(QDropEvent* event) override;
 
     // Paste TB from mail to UI
     void paste();
 
     // Close handling (prevent from closing with unsaved data)
-    void closeEvent(QCloseEvent* event) override;
+    //    void closeEvent(QCloseEvent* event) override;
 
     // URL handling
     void copyURLToClipboard();
     void openURL();
+
+    // Log widget
+    void addLogEntry(QString text);
+    void addLogText(QString text);
+    bool FirstLogEntry;
+    bool TBreadFirst;
+
+    // Signals received from ThreadIndex
+    void openingIndex(qint32 version, qint32 count);
+    void tbRead(int count);
+    void indexOpenedSuccessfully(qint32 count);
+    void noIndexFound();
+    void failedToOpenIndex();
+    void invalidIndexIdentifier(QString magic);
+    void indexTooRecent(qint32 version);
+    void indexReadingFailed(int count);
+    void saveComplete(int result);
+
+    // Signals emitted to ThreadIndex
+  signals:
+    void save(bool backup);
 };
 
 // Table header index

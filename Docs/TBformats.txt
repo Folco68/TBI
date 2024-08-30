@@ -38,8 +38,9 @@ Format
 <
 qint32  0
 QString magic
-qint32 count
+qint32  count
 [TB]
 ...
+>
 
 TB is the same that in version 0

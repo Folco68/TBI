@@ -103,7 +103,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
     : DlgTB(parent, title)
 {
     fillUI(tb);
-    ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
+    // TODO uncomment when implemented    ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
 }
 
 DlgTB::~DlgTB()

@@ -22,9 +22,9 @@
 #ifndef DLGTB_HPP
 #define DLGTB_HPP
 
+#include "../Index/TechnicalBulletin.hpp"
 #include "DownloadMenu.hpp"
 #include "MainWindow.hpp"
-#include "TechnicalBulletin.hpp"
 #include <QByteArray>
 #include <QDialog>
 #include <QDragEnterEvent>

@@ -46,6 +46,7 @@
 #define KEY_SEARCH_REPLACES      "searchReplaces"
 #define KEY_SEARCH_REPLACED_BY   "searchReplacedBy"
 #define KEY_SEARCH_COMMENT       "searchComment"
+#define KEY_FIRST_RUN            "firstRun"
 
 // Default values
 #define DEFAULT_BASE_URL_TB_WEBPAGE  "https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=%1"
@@ -64,6 +65,7 @@
 #define DEFAULT_SEARCH_REPLACES      false
 #define DEFAULT_SEARCH_REPLACED_BY   false
 #define DEFAULT_SEARCH_COMMENT       false
+#define DEFAULT_FIRST_RUN            true
 
 //  Settings
 //
@@ -133,6 +135,9 @@ class Settings: public QSettings
 
     bool searchCommentEnabled() { return value(KEY_SEARCH_COMMENT, DEFAULT_SEARCH_COMMENT).toBool(); }
     void setSearchComment(bool enabled) { setValue(KEY_SEARCH_COMMENT, enabled); }
+
+    bool firstRun() { return value(KEY_FIRST_RUN, DEFAULT_FIRST_RUN).toBool(); }
+    void firstRunDone() { setValue(KEY_FIRST_RUN, false); }
 
   private:
     static Settings* settings;

@@ -25,7 +25,7 @@
 //
 // Some strings that need an update before a commit or a release
 // Update Changelog.txt with the git changelog
-// Update TODO.txt if necessary
+// Update TODO.txt and BUGS.txt if necessary
 //
 #define APPLICATION_VERSION_STR "1.6.1"
 #define POSITION_STR            "Service Engineer (S2), Market France/BeNeLux"

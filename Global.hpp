@@ -44,19 +44,12 @@
 #define APPLICATION_NAME  "TBI"
 
 // Command line option
-#define OPTION_FORCE_DATABASE_CHECK "--check-database"
+#define OPTION_FORCE_INDEX_CHECK "--check-index"
 
 // Data filename
-#define TBI_BACKUP_FILENAME "index.bak"
-#define TBI_FILENAME        "index.tbi"
 
 // Screenshot file extension
 #define SCREENSHOT_EXTENSION ".png"
 
-// Current TBI version
-#define CURRENT_TBI_VERSION 1
-
-// Magic string to identify a TBI DB
-#define TBI_MAGIC "TBI_DB_BY_MARTIAL_DEMOLINS"
 
 #endif // GLOBAL_HPP

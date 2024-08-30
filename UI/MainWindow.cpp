@@ -20,13 +20,13 @@
  */
 
 #include "MainWindow.hpp"
-#include "Dialog/DlgHelp.hpp"
-#include "Dialog/DlgSettings.hpp"
-#include "Dialog/DlgTB.hpp"
+#include "../Index/TechnicalBulletin.hpp"
+#include "DlgHelp.hpp"
+#include "DlgSettings.hpp"
+#include "DlgTB.hpp"
 #include "DownloadMenu.hpp"
 #include "Global.hpp"
 #include "Settings.hpp"
-#include "TechnicalBulletin.hpp"
 #include "ui_MainWindow.h"
 #include <QAbstractButton>
 #include <QAbstractScrollArea>
@@ -34,6 +34,7 @@
 #include <QCursor>
 #include <QDataStream>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -48,11 +49,13 @@
 #include <QStatusBar>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QTimer>
 
-MainWindow::MainWindow(bool ForceDBCheck)
+MainWindow::MainWindow(bool ForceIndexCheck)
     : QMainWindow()
     , ui(new Ui::MainWindow)
-    , Modified(false)
+    , Index(new ThreadIndex(this, ForceIndexCheck))
+    , SaveInProgress(false)
     , MessageTBCount(new QLabel)
     , MessagePendingModifications(new QLabel)
     , TableContextMenu(new QMenu(this))
@@ -65,17 +68,55 @@ MainWindow::MainWindow(bool ForceDBCheck)
     , ActionSettings(new ContextMenuAction(tr("Settings"), this))
     , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
     , DLMenu(new DownloadMenu)
+    , FirstLogEntry(true)
+    , TBreadFirst(true)
 {
-    // Window
+    //==================================================================================================================
+    //
+    //      Window
+    //
+    //==================================================================================================================
+
+    // Geometry
     ui->setupUi(this);
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
     resize(Settings::instance()->mainWindowSize());
 
+    // Buttons connections
+    /*    connect(ui->ButtonSave, &QPushButton::clicked, this, [this]() {
+        save();
+        updateUI();
+    });
+    connect(ui->ButtonSearch, &QPushButton::clicked, this, [this]() { search(); });
+
+    // Search connections
+    connect(ui->EditKeywords, &QLineEdit::returnPressed, this, [this]() { search(); });
+    connect(ui->EditKeywords, &QLineEdit::textChanged, this, [this]() {
+        if (ui->EditKeywords->text().isEmpty() || Settings::instance()->realTimeSearchEnabled())
+            search();
+    });
+*/
     // Status bar
     ui->StatusBar->addPermanentWidget(this->MessageTBCount);
     ui->StatusBar->addPermanentWidget(this->MessagePendingModifications);
 
-    // TB table
+
+    //==================================================================================================================
+    //
+    //      Log
+    //
+    //==================================================================================================================
+
+    addLogEntry("TBI starting...");
+
+
+    //==================================================================================================================
+    //
+    //      TB table
+    //
+    //==================================================================================================================
+
+    // Settings
     ui->TableTB->setShowGrid(true);
     ui->TableTB->setSortingEnabled(true);
     ui->TableTB->setAlternatingRowColors(true);
@@ -84,7 +125,21 @@ MainWindow::MainWindow(bool ForceDBCheck)
     ui->TableTB->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->TableTB->verticalHeader()->setVisible(false);
     ui->TableTB->horizontalHeader()->setStretchLastSection(true);
+    /*
+    // Connections
+    connect(ui->TableTB, &QTableWidget::itemSelectionChanged, this, [this]() { updateUI(); });
+    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, this, [this]() {
+        editTB();
+        updateUI();
+    });
+*/
 
+    //==================================================================================================================
+    //
+    //      Context menu
+    //
+    //==================================================================================================================
+    /*
     // TB table context menu
     ui->TableTB->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->TableTB, &QWidget::customContextMenuRequested, this, [this]() { this->TableContextMenu->exec(QCursor::pos()); });
@@ -112,146 +167,213 @@ MainWindow::MainWindow(bool ForceDBCheck)
     this->TableContextMenu->insertSeparator(this->ActionCopyUrl);
     this->TableContextMenu->insertSeparator(this->ActionSettings);
     this->addActions(Actions);
+*/
 
-    // Paste shortcut
+    //==================================================================================================================
+    //
+    //      Keyboard shortcuts
+    //
+    //==================================================================================================================
+    /*
+    // Paste
     connect(new QShortcut(QKeySequence(QKeySequence::Paste), this), &QShortcut::activated, this, [this]() { paste(); });
-
-    // Save shortcut
+*/
+    // Search
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this), &QShortcut::activated, this, [this]() { ui->EditKeywords->setFocus(); });
+    /*
+    // Save
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, this, [this]() {
         if (this->Modified) {
             save();
             updateUI();
         }
     });
+*/
 
-    // Search shortcut
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this), &QShortcut::activated, this, [this]() { ui->EditKeywords->setFocus(); });
+    //==================================================================================================================
+    //
+    //      Index opening
+    //
+    //==================================================================================================================
 
-    // Buttons connections
-    connect(ui->ButtonSave, &QPushButton::clicked, this, [this]() {
-        save();
-        updateUI();
-    });
-    connect(ui->ButtonSearch, &QPushButton::clicked, this, [this]() { search(); });
-
-    // Search connection
-    connect(ui->EditKeywords, &QLineEdit::returnPressed, this, [this]() { search(); });
-    connect(ui->EditKeywords, &QLineEdit::textChanged, this, [this]() {
-        if (ui->EditKeywords->text().isEmpty() || Settings::instance()->realTimeSearchEnabled())
-            search();
-    });
-
-    // Table connections
-    connect(ui->TableTB, &QTableWidget::itemSelectionChanged, this, [this]() { updateUI(); });
-    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, this, [this]() {
-        editTB();
-        updateUI();
-    });
-
-    // Open TBI if one exists
-
-    // Block the signals until the UI is setup and consistent
-    ui->TableTB->blockSignals(true);
-
-    QFile file(TBI_FILENAME);
-    if (file.open(QIODevice::ReadOnly)) {
-        QDataStream Stream(&file);
-
-        // The first version of .tbi files were not versionned. They contain the number of TB as an int, then the serialized TB themselves.
-        // The next versions set this counter to 0, then stores a magic, then the DB version.
-        // This makes the old executables unable to open recent files.
-        // And recent executables able to understand the old DB.
-        qint32 Count;
-        Stream >> Count;
-
-        // If count == 0, two cases:
-        // - it's an empty old file. Reading the magic will lead to a stream reading error. Let's fail silently the opening.
-        // - it's a versionned file. Read the magic then the version number to decide which opener must be used
-        if (Count == 0) {
-            // Try to read a magic
-            QString Magic;
-            Stream >> Magic;
-
-            // If the stream failed to read data, it "should" be an empty unversionned file.
-            // Ok, it could also be an USB stick pulled out when reading, but we cannot make the difference.
-            // Let's assume it's an old empty file and let's do nothing.
-            // So, we only consider streams with a successful magic reading.
-            if (Stream.status() == QDataStream::Ok) {
-                if (Magic == QString(TBI_MAGIC)) {
-                    // If the magic is valid, read the version and open the file according to it
-                    qint32 Version;
-                    Stream >> Version;
-
-                    switch (Version) {
-                        case 1:
-                            openDBv1(Stream, ForceDBCheck);
-                            break;
-
-                        default:
-                            // Version of the future, unhandled by this binary...
-                            QMessageBox::critical(this, WINDOW_TITLE, tr("The DB file is too recent for this executable. Please find a newer one. Opening aborted."));
-                    }
-                }
-
-                else {
-                    QMessageBox::critical(this,
-                                          WINDOW_TITLE,
-                                          tr("Invalid file identifier. It looks that the file %1 is corrupted or not authentic. Opening aborted.").arg(TBI_FILENAME));
-                }
-            }
-
-            // Stream status control failed
-            // But don't throw a message, it just means that it was an empty and unversionned file
-            // else {
-            //     QMessageBox::critical(this, WINDOW_TITLE, tr("Invalid file %1").arg(TBI_FILENAME));
-            // }
-        }
-
-        // If count != 0, it's an old file, no doubt.
-        else {
-            openDBv0(Count, Stream, ForceDBCheck);
-        }
-    }
-    // Throw an error if the file exists and couldn't be opened
-    else if (QFileInfo::exists(TBI_FILENAME)) {
-        QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to open file %1").arg(TBI_FILENAME));
-    }
-
-    // Restore signals handling
-    ui->TableTB->blockSignals(false);
-
+    // Start the index at the first scan of the event loop
+    QTimer::singleShot(0, this, [this]() { this->Index->start(); });
+    /*
     // Make UI consistent
+    // TODO: should get rid of this, just check that it works fine with no index
     updateUI();
+*/
 
-    // Adjust column size
-    for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
-        ui->TableTB->resizeColumnToContents(i);
-    }
+    //==================================================================================================================
+    //
+    //      Index connections
+    //
+    //==================================================================================================================
+
+    connect(this->Index, &ThreadIndex::openingIndex, this, [this](qint32 version, qint32 count) { openingIndex(version, count); });
+    connect(this->Index, &ThreadIndex::tbRead, this, [this](int count) { tbRead(count); });
+    connect(this->Index, &ThreadIndex::indexOpenedSuccessfully, this, [this](qint32 count) { indexOpenedSuccessfully(count); });
+    connect(this->Index, &ThreadIndex::noIndexFound, this, [this]() { noIndexFound(); });
+    connect(this->Index, &ThreadIndex::failedToOpenIndex, this, [this]() { failedToOpenIndex(); });
+    connect(this->Index, &ThreadIndex::invalidIndexIdentifier, this, [this](QString magic) { invalidIndexIdentifier(magic); });
+    connect(this->Index, &ThreadIndex::indexTooRecent, this, [this](qint32 version) { indexTooRecent(version); });
+    connect(this->Index, &ThreadIndex::indexReadingFailed, this, [this](int count) { indexReadingFailed(count); });
+    connect(this->Index, &ThreadIndex::saveComplete, this, [this](int result) { saveComplete(result); });
 }
 
 MainWindow::~MainWindow()
 {
-    // Delete the TBs associated to each row
-    for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-        delete ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    }
-
     // Save window size
     Settings::instance()->setMainWindowSize(size());
 
     // Destroy Settings instance (ie. save settings) here and not in main(),
-    // because QGuiApplication doesn't return on all platforms
+    // because QApplication doesn't return on all platforms (especially Windows if the user logs out)
     Settings::release();
+
+    // Destroy the index
+    //Index::release();
 
     // UI
     delete this->DLMenu;
     delete ui;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// ThreadIndex signal handling
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::openingIndex(qint32 version, qint32 count)
+{
+    addLogEntry(QString("Opening index file: %1%2%3").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME));
+    addLogEntry(QString("Index version: %1").arg(version));
+    addLogEntry(QString("Entries found: %1").arg(count));
+}
+
+void MainWindow::tbRead(int count)
+{
+    if (this->TBreadFirst) {
+        this->TBreadFirst = false;
+        addLogEntry(QString("Entries parsed:").arg(count));
+    }
+    addLogText(QString(" %1...").arg(count));
+}
+
+void MainWindow::indexOpenedSuccessfully(qint32 count)
+{
+    addLogEntry(QString("Index file successfully opened, %1 Technical Bulletins parsed").arg(count));
+    addLogEntry(QString("Populating UI, please wait..."));
+}
+
+void MainWindow::noIndexFound()
+{
+    addLogEntry(QString("No index found (%1%2%3)").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME));
+}
+
+void MainWindow::failedToOpenIndex()
+{
+    addLogEntry("Failed to open index, QFile::open(QIODevice::ReadOnly) failed");
+    QString Message = QString("Impossible to open the file %1%2%3.").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME);
+    QMessageBox::critical(this, "Failed to open index", Message);
+}
+
+void MainWindow::invalidIndexIdentifier(QString magic)
+{
+    addLogEntry(QString("Invalid magic: %1, instead of %2").arg(magic, TBI_MAGIC));
+    QString Message("Invalid index identifier. Your index is probably corrupted.");
+    QMessageBox::critical(this, "Invalid index identifier", Message);
+}
+
+void MainWindow::indexTooRecent(qint32 version)
+{
+    addLogEntry(QString("Tried to open an index version %1. Max openable version: %2").arg(version, CURRENT_TBI_VERSION));
+    QString Message("Your executable is too old to open this index, please use a more recent version.");
+    QMessageBox::critical(this, "Index too recent", Message);
+}
+
+void MainWindow::indexReadingFailed(int count)
+{
+    addLogEntry(QString("Failure while reading the index. %1 Technical Bulletins were successfully opened").arg(count));
+    QString Message = QString("Failure while reading the index. %1 Technical Bulletins could be opened. Do you want to save them and lose definitively the others?").arg(count);
+
+    QMessageBox::StandardButton Answer = QMessageBox::critical(this, "Index reading failed", Message, QMessageBox::Yes | QMessageBox::No);
+    if (Answer == QMessageBox::Yes) {
+        addLogEntry("Requesting to save the index after opening failure");
+        this->SaveInProgress = true;
+        emit save(BACKUP_ON_SAVE);
+    }
+}
+
+void MainWindow::saveComplete(int result)
+{
+    addLogEntry(QString("Save complete with result %1").arg(result));
+    this->SaveInProgress = false;
+
+    switch (result) {
+        case SAVE_SUCCESSFUL:
+            break;
+
+        case BACKUP_FAILED:
+            if (QMessageBox::critical(this, "Save failed", "Impossible to backup the index file. Save without backup?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+                this->SaveInProgress = true;
+                emit save(NO_BACKUP_ON_SAVE);
+            }
+            break;
+
+        case SAVE_FAILED:
+            if (QMessageBox::critical(this, "Save failed", "Failure while saving the index file. Try again?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+                this->SaveInProgress = true;
+                emit save(BACKUP_ON_SAVE);
+            }
+            break;
+
+        case SAVE_COULD_NOT_OPEN_FILE:
+            if (QMessageBox::critical(this, "Save failed", "Impossible to open the index file. Try again?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+                this->SaveInProgress = true;
+                emit save(BACKUP_ON_SAVE);
+            }
+            break;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// Log widget
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::addLogEntry(QString text)
+{
+    // First entry: don't insert EOL before printing the text.
+    // Else begins with EOL.
+    if (this->FirstLogEntry) {
+        this->FirstLogEntry = false;
+    }
+    else {
+        ui->TextLog->insertPlainText("\n");
+    }
+
+    // Then print the text with a timestamp
+    ui->TextLog->insertPlainText(QString("[%1] %2").arg(QTime::currentTime().toString("hh:mm:ss.zzz"), text));
+}
+
+void MainWindow::addLogText(QString text)
+{
+    ui->TextLog->insertPlainText(text);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //  updateUI
 //
 // Adjust display according to index state
 //
+/*
 void MainWindow::updateUI()
 {
 
@@ -285,18 +407,19 @@ void MainWindow::updateUI()
         this->ActionDownload->setDisabled(this->DLMenu->isEmpty());
     }
 }
-
+*/
 //  save
 //
-// Save current TBI
+// Save current index
 //
+/*
 void MainWindow::save()
 {
-    // First, create a backup by renaming the current index database
+    // First, create a backup by renaming the current index
     // Remove current backup because File::rename() won't overwrite backup file
     QFile::remove(TBI_BACKUP_FILENAME);
     if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
-        if (QMessageBox::question(this, WINDOW_TITLE, tr("Couldn't create database backup. Save anyway?")) == QMessageBox::No) {
+        if (QMessageBox::question(this, WINDOW_TITLE, tr("Couldn't create index backup. Save anyway?")) == QMessageBox::No) {
             return;
         }
     }
@@ -335,11 +458,12 @@ void MainWindow::save()
 
     this->Modified = false;
 }
-
+*/
 //  newTB
 //
 // Open a dialog allowing to create a TB by hand
 //
+/*
 void MainWindow::newTB()
 {
     TechnicalBulletin* TB = DlgTB::newDlgTB(this);
@@ -349,10 +473,12 @@ void MainWindow::newTB()
         updateUI();
     }
 }
-
+*/
 //  editTB
 //
 // Open a dialog allowing to edit an existing TB
+//
+/*
 void MainWindow::editTB()
 {
     // Get current TB
@@ -366,11 +492,12 @@ void MainWindow::editTB()
         updateTB(TB, Row);
     }
 }
-
+*/
 //  deleteTB
 //
 // Delete the TB currently selected
 //
+/*
 void MainWindow::deleteTB()
 {
     // Get current TB
@@ -388,11 +515,12 @@ void MainWindow::deleteTB()
         this->Modified = true;
     }
 }
-
+*/
 //  search
 //
 // Search the TB with keywords
 //
+/*
 void MainWindow::search(bool ForceNewSearch)
 {
     // Split and clean the list
@@ -485,11 +613,12 @@ void MainWindow::search(bool ForceNewSearch)
     }
     ui->StatusBar->clearMessage();
 }
-
+*/
 //  addTB
 //
 // Add a TB at the bottom of the table
 //
+/*
 void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
 {
     if (PerformAddChecks) {
@@ -555,7 +684,8 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
         }
     }
 
-    // Disable table sorting to prevent a null ptr dereferencing
+    // We need to be sure that sorting is disabled, to add the TB at the end of the table.
+    // Else we will dereference a null pointer.
     ui->TableTB->setSortingEnabled(false);
 
     // Update table size
@@ -573,16 +703,17 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
     // Display new TB in the new line
     updateTB(tb, RowCount);
 
-    // Re-enable table sorting, and set the TB as the current one
+    // Re-enable table sorting, set the TB as the current one and display it
     ui->TableTB->setSortingEnabled(true);
     ui->TableTB->setCurrentItem(Item);
     ui->TableTB->scrollToItem(Item);
 }
-
+*/
 //  updateTB
 //
 // Update the displayed data of an existing TB
 //
+/*
 void MainWindow::updateTB(TechnicalBulletin* tb, int row)
 {
     // Set text corresponding to each TB data
@@ -600,7 +731,7 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
     // Save tb ptr in the corresponding column and update UI
     ui->TableTB->item(row, COLUMN_METADATA)->setData(TB_ROLE, QVariant::fromValue(tb));
 }
-
+*/
 //  dragEnterEvent
 //
 // Allow to drop data if data type can be handled
@@ -616,6 +747,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 //
 // Handle dropped data. It should be a mail content
 //
+/*
 void MainWindow::dropEvent(QDropEvent* event)
 {
     TechnicalBulletin* TB = DlgTB::newDlgTB(this, event->mimeData()->data("text/plain"));
@@ -625,11 +757,12 @@ void MainWindow::dropEvent(QDropEvent* event)
         updateUI();
     }
 }
-
+*/
 //  paste
 //
 // Accept TB copy/pasted from mails
 //
+/*
 void MainWindow::paste()
 {
     const QClipboard* Clipboard = QApplication::clipboard();
@@ -642,13 +775,16 @@ void MainWindow::paste()
         }
     }
 }
-
+*/
 //  tbNumberAlreadyExists
 //
-// Return true if an older TB exits in the database
-// Used by DlgTB to display a message staying that
-// there is already an older version of the TB in the database
+// Return true if an older TB exists in the database
+// Used by DlgTB to display a message saying that
+// there is already an older version of the TB in the index
 //
+//  TODO: to be moved to ThreadIndex engine
+//
+/*
 bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)
 {
     QString CurrentNumber = tb->replaces();
@@ -661,19 +797,22 @@ bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)
     }
     return false;
 }
-
+*/
 //  closeEvent
 //
 // Prevent the program from closing with modified data
 //
+/*
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (this->Modified) {
         QMessageBox::StandardButtons Answer
           = QMessageBox::question(this, WINDOW_TITLE, tr("Do you want to save changes before exiting?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
         // User wants to save index
         if (Answer == QMessageBox::Yes) {
-            save();
+            // TODO: perform save
+            //            save();
         }
 
         // User wants to cancel closing process
@@ -686,7 +825,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
             event->accept();
         }
     }
-}
+}*/
 
 //  copyURLToClipboard
 //
@@ -712,51 +851,3 @@ void MainWindow::openURL()
     QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinWebpage()).arg(TB->number()));
 }
 
-//  openDBv0
-//
-// Open a DB in the legacy format
-//
-void MainWindow::openDBv0(int count, QDataStream& stream, bool ForceDBCheck)
-{
-    for (int i = 0; i < count; i++) {
-        // Read a TB
-        TechnicalBulletin* TB = new TechnicalBulletin;
-        stream >> TB;
-
-        // Check stream status
-        if (stream.status() != QDataStream::Ok) {
-            QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
-            delete TB;
-            break;
-        }
-
-        // Stream is OK, add the TB to the UI
-        addTB(TB, ForceDBCheck);
-    }
-}
-
-//  openDBv1
-//
-// Open a DB version 1
-void MainWindow::openDBv1(QDataStream& stream, bool ForceDBCheck)
-{
-    // Read the number of TB
-    qint32 Count;
-    stream >> Count;
-
-    for (int i = 0; i < Count; i++) {
-        // Read a TB
-        TechnicalBulletin* TB = new TechnicalBulletin;
-        stream >> TB;
-
-        // Check stream status
-        if (stream.status() != QDataStream::Ok) {
-            QMessageBox::critical(this, WINDOW_TITLE, tr("Unable to read file %1").arg(TBI_FILENAME));
-            delete TB;
-            break;
-        }
-
-        // Stream is OK, add the TB to the UI
-        addTB(TB, ForceDBCheck);
-    }
-}

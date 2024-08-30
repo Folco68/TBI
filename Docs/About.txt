@@ -17,8 +17,8 @@ Copyright:                        REPLACE_COPYRIGHT_STR
 Version:                          REPLACE_APPLICATION_VERSION_STR
 Language:                         C++
 Framework:                        Qt REPLACE_QT_VERSION_STR
-Source and binary repository:     https://github.com/Folcogh/TBI
-Changelog:                        https://github.com/Folcogh/TBI/commits/master
+Source and binary repository:     https://github.com/Folco68/TBI
+Changelog:                        https://github.com/Folco68/TBI/commits/master
 
 
 Purpose

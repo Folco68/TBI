@@ -1,0 +1,18 @@
+=================
+=               =
+=   Messaging   =
+=               =
+=================
+
+MainWindow:
+-> openIndex
+-> addTB
+-> search
+-> ...
+-> close
+
+ThreadIndex:
+-> openingIndex / indexOpened / ...
+-> tbAvailable
+-> searchResult
+-> ...

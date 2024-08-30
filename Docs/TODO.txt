@@ -9,7 +9,7 @@
 + change MainWindow::addTB by adding a "nocheck" version, called on program startup (with default arg)
 + add a command line switch to force database check at startup
 + MainWindow::addTB: read TB* only once
-+ Make error messages more explicit in MainWindow::addTB
++ make error messages more explicit in MainWindow::addTB
 + accept paste AND drop events in MainWindow, to import a new TB
 + set focus on the Keyword field in the new TB dialog after a link is opened
 + when adding a TB, put focus on it and make it visible
@@ -24,12 +24,12 @@ o automatically update obsolete TB (how? To be designed)
 + add Ctrl+F to focus the search field of the main window
 + document the version formats
 + compile against MSVC (better integration with MSW?)
-o implement bool MainWindow::checkStream(QDataStream&) to remove code duplication (not done because few space to to save, some specific cases, ...)
-+ Download documentation depending of its availability
+o implement bool MainWindow::checkStream(QDataStream&) to remove code duplication (not done because few space to save, some specific cases, ...)
++ download documentation depending of its availability
 + rename "RM URL" to "tech pub URL", everywhere (Settings, DlgSettings, MainWindow, ...)
 + be consistent in local vars naming (lower case or camel case)
 + at startup, updateUI() is called twice per TB + once when the MainWindow is populated
-+ Make download menus dynamic
++ make download menus dynamic
 + complete commentaries
 + put the readme in an external file
 + complete the readme with version, Qt Framework version etc... before integrating it to DlgHelp
@@ -38,3 +38,12 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 - download everything in a dedicated location when saving the TB
 - separate TB index and UI (a singleton holding all the TBs?)
 - RT search starts to show some slight lags with around 450 TB. Perform the search in a thread separated from the UI
+- add a message at first run, saying to delete the database if the user does not want the shared one (key already created in Settings.hpp). Add the version in the registry, reset FirstRun tag when bumping to a new version
+- ForceDBCheck not handled anymore
+- properly handle a backup file which could not be deleted on save
+- intercept QCoreApplication::aboutToQuit() to properly clean thread and other data
+- index opening: don't use a hardcoded value to emit messages about progress
+- ask the index opening thread to terminate if the user wants to close the program
+- set Settings::firstRun properly
+- integrate the target machines in the TB? Need to update file format
+- add the URL of the external repo in BeforeRelease.hpp

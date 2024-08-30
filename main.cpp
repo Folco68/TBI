@@ -20,14 +20,14 @@
  */
 
 #include "Global.hpp"
-#include "MainWindow.hpp"
+#include "UI/MainWindow.hpp"
 #include <QApplication>
 
 int main(int argc, char* argv[])
 {
     QApplication Application(argc, argv);
-    bool         ForceDBCheck = Application.arguments().contains(OPTION_FORCE_DATABASE_CHECK);
-    MainWindow   Window(ForceDBCheck);
+    bool         ForceIndexCheck = Application.arguments().contains(OPTION_FORCE_INDEX_CHECK);
+    MainWindow   Window(ForceIndexCheck);
     Window.show();
     return Application.exec();
 }
