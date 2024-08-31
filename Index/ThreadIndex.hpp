@@ -37,6 +37,8 @@ class ThreadIndex: public QThread
     ThreadIndex(MainWindow* MainWindowPtr, bool ForceIndexCheck);
     ~ThreadIndex();
 
+    QList<TechnicalBulletin*> tbList() const;
+
   signals:
     // Normal opening
     void openingIndex(qint32 version, qint32 count);
@@ -49,6 +51,9 @@ class ThreadIndex: public QThread
     void invalidIndexIdentifier(QString magic);
     void indexTooRecent(qint32 version);
     void indexReadingFailed(int count);
+
+    // End of opening (with or withour error)
+    void openingComplete();
 
     // Save
     void saveComplete(int result);

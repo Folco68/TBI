@@ -78,6 +78,7 @@ class MainWindow: public QMainWindow
     DownloadMenu* DLMenu;
 
     // TBs
+    void populateUI();
     void updateUI();
     void newTB();
     void editTB();
@@ -100,11 +101,17 @@ class MainWindow: public QMainWindow
     void copyURLToClipboard();
     void openURL();
 
+    // Central stack toggling
+    void toggleStackCentral();
+
     // Log widget
-    void addLogEntry(QString text);
-    void addLogText(QString text);
-    bool FirstLogEntry;
-    bool TBreadFirst;
+    void  addLogEntry(QString text);
+    void  addLogText(QString text);
+    void  startLogTimer();
+    void  addLogTimer();
+    bool  FirstLogEntry;
+    bool  TBreadFirst;
+    QTime LogTimer;
 
     // Signals received from ThreadIndex
     void openingIndex(qint32 version, qint32 count);
@@ -115,6 +122,7 @@ class MainWindow: public QMainWindow
     void invalidIndexIdentifier(QString magic);
     void indexTooRecent(qint32 version);
     void indexReadingFailed(int count);
+    void openingComplete();
     void saveComplete(int result);
 
     // Signals emitted to ThreadIndex

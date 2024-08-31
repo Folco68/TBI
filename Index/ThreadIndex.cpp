@@ -128,6 +128,7 @@ void ThreadIndex::run()
     }
 
     // Finally, run the event loop to handle the signals emitted by the GUI
+    emit openingComplete();
     exec();
 }
 
@@ -139,7 +140,7 @@ bool ThreadIndex::readIndexV0(int count, QDataStream& stream, bool ForceIndexChe
 {
     for (int i = 0; i < count; i++) {
         // Emit a message intended to a progress bar
-        if ((i != 0) && (i % 100 == 0)) {
+        if (i % 100 == 0) {
             emit tbRead(i);
         }
 
@@ -168,7 +169,7 @@ bool ThreadIndex::readIndexV1(qint32 count, QDataStream& stream, bool ForceIndex
 {
     for (int i = 0; i < count; i++) {
         // Emit a message intended for a progress bar
-        if ((i != 0) && (i % 100 == 0)) {
+        if (i % 100 == 0) {
             emit tbRead(i);
         }
 
@@ -188,6 +189,11 @@ bool ThreadIndex::readIndexV1(qint32 count, QDataStream& stream, bool ForceIndex
 
     // Success
     return true;
+}
+
+QList<TechnicalBulletin*> ThreadIndex::tbList() const
+{
+    return this->Bulletins;
 }
 
 void ThreadIndex::save(bool backup)

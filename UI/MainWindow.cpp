@@ -189,6 +189,8 @@ MainWindow::MainWindow(bool ForceIndexCheck)
         }
     });
 */
+    // Central stack toggling
+    connect(new QShortcut(QKeySequence(Qt::Key_F5), this), &QShortcut::activated, this, [this]() { toggleStackCentral(); });
 
     //==================================================================================================================
     //
@@ -218,6 +220,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(this->Index, &ThreadIndex::invalidIndexIdentifier, this, [this](QString magic) { invalidIndexIdentifier(magic); });
     connect(this->Index, &ThreadIndex::indexTooRecent, this, [this](qint32 version) { indexTooRecent(version); });
     connect(this->Index, &ThreadIndex::indexReadingFailed, this, [this](int count) { indexReadingFailed(count); });
+    //    connect(this->Index, &ThreadIndex::openingComplete, this, [this]() { openingComplete(); });
     connect(this->Index, &ThreadIndex::saveComplete, this, [this](int result) { saveComplete(result); });
 }
 
@@ -238,103 +241,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-/// ThreadIndex signal handling
-///
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void MainWindow::openingIndex(qint32 version, qint32 count)
+void MainWindow::toggleStackCentral()
 {
-    addLogEntry(QString("Opening index file: %1%2%3").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME));
-    addLogEntry(QString("Index version: %1").arg(version));
-    addLogEntry(QString("Entries found: %1").arg(count));
-}
-
-void MainWindow::tbRead(int count)
-{
-    if (this->TBreadFirst) {
-        this->TBreadFirst = false;
-        addLogEntry(QString("Entries parsed:").arg(count));
-    }
-    addLogText(QString(" %1...").arg(count));
-}
-
-void MainWindow::indexOpenedSuccessfully(qint32 count)
-{
-    addLogEntry(QString("Index file successfully opened, %1 Technical Bulletins parsed").arg(count));
-    addLogEntry(QString("Populating UI, please wait..."));
-}
-
-void MainWindow::noIndexFound()
-{
-    addLogEntry(QString("No index found (%1%2%3)").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME));
-}
-
-void MainWindow::failedToOpenIndex()
-{
-    addLogEntry("Failed to open index, QFile::open(QIODevice::ReadOnly) failed");
-    QString Message = QString("Impossible to open the file %1%2%3.").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME);
-    QMessageBox::critical(this, "Failed to open index", Message);
-}
-
-void MainWindow::invalidIndexIdentifier(QString magic)
-{
-    addLogEntry(QString("Invalid magic: %1, instead of %2").arg(magic, TBI_MAGIC));
-    QString Message("Invalid index identifier. Your index is probably corrupted.");
-    QMessageBox::critical(this, "Invalid index identifier", Message);
-}
-
-void MainWindow::indexTooRecent(qint32 version)
-{
-    addLogEntry(QString("Tried to open an index version %1. Max openable version: %2").arg(version, CURRENT_TBI_VERSION));
-    QString Message("Your executable is too old to open this index, please use a more recent version.");
-    QMessageBox::critical(this, "Index too recent", Message);
-}
-
-void MainWindow::indexReadingFailed(int count)
-{
-    addLogEntry(QString("Failure while reading the index. %1 Technical Bulletins were successfully opened").arg(count));
-    QString Message = QString("Failure while reading the index. %1 Technical Bulletins could be opened. Do you want to save them and lose definitively the others?").arg(count);
-
-    QMessageBox::StandardButton Answer = QMessageBox::critical(this, "Index reading failed", Message, QMessageBox::Yes | QMessageBox::No);
-    if (Answer == QMessageBox::Yes) {
-        addLogEntry("Requesting to save the index after opening failure");
-        this->SaveInProgress = true;
-        emit save(BACKUP_ON_SAVE);
-    }
-}
-
-void MainWindow::saveComplete(int result)
-{
-    addLogEntry(QString("Save complete with result %1").arg(result));
-    this->SaveInProgress = false;
-
-    switch (result) {
-        case SAVE_SUCCESSFUL:
-            break;
-
-        case BACKUP_FAILED:
-            if (QMessageBox::critical(this, "Save failed", "Impossible to backup the index file. Save without backup?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-                this->SaveInProgress = true;
-                emit save(NO_BACKUP_ON_SAVE);
-            }
-            break;
-
-        case SAVE_FAILED:
-            if (QMessageBox::critical(this, "Save failed", "Failure while saving the index file. Try again?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-                this->SaveInProgress = true;
-                emit save(BACKUP_ON_SAVE);
-            }
-            break;
-
-        case SAVE_COULD_NOT_OPEN_FILE:
-            if (QMessageBox::critical(this, "Save failed", "Impossible to open the index file. Try again?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-                this->SaveInProgress = true;
-                emit save(BACKUP_ON_SAVE);
-            }
-            break;
-    }
+    ui->StackCentral->setCurrentIndex(ui->StackCentral->currentIndex() == 0 ? 1 : 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -363,11 +272,188 @@ void MainWindow::addLogText(QString text)
     ui->TextLog->insertPlainText(text);
 }
 
+void MainWindow::startLogTimer()
+{
+    this->LogTimer = QTime::currentTime();
+}
+
+void MainWindow::addLogTimer()
+{
+    // Compute a time in hh:mm:ss/ms. hh and mm are completely theoretical, it's just to avoid an invalid QTime
+    int   MSecElapsed = this->LogTimer.msecsTo(QTime::currentTime());
+    int   MSec        = (MSecElapsed % 1000);
+    int   Sec         = (MSecElapsed / 1000) % 60;
+    int   Min         = (MSecElapsed / (1000 * 60)) % 60;
+    int   Hour        = (MSecElapsed / (1000 * 60 * 60) % 24); // Ahahah
+    QTime Duration(Hour, Min, Sec, MSec);
+    ui->TextLog->insertPlainText(QString(" (%1)").arg(Duration.toString("hh:mm:ss.zzz")));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// ThreadIndex signal handling
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::openingIndex(qint32 version, qint32 count)
+{
+    startLogTimer();
+    addLogEntry(QString("Opening index file: %1%2%3").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME));
+    addLogEntry(QString("Index version: %1").arg(version));
+    addLogEntry(QString("Entries found: %1").arg(count));
+}
+
+void MainWindow::tbRead(int count)
+{
+    if (this->TBreadFirst) {
+        this->TBreadFirst = false;
+        addLogEntry(QString("Entries parsed:"));
+    }
+    else {
+        addLogText(QString(" %1...").arg(count));
+    }
+}
+
+void MainWindow::indexOpenedSuccessfully(qint32 count)
+{
+    addLogEntry(QString("Index file successfully opened, %1 Technical Bulletins parsed").arg(count));
+    addLogTimer();
+    populateUI();
+    toggleStackCentral();
+}
+
+void MainWindow::noIndexFound()
+{
+    addLogEntry(QString("No index found (%1%2%3)").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME));
+    toggleStackCentral();
+}
+
+void MainWindow::failedToOpenIndex()
+{
+    addLogEntry("Failed to open index, QFile::open(QIODevice::ReadOnly) failed");
+    QString Message = QString("Failed to open the file %1%2%3.").arg(QDir::toNativeSeparators(QDir::currentPath())).arg(QDir::separator()).arg(TBI_FILENAME);
+    QMessageBox::critical(this, "Index opening error", Message);
+    toggleStackCentral();
+}
+
+void MainWindow::invalidIndexIdentifier(QString magic)
+{
+    addLogEntry(QString("Invalid magic: found '%1' instead of '%2'").arg(magic, TBI_MAGIC));
+    QString Message("Invalid index identifier. Your index is probably corrupted.");
+    QMessageBox::critical(this, "Index opening error", Message);
+    toggleStackCentral();
+}
+
+void MainWindow::indexTooRecent(qint32 version)
+{
+    addLogEntry(QString("Tried to open an index version %1. Max openable version: %2").arg(version, CURRENT_TBI_VERSION));
+    QString Message("Your executable is too old to open this index, please use a more recent version.");
+    QMessageBox::critical(this, "Index opening error", Message);
+    toggleStackCentral();
+}
+
+void MainWindow::indexReadingFailed(int count)
+{
+    addLogEntry(QString("Failure while reading the index. %1 Technical Bulletins were successfully opened").arg(count));
+    QString Message = QString("Failure while reading the index. %1 Technical Bulletins could be opened. Do you want to save them and lose definitively the others?").arg(count);
+
+    QMessageBox::StandardButton Answer = QMessageBox::critical(this, "Index opening error", Message, QMessageBox::Yes | QMessageBox::No);
+    if (Answer == QMessageBox::Yes) {
+        addLogEntry("Requesting to save the index after opening failure");
+        this->SaveInProgress = true;
+        emit save(BACKUP_ON_SAVE);
+        populateUI();
+        toggleStackCentral();
+    }
+}
+
+void MainWindow::openingComplete()
+{
+    // unused signal
+}
+
+void MainWindow::saveComplete(int result)
+{
+    addLogEntry(QString("Save complete with result %1").arg(result));
+    this->SaveInProgress = false;
+
+    switch (result) {
+        case SAVE_SUCCESSFUL:
+            break;
+
+        case BACKUP_FAILED:
+            if (QMessageBox::critical(this, "Save failed", "Impossible to backup the index file. Save Index without backup?", QMessageBox::Yes | QMessageBox::No)
+                == QMessageBox::Yes) {
+                this->SaveInProgress = true;
+                emit save(NO_BACKUP_ON_SAVE);
+            }
+            break;
+
+        case SAVE_FAILED:
+            if (QMessageBox::critical(this, "Save failed", "Failure while saving the index file. Try again?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+                this->SaveInProgress = true;
+                emit save(BACKUP_ON_SAVE);
+            }
+            break;
+
+        case SAVE_COULD_NOT_OPEN_FILE:
+            if (QMessageBox::critical(this, "Save failed", "Impossible to open the index file. Try again?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+                this->SaveInProgress = true;
+                emit save(BACKUP_ON_SAVE);
+            }
+            break;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ///
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::populateUI()
+{
+    startLogTimer();
+    addLogEntry(QString("Populating UI, please wait..."));
+    QList<TechnicalBulletin*> Bulletins = this->Index->tbList();
+
+    ui->TableTB->setSortingEnabled(false); // Disable sorting to prevent a null-pointer dereferencing
+    ui->TableTB->setRowCount(Bulletins.count());
+
+    for (int i = 0; i < Bulletins.count(); i++) {
+        for (int j = 0; j < ui->TableTB->columnCount(); j++) {
+            ui->TableTB->setItem(i, j, new QTableWidgetItem);
+        }
+        updateTB(Bulletins.at(i), i);
+    }
+
+    ui->TableTB->setSortingEnabled(true);
+    QTableWidgetItem* Item = ui->TableTB->item(Bulletins.count(), 0);
+    ui->TableTB->setCurrentItem(Item);
+    ui->TableTB->scrollToItem(Item);
+    addLogEntry("UI ready");
+    addLogTimer();
+}
+
+/*    // Update table size
+    int RowCount = ui->TableTB->rowCount();
+    ui->TableTB->setRowCount(RowCount + 1);
+    
+    // Populate the new line with empty items
+    for (int i = 0; i < ui->TableTB->columnCount(); i++) {
+        ui->TableTB->setItem(RowCount, i, new QTableWidgetItem);
+    }
+    
+    // Save an item ptr to make the last entry become the current one
+    QTableWidgetItem* Item = ui->TableTB->item(RowCount, 0);
+    
+    // Display new TB in the new line
+    updateTB(tb, RowCount);
+    
+    // Re-enable table sorting, set the TB as the current one and display it
+    ui->TableTB->setSortingEnabled(true);
+    ui->TableTB->setCurrentItem(Item);
+    ui->TableTB->scrollToItem(Item);*/
 
 //  updateUI
 //
@@ -713,7 +799,6 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
 //
 // Update the displayed data of an existing TB
 //
-/*
 void MainWindow::updateTB(TechnicalBulletin* tb, int row)
 {
     // Set text corresponding to each TB data
@@ -731,7 +816,7 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
     // Save tb ptr in the corresponding column and update UI
     ui->TableTB->item(row, COLUMN_METADATA)->setData(TB_ROLE, QVariant::fromValue(tb));
 }
-*/
+
 //  dragEnterEvent
 //
 // Allow to drop data if data type can be handled
@@ -745,7 +830,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 
 //  dropEvent
 //
-// Handle dropped data. It should be a mail content
+// Handle dropped data. It should be the content of a mail
 //
 /*
 void MainWindow::dropEvent(QDropEvent* event)
