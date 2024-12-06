@@ -22,6 +22,14 @@ else()
 endif()
 
 set(PROJECT_SOURCES
+
+    # Root
+    BeforeRelease.hpp
+    main.cpp
+    HelpRes.qrc
+    Settings.cpp
+    Settings.hpp
+
     # Docs
     Docs/About.txt
     Docs/BUGS.txt
@@ -30,6 +38,12 @@ set(PROJECT_SOURCES
     Docs/Help.txt
     Docs/TBformats.txt
     Docs/TODO.txt
+
+    # Icons
+    Icon/Icon.qrc
+    Icon/Icon.rc
+    Icon/Icon.png
+    Icon/Icon.ico
 
     # Index
     Index/ThreadIndex.cpp
@@ -58,13 +72,6 @@ set(PROJECT_SOURCES
     UI/MainWindow.cpp
     UI/MainWindow.hpp
     UI/MainWindow.ui
-
-    # General
-    BeforeRelease.hpp
-    main.cpp
-    HelpRes.qrc
-    Settings.cpp
-    Settings.hpp
 )
 
 
@@ -72,7 +79,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TBI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        Docs/Draft.txt
     )
 endif()
 
