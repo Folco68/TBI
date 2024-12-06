@@ -83,6 +83,7 @@
          <widget class="QPlainTextEdit" name="TextLog">
           <property name="font">
            <font>
+            <family>Fantasque Sans Mono</family>
             <pointsize>10</pointsize>
            </font>
           </property>

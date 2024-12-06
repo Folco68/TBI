@@ -234,7 +234,7 @@ MainWindow::~MainWindow()
     Settings::release();
 
     // Destroy the index
-    //Index::release();
+    delete this->Index;
 
     // UI
     delete this->DLMenu;
@@ -243,7 +243,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::toggleStackCentral()
 {
-    ui->StackCentral->setCurrentIndex(ui->StackCentral->currentIndex() == 0 ? 1 : 0);
+    ui->StackCentral->setCurrentIndex(ui->StackCentral->currentIndex() ^ 1); // Enjoy :D. Just for fun. Souvenir from assembly. This is the only joke of this program.
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -279,12 +279,12 @@ void MainWindow::startLogTimer()
 
 void MainWindow::addLogTimer()
 {
-    // Compute a time in hh:mm:ss/ms. hh and mm are completely theoretical, it's just to avoid an invalid QTime
+    // Compute a time in hh:mm:ss.ms. hh and mm are completely theoretical, it's just to avoid an invalid QTime
     int   MSecElapsed = this->LogTimer.msecsTo(QTime::currentTime());
     int   MSec        = (MSecElapsed % 1000);
     int   Sec         = (MSecElapsed / 1000) % 60;
     int   Min         = (MSecElapsed / (1000 * 60)) % 60;
-    int   Hour        = (MSecElapsed / (1000 * 60 * 60) % 24); // Ahahah
+    int   Hour        = (MSecElapsed / (1000 * 60 * 60) % 24); // Ahahah. %24 is ridiculous but it is there to be safe
     QTime Duration(Hour, Min, Sec, MSec);
     ui->TextLog->insertPlainText(QString(" (%1)").arg(Duration.toString("hh:mm:ss.zzz")));
 }
@@ -411,6 +411,11 @@ void MainWindow::saveComplete(int result)
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//  populateUI
+//
+// Initial fill up of the TB table, during TBI start-up and before any user event handling
+// Designed to speed up the boot process
+//
 void MainWindow::populateUI()
 {
     startLogTimer();
@@ -434,26 +439,6 @@ void MainWindow::populateUI()
     addLogEntry("UI ready");
     addLogTimer();
 }
-
-/*    // Update table size
-    int RowCount = ui->TableTB->rowCount();
-    ui->TableTB->setRowCount(RowCount + 1);
-    
-    // Populate the new line with empty items
-    for (int i = 0; i < ui->TableTB->columnCount(); i++) {
-        ui->TableTB->setItem(RowCount, i, new QTableWidgetItem);
-    }
-    
-    // Save an item ptr to make the last entry become the current one
-    QTableWidgetItem* Item = ui->TableTB->item(RowCount, 0);
-    
-    // Display new TB in the new line
-    updateTB(tb, RowCount);
-    
-    // Re-enable table sorting, set the TB as the current one and display it
-    ui->TableTB->setSortingEnabled(true);
-    ui->TableTB->setCurrentItem(Item);
-    ui->TableTB->scrollToItem(Item);*/
 
 //  updateUI
 //

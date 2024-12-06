@@ -191,6 +191,11 @@ bool ThreadIndex::readIndexV1(qint32 count, QDataStream& stream, bool ForceIndex
     return true;
 }
 
+//  tbList
+//
+// Return the list of pointers to the Technical Bulletins.
+// Indented to be called only once at boot, in a synchronous way, while the thread of ThreadIndex is not performing anything
+//
 QList<TechnicalBulletin*> ThreadIndex::tbList() const
 {
     return this->Bulletins;
