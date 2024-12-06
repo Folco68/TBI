@@ -24,6 +24,7 @@ endif()
 set(PROJECT_SOURCES
 
     # Root
+    .gitignore
     BeforeRelease.hpp
     main.cpp
     HelpRes.qrc

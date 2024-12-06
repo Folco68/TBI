@@ -38,6 +38,10 @@ ThreadIndex::ThreadIndex(MainWindow* MainWindowPtr, bool ForceIndexCheck)
 
 ThreadIndex::~ThreadIndex()
 {
+    //Ask the worker thread to stop and wait while it is still running
+    exit(0);
+    while (isRunning()) {}
+
     // Destroy index data
 }
 
