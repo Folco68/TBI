@@ -56,8 +56,7 @@
 MainWindow::MainWindow(bool ForceIndexCheck)
     : QMainWindow()
     , ui(new Ui::MainWindow)
-    , Index(new ThreadIndex(this, ForceIndexCheck))
-    , SaveInProgress(false)
+    , Index(this, ForceIndexCheck)
     , MessageTBCount(new QLabel)
     , MessagePendingModifications(new QLabel)
     , TableContextMenu(new QMenu(this))
@@ -83,6 +82,9 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     ui->setupUi(this);
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
     resize(Settings::instance()->mainWindowSize());
+
+    // Central widget. Display the log, it will be replaced by the TB table when the UI is fully populated
+    ui->StackCentral->setCurrentWidget(ui->PageLog);
 
     // Buttons connections
     /*    connect(ui->ButtonSave, &QPushButton::clicked, this, [this]() {
@@ -196,17 +198,15 @@ MainWindow::MainWindow(bool ForceIndexCheck)
 
     //==================================================================================================================
     //
-    //      Index opening
+    //      Index thread starting
     //
     //==================================================================================================================
 
-    // Start the index at the first scan of the event loop
-    QTimer::singleShot(0, this, [this]() { this->Index->start(); });
-    /*
-    // Make UI consistent
-    // TODO: should get rid of this, just check that it works fine with no index
-    updateUI();
-*/
+    // Start the index at the first scan of the event loop of the UI.
+    // Then the UI waits for the ThreadIndex::started() signal, indicating that the Index thread is alive too.
+    // At this point, both threads can start to communicate.
+    this->Index.moveToThread(&this->ThreadIndex);
+    QTimer::singleShot(0, [this]() { this->ThreadIndex.start(); });
 
     //==================================================================================================================
     //
@@ -214,29 +214,35 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //
     //==================================================================================================================
 
-    connect(this->Index, &ThreadIndex::openingIndex, this, [this](qint32 version, qint32 count) { openingIndex(version, count); });
-    connect(this->Index, &ThreadIndex::tbRead, this, [this](int count) { tbRead(count); });
-    connect(this->Index, &ThreadIndex::indexOpenedSuccessfully, this, [this](qint32 count) { indexOpenedSuccessfully(count); });
-    connect(this->Index, &ThreadIndex::noIndexFound, this, [this]() { noIndexFound(); });
-    connect(this->Index, &ThreadIndex::failedToOpenIndex, this, [this]() { failedToOpenIndex(); });
-    connect(this->Index, &ThreadIndex::invalidIndexIdentifier, this, [this](QString magic) { invalidIndexIdentifier(magic); });
-    connect(this->Index, &ThreadIndex::indexTooRecent, this, [this](qint32 version) { indexTooRecent(version); });
-    connect(this->Index, &ThreadIndex::indexReadingFailed, this, [this](int count) { indexReadingFailed(count); });
-    //    connect(this->Index, &ThreadIndex::openingComplete, this, [this]() { openingComplete(); });
-    connect(this->Index, &ThreadIndex::saveComplete, this, [this](int result) { saveComplete(result); });
+    connect(&this->Index, &Index::openingIndex, [this](qint32 version, qint32 count) { openingIndex(version, count); });
+    connect(&this->Index, &Index::tbRead, [this](int count) { tbRead(count); });
+    connect(&this->Index, &Index::indexOpenedSuccessfully, [this](qint32 count) { indexOpenedSuccessfully(count); });
+    connect(&this->Index, &Index::noIndexFound, [this]() { noIndexFound(); });
+    connect(&this->Index, &Index::failedToOpenIndex, [this]() { failedToOpenIndex(); });
+    connect(&this->Index, &Index::invalidIndexIdentifier, [this](QString magic) { invalidIndexIdentifier(magic); });
+    connect(&this->Index, &Index::indexTooRecent, [this](qint32 version) { indexTooRecent(version); });
+    connect(&this->Index, &Index::indexReadingFailed, [this](int count) { indexReadingFailed(count); });
+    connect(&this->Index, &Index::openingComplete, [this]() { openingComplete(); });
+    connect(&this->Index, &Index::saveComplete, [this](int result) { saveComplete(result); });
+
+    /***************************************************************************
+     *                                                                         *
+     *                           Thread connections                            *
+     *                                                                         *
+     **************************************************************************/
+
+    connect(&this->ThreadIndex, &QThread::started, this, [this]() { emit requestOpening(); }, Qt::QueuedConnection);
+    connect(&this->ThreadIndex, &QThread::finished, &this->ThreadIndex, &QThread::deleteLater, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
 {
-    // Save window size
+    // Save and delete settings
     Settings::instance()->setMainWindowSize(size());
-
-    // Destroy Settings instance (ie. save settings) here and not in main(),
-    // because QApplication doesn't return on all platforms (especially Windows if the user logs out)
     Settings::release();
 
-    // Destroy the index
-    delete this->Index;
+    // Stop index thread
+    ThreadIndex.quit();
 
     // UI
     delete this->DLMenu;
@@ -286,7 +292,7 @@ void MainWindow::addLogTimer()
     int   MSec        = (MSecElapsed % 1000);
     int   Sec         = (MSecElapsed / 1000) % 60;
     int   Min         = (MSecElapsed / (1000 * 60)) % 60;
-    int   Hour        = (MSecElapsed / (1000 * 60 * 60) % 24); // Ahahah. %24 is ridiculous but it is there to be safe
+    int   Hour        = (MSecElapsed / (1000 * 60 * 60) % 24); // Hahaha. %24 is ridiculous but it is there to be safe
     QTime Duration(Hour, Min, Sec, MSec);
     ui->TextLog->insertPlainText(QString(" (%1)").arg(Duration.toString("hh:mm:ss.zzz")));
 }
@@ -371,7 +377,7 @@ void MainWindow::indexReadingFailed(int count)
 
 void MainWindow::openingComplete()
 {
-    // unused signal
+    ui->StackCentral->setCurrentWidget(ui->PageTable);
 }
 
 void MainWindow::saveComplete(int result)
@@ -422,7 +428,7 @@ void MainWindow::populateUI()
 {
     startLogTimer();
     addLogEntry(QString("Populating UI, please wait..."));
-    QList<TechnicalBulletin*> Bulletins = this->Index->tbList();
+    /*    QList<TechnicalBulletin*> Bulletins = this->Index.tbList();
 
     ui->TableTB->setSortingEnabled(false); // Disable sorting to prevent a null-pointer dereferencing
     ui->TableTB->setRowCount(Bulletins.count());
@@ -438,6 +444,7 @@ void MainWindow::populateUI()
     QTableWidgetItem* Item = ui->TableTB->item(Bulletins.count(), 0);
     ui->TableTB->setCurrentItem(Item);
     ui->TableTB->scrollToItem(Item);
+*/
     addLogEntry("UI ready");
     addLogTimer();
 }

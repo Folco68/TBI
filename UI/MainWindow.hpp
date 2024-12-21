@@ -24,8 +24,8 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-#include "../Index/TechnicalBulletin.hpp" // Probably to be removed after the data handling revamping?
-#include "../Index/ThreadIndex.hpp"
+//#include "../Index/TechnicalBulletin.hpp" // Probably to be removed after the data handling revamping?
+#include "../Index/Index.hpp"
 #include "ContextMenuAction.hpp"
 #include "DownloadMenu.hpp"
 #include <QByteArray>
@@ -36,6 +36,7 @@
 #include <QMainWindow>
 #include <QString>
 #include <QStringList>
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -58,8 +59,10 @@ class MainWindow: public QMainWindow
 
   private:
     Ui::MainWindow* ui;
-    ThreadIndex*    Index;
-    bool            SaveInProgress;
+
+    // Index thread
+    Index   Index;
+    QThread ThreadIndex;
 
     // Status bar
     QLabel* MessageTBCount;
@@ -78,6 +81,9 @@ class MainWindow: public QMainWindow
 
     // Download sub-menu
     DownloadMenu* DLMenu;
+
+    // Save
+    bool SaveInProgress;
 
     // TBs
     void populateUI();
@@ -127,8 +133,10 @@ class MainWindow: public QMainWindow
     void openingComplete();
     void saveComplete(int result);
 
+  public:
     // Signals emitted to ThreadIndex
   signals:
+    void requestOpening();
     void save(bool backup);
 };
 

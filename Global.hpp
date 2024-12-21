@@ -48,8 +48,6 @@
 // Command line option
 #define OPTION_FORCE_INDEX_CHECK "--check-index"
 
-// Data filename
-
 // Screenshot file extension
 #define SCREENSHOT_EXTENSION ".png"
 

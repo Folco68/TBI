@@ -47,8 +47,8 @@ set(PROJECT_SOURCES
     Icon/Icon.ico
 
     # Index
-    Index/ThreadIndex.cpp
-    Index/ThreadIndex.hpp
+    Index/Index.cpp
+    Index/Index.hpp
     Index/TechnicalBulletin.cpp
     Index/TechnicalBulletin.hpp
 
