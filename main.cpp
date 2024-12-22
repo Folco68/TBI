@@ -22,10 +22,13 @@
 #include "Global.hpp"
 #include "MainWindow.hpp"
 #include <QApplication>
+#include <QGuiApplication>
+#include <QIcon>
 
 int main(int argc, char* argv[])
 {
     QApplication Application(argc, argv);
+    QGuiApplication::setWindowIcon(QIcon(":/Icon/Icon.png"));
     bool         ForceDBCheck = Application.arguments().contains(OPTION_FORCE_DATABASE_CHECK);
     MainWindow   Window(ForceDBCheck);
     Window.show();

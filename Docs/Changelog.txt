@@ -153,3 +153,8 @@
 16/03/2024
 - FIXED: Impossible to download the RM of old-style TB, because the first part of the doc number is trimmed (the name should not be trimmed if it starts with a figure)
 - Removed a debug string chunk in the status line of MainWindow
+
+22/12/2024
+- added Window and executable icons
+- bumped to version 1.6.2
+
