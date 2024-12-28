@@ -37,6 +37,8 @@ set(PROJECT_SOURCES
     Icon/Icon.rc
 
     # Index
+    Index/Index.cpp
+    Index/Index.hpp
     Index/TechnicalBulletin.cpp
     Index/TechnicalBulletin.hpp
 
@@ -65,6 +67,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TBI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        .gitignore
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET TBI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
