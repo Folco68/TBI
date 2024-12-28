@@ -35,18 +35,20 @@ DlgSettings::DlgSettings(QWidget* parent)
     setMinimumWidth(DLGSETTINGS_WINDOW_WIDTH);
 
     // Connections
-    connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
-    connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
-    connect(ui->ButtonClearCategories, &QPushButton::clicked, this, []() { Settings::instance()->resetCategories(); });
-    connect(ui->ButtonResetTBwebpageUrl, &QPushButton::clicked, this, [this]() {
+    connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
+    connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
+    connect(ui->ButtonClearCategories, &QPushButton::clicked, []() {
+        Settings::instance()->resetCategories();
+    });
+    connect(ui->ButtonResetTBwebpageUrl, &QPushButton::clicked, [this]() {
         Settings::instance()->resetBaseURLTechnicalBulletinWebpage();
         ui->EditTBwebpageUrl->setText(Settings::instance()->baseURLTechnicalBulletinWebpage());
     });
-    connect(ui->ButtonResetTBpdfUrl, &QPushButton::clicked, this, [this]() {
+    connect(ui->ButtonResetTBpdfUrl, &QPushButton::clicked, [this]() {
         Settings::instance()->resetBaseURLTechnicalBulletinPDF();
         ui->EditTBpdfUrl->setText(Settings::instance()->baseURLTechnicalBulletinPDF());
     });
-    connect(ui->ButtonResetTechPubUrl, &QPushButton::clicked, this, [this]() {
+    connect(ui->ButtonResetTechPubUrl, &QPushButton::clicked, [this]() {
         Settings::instance()->resetBaseURLTechnicalPublications();
         ui->EditTechPubUrl->setText(Settings::instance()->baseURLTechnicalPublications());
     });

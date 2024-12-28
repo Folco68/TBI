@@ -51,7 +51,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
         // Add the TB (pfd)
         QAction* PdfAction = addAction("Technical Bulletin");
         this->ActionList.append(PdfAction);
-        connect(PdfAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
+        connect(PdfAction, &QAction::triggered, [TBnumber, WidgetToFocus]() {
             QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
             if (WidgetToFocus != nullptr) {
                 WidgetToFocus->setFocus();
@@ -62,7 +62,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
         QAction* CTIAction = addAction("Customer Technical Information");
         this->ActionList.append(CTIAction);
         TBnumber += CTI_SUFFIX;
-        connect(CTIAction, &QAction::triggered, this, [TBnumber, WidgetToFocus]() {
+        connect(CTIAction, &QAction::triggered, [TBnumber, WidgetToFocus]() {
             QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
             if (WidgetToFocus != nullptr) {
                 WidgetToFocus->setFocus();
@@ -78,7 +78,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
         for (int i = 0; i < DocList.count(); i++) {
             QAction* DocAction = addAction(DocList.at(i).trimmed());
             this->ActionList.append(DocAction);
-            connect(DocAction, &QAction::triggered, this, [DocAction, WidgetToFocus]() {
+            connect(DocAction, &QAction::triggered, [DocAction, WidgetToFocus]() {
                 QString FullName = DocAction->text();
                 // Support old BT style, don't remove the first part of the doc numbe rif there is not the prefix RM-/UP-/...
                 QString Name(FullName);

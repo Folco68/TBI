@@ -88,16 +88,18 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // TB table context menu
     ui->TableTB->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->TableTB, &QWidget::customContextMenuRequested, this, [this]() { this->TableContextMenu->exec(QCursor::pos()); });
-    connect(this->ActionNewTB, &QAction::triggered, this, [this]() { newTB(); });
-    connect(this->ActionEditTB, &QAction::triggered, this, [this]() { editTB(); });
-    connect(this->ActionDeleteTB, &QAction::triggered, this, [this]() {
+    connect(ui->TableTB, &QWidget::customContextMenuRequested, [this]() {
+        this->TableContextMenu->exec(QCursor::pos());
+    });
+    connect(this->ActionNewTB, &QAction::triggered, [this]() { newTB(); });
+    connect(this->ActionEditTB, &QAction::triggered, [this]() { editTB(); });
+    connect(this->ActionDeleteTB, &QAction::triggered, [this]() {
         deleteTB();
         updateUI();
     });
-    connect(this->ActionCopyUrl, &QAction::triggered, this, [this]() { copyURLToClipboard(); });
-    connect(this->ActionOpenUrl, &QAction::triggered, this, [this]() { openURL(); });
-    connect(this->ActionSettings, &QAction::triggered, this, [this]() {
+    connect(this->ActionCopyUrl, &QAction::triggered, [this]() { copyURLToClipboard(); });
+    connect(this->ActionOpenUrl, &QAction::triggered, [this]() { openURL(); });
+    connect(this->ActionSettings, &QAction::triggered, [this]() {
         if (DlgSettings::showDlgSettings()) {
             search(FORCE_SEARCH);
         }
@@ -115,36 +117,48 @@ MainWindow::MainWindow(bool ForceDBCheck)
     this->addActions(Actions);
 
     // Paste shortcut
-    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this), &QShortcut::activated, this, [this]() { paste(); });
+    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this),
+            &QShortcut::activated,
+            [this]() { paste(); });
 
     // Save shortcut
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, this, [this]() {
-        if (this->Modified) {
-            save();
-            updateUI();
-        }
-    });
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this),
+            &QShortcut::activated,
+            [this]() {
+                if (this->Modified) {
+                    save();
+                    updateUI();
+                }
+            });
 
-    // Search shortcut
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this), &QShortcut::activated, this, [this]() { ui->EditKeywords->setFocus(); });
+    // Search shortcut. Toggle between seach field and table
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this),
+            &QShortcut::activated,
+            [this]() {
+                if (ui->EditKeywords->hasFocus()) {
+                    ui->TableTB->setFocus();
+                } else {
+                    ui->EditKeywords->setFocus();
+                }
+            });
 
     // Buttons connections
-    connect(ui->ButtonSave, &QPushButton::clicked, this, [this]() {
+    connect(ui->ButtonSave, &QPushButton::clicked, [this]() {
         save();
         updateUI();
     });
-    connect(ui->ButtonSearch, &QPushButton::clicked, this, [this]() { search(); });
+    connect(ui->ButtonSearch, &QPushButton::clicked, [this]() { search(); });
 
     // Search connection
-    connect(ui->EditKeywords, &QLineEdit::returnPressed, this, [this]() { search(); });
-    connect(ui->EditKeywords, &QLineEdit::textChanged, this, [this]() {
+    connect(ui->EditKeywords, &QLineEdit::returnPressed, [this]() { search(); });
+    connect(ui->EditKeywords, &QLineEdit::textChanged, [this]() {
         if (ui->EditKeywords->text().isEmpty() || Settings::instance()->realTimeSearchEnabled())
             search();
     });
 
     // Table connections
-    connect(ui->TableTB, &QTableWidget::itemSelectionChanged, this, [this]() { updateUI(); });
-    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, this, [this]() {
+    connect(ui->TableTB, &QTableWidget::itemSelectionChanged, [this]() { updateUI(); });
+    connect(ui->TableTB, &QTableWidget::cellDoubleClicked, [this]() {
         editTB();
         updateUI();
     });

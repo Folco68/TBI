@@ -69,26 +69,28 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
     ui->ButtonCopy->setMenu(CopyMenu);
 
     // Standard buttons
-    connect(ui->ButtonOK, &QPushButton::clicked, this, [this]() { accept(); });
-    connect(ui->ButtonCancel, &QPushButton::clicked, this, [this]() { reject(); });
+    connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
+    connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
 
     // Button Web page
-    connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty()); });
-    connect(ui->ButtonWebPage, &QPushButton::clicked, this, [this]() {
+    connect(ui->EditNumber, &QLineEdit::textChanged, [this]() {
+        ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty());
+    });
+    connect(ui->ButtonWebPage, &QPushButton::clicked, [this]() {
         QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinWebpage()).arg(ui->EditNumber->text()));
         ui->EditKeywords->setFocus();
     });
 
     // Button Download
     // The downloads are available in the menu attached to the button
-    connect(ui->EditNumber, &QLineEdit::textChanged, this, [this]() { updateButtonDownload(); });
-    connect(ui->EditTechPub, &QLineEdit::textChanged, this, [this]() { updateButtonDownload(); });
+    connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { updateButtonDownload(); });
+    connect(ui->EditTechPub, &QLineEdit::textChanged, [this]() { updateButtonDownload(); });
 
     // Menus actions
-    connect(ActionCopyScreenshot, &QAction::triggered, this, [this]() { copyScreenshot(); });
-    connect(ActionSaveToFile, &QAction::triggered, this, [this]() { saveToFile(); });
-    connect(ActionCopyHeader, &QAction::triggered, this, [this]() { copyHeader(); });
-    connect(ActionCopyAll, &QAction::triggered, this, [this]() { copyAll(); });
+    connect(ActionCopyScreenshot, &QAction::triggered, [this]() { copyScreenshot(); });
+    connect(ActionSaveToFile, &QAction::triggered, [this]() { saveToFile(); });
+    connect(ActionCopyHeader, &QAction::triggered, [this]() { copyHeader(); });
+    connect(ActionCopyAll, &QAction::triggered, [this]() { copyAll(); });
 
     // Default: don't display the warning about an existing older TB
     ui->LabelReplaceExistent->setVisible(false);

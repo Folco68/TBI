@@ -35,7 +35,7 @@ DlgHelp::DlgHelp(QWidget* parent)
 {
     ui->setupUi(this);
     ui->Tabs->setCurrentIndex(0);
-    connect(ui->ButtonClose, &QPushButton::clicked, this, [this]() { close(); });
+    connect(ui->ButtonClose, &QPushButton::clicked, [this]() { close(); });
 
     // Open About text
     // In case of failure, there is a place holder in the UI
