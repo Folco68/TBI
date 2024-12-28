@@ -1,33 +1,27 @@
-/*******************************************************************************
- *                                                                             *
- *   TBI - Technical Bulletin Indexer - Save and index Technical Bulletins.    *
- *        Provide a search engine and documentations download features.        *
- *             Copyright (C) 2020-2025 Martial Demolins AKA Folco              *
- *                                                                             *
- *    This program is free software: you can redistribute it and/or modify     *
- *    it under the terms of the GNU General Public License as published by     *
- *      the Free Software Foundation, either version 3 of the License, or      *
- *                      at your option) any later version                      *
- *                                                                             *
- *       This program is distributed in the hope that it will be useful        *
- *       but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
- *                 GNU General Public License for more details                 *
- *                                                                             *
- *      You should have received a copy of the GNU General Public License      *
- *     along with this program. If not, see <https://www.gnu.org/licenses      *
- *                                                                             *
- *              mail: martial <dot> demolins <at> gmail <dot> com              *
- *                                                                             *
- ******************************************************************************/
+/*
+ * TBI - Technical Bulletin Indexer - Save and index Technical Bulletins,
+ * allowing to use keywords to find them easily
+ * Copyright (C) 2020 Martial Demolins AKA Folco
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * mail: martial <dot> demolins <at> gmail <dot> com
+ */
 
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-//#include "../Index/TechnicalBulletin.hpp" // Probably to be removed after the data handling revamping?
-#include "../Index/Index.hpp"
-#include "ContextMenuAction.hpp"
-#include "DownloadMenu.hpp"
 #include <QByteArray>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -36,7 +30,9 @@
 #include <QMainWindow>
 #include <QString>
 #include <QStringList>
-#include <QThread>
+#include "../Index/TechnicalBulletin.hpp"
+#include "ContextMenuAction.hpp"
+#include "DownloadMenu.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -53,16 +49,13 @@ class MainWindow: public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(bool ForceIndexCheck);
+    MainWindow(bool ForceDBCheck);
     ~MainWindow() override;
-    bool tbNumberAlreadyExists(TechnicalBulletin* tb); // To be removed when DlgTB requests the Index directly
+    bool tbNumberAlreadyExists(TechnicalBulletin* tb);
 
   private:
     Ui::MainWindow* ui;
-
-    // Index thread
-    Index   Index;
-    QThread ThreadIndex;
+    bool            Modified;
 
     // Status bar
     QLabel* MessageTBCount;
@@ -82,62 +75,33 @@ class MainWindow: public QMainWindow
     // Download sub-menu
     DownloadMenu* DLMenu;
 
-    // Save
-    bool SaveInProgress;
-
     // TBs
-    void populateUI();
     void updateUI();
     void newTB();
     void editTB();
     void deleteTB();
+    void save();
     void search(bool ForceNewSearch = false);
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
 
+    // TB opening
+    void openDBv0(int count, QDataStream& stream, bool ForceDBCheck);
+    void openDBv1(QDataStream& stream, bool ForceDBCheck);
+
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
-    //    void dropEvent(QDropEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
     // Paste TB from mail to UI
     void paste();
 
     // Close handling (prevent from closing with unsaved data)
-    //    void closeEvent(QCloseEvent* event) override;
+    void closeEvent(QCloseEvent* event) override;
 
     // URL handling
     void copyURLToClipboard();
     void openURL();
-
-    // Central stack toggling
-    void toggleStackCentral();
-
-    // Log widget
-    void  addLogEntry(QString text);
-    void  addLogText(QString text);
-    void  startLogTimer();
-    void  addLogTimer();
-    bool  FirstLogEntry;
-    bool  TBreadFirst;
-    QTime LogTimer;
-
-    // Signals received from ThreadIndex
-    void openingIndex(qint32 version, qint32 count);
-    void tbRead(int count);
-    void indexOpenedSuccessfully(qint32 count);
-    void noIndexFound();
-    void failedToOpenIndex();
-    void invalidIndexIdentifier(QString magic);
-    void indexTooRecent(qint32 version);
-    void indexReadingFailed(int count);
-    void openingComplete();
-    void saveComplete(int result);
-
-  public:
-    // Signals emitted to ThreadIndex
-  signals:
-    void requestOpening();
-    void save(bool backup);
 };
 
 // Table header index

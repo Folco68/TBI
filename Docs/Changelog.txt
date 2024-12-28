@@ -1,321 +1,160 @@
-commit 44fdd218928f7048e695bed64de265b38003bf4b
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Aug 31 20:40:47 2024 +0200
+08/11/2020
+- initial commit
+- UI working
+- search engine still to do
+
+08/11/2020
+- removed MainWindow buttons for TB creation, edition and deletion
+- added a context menu to handle TB
+- added the ability to copy or open TB URL
+
+10/11/2020
+- added About/License dialog
+- added ContextMenuAction class, to easily create the action of the main context menu
+- added a button to visit RK web page in the new/edit TB dlg
+- added a button to download the RM in the new/edit TB dlg
+- made search functional
+- added Ctrl+S as a shortcut to save the index
+
+11/11/2020
+- added "Download RM" action in context menu
+- fixed the separator not shown in context menu
+
+14/11/2020
+- added persistent settings (search options, main window geometry, ...)
+- prevented to perform a search if keywords didn't changed
+- added a "Real Time Search" option, which filters TB when you type (not multi-threaded)
+- added a "Whole Words Only" search option
+
+15/11/2020
+- allowed to use all TB fields in search criteria
+- refreshed search results if search options changed when Settings dialog closes
+- fix: prevent "Searching..." message in status bar when pressing ENTER in RT search mode
+- added some missing GPL notices
+
+19/03/2021
+- set the keyword field as the default one when dropping a TB
+- set buddies for fast access in TB edition dialog
+- decreased data file size using UTF-8 instead of UTF-16
+
+16/09/2021
+- started portage to Qt6
+
+19/12/2021
+- added a database backup system, to prevent to lose everything on a crash ><
+- set title of the Settings dialog
+- added an option to force database sanity check at program startup
+- removed tons of warnings due to useless semicolons
+
+06/01/2022
+- new TB can now be copy/pasted from mail box to TBI UI
+- fixed some clang warnings
+
+08/01/2022
+- TB edit dialog: set focus on Keywords field after opening a link
+
+16/02/2022
+- fixed a crash when a TB is added whereas the table is sorted (null pointer dereferencing)
+
+14/03/2022
+- made the last added TB visible and selected
+
+07/04/2022
+- added the ability to take screenshot of the TB dialog
+- added the ability to save the screenshots of the TB dialog
+- used std::min from algorithm instead of a custom macro to prevent compilation issue
+
+08/04/2022
+- DlgTB: added a way to copy (global clipboard) the header or full information about a TB
+
+09/04/2022
+- added BUGS.txt
+- added class LineEditNoFocus which inherits QLineEdit. It prevents the "Keywords" field to be selected when editing a TB
+
+09/04/2022
+- BUGFIX: the "merge keywords" option doesn't seems to work when updating a TB. Old keywords looks lost
+
+21/05/2022
+- fixed a bug which makes the cursor invisible in the Keyword field (TB edit dialog)
+
+22/05/2022
+- redesigned files layout
+- ported project to Qt6
+- got rid of .pro project, moved to CMakeLists.txt
+
+27/07/2022
+- fixed typo in About dialog
+- added a title to the About dialog
+
+06/05/2023
+- when adding a TB, indicated in the creation window if an older one is already present in the database
+- typo
+
+16/09/2023
+- fixed all the "pass a context object as 3rd connect parameters (clazy-connect-3 args-lambda)" warnings by adding a parent object pointer to specify the thread to be used
+- fixed the promotion of QLineEdit to LineEditNoFocus by adding the path of Dialog/LineEditNoFocus.hpp in the UI editor (broken by Qt upgrade)
+- set "Update old TB and merge keywords" as the default button of the Replace Previous TB dialog
+
+16/09/2023
+- updated the TB parser to support the new TB mail format. Many thanks to Elena Kislian!
+
+01/10/2023
+- introduced versionning fot the .tbi file
+- still a lot of formatting done because of the broken configuration of clang-format in Qt Creator...
 
-    - added a signal at ThreadIndex: openingComplete. Unused at the moment
-    - added a hint below the log widget, saying how to toggle screen to TB table
-    - added a log displayed in a widget stacked with the TB display
-    - added TB widget population
-    - added startLogTimer/addLogTimer to benchmark operations
+01/10/2023
+- reinforced the .tbi format by specifying the length of integers used in the header
 
-commit 11c66d180daa6514070a45f3152158da83c8af1c
-Author: Folco <martial.demolins@gmail.com>
-Date:   Fri Aug 30 15:01:00 2024 +0200
+13/12/2023
+- added an idea in the todo list
 
-    - started major revamping
-    - created a thread to manage the Index
-    - started the communication between the MainWindow and the ThreadIndex thanks to signals/slots mechanism
-    - disabled most of the code in MainWindow. Most of this disabled code should end up in the ThreadIndex engine
+05/02/2024
+- added Ctrl+F shortcut to focus the search field in the main window
 
-commit a0ae27a4948fa4d55c2ce273f825600020d8736a
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Mar 16 21:29:23 2024 +0100
+18/02/2024
+- bumped to version 1.3.0
+- dramatically reduced the startup time by removing a lot of useless UI refreshes
+- made possible to download all available technical publications
+- fixed a lambda declaration in DlgSettings
 
-    - bumped to version 1.6.1
+24/02/2024
+- made the case of local variables more consistent
+- dramatically improved startup time (again) by calling UI update only once, when the main window is fully populated
+- used a class to have dynamic sub-menu to download the documentations, in the main window and in the TB edition window
 
-commit ce2adaabc3dff594f48465c45795dc442f8ec829
-Author: Folco <martial.demolins@gmail.com>
-Date:   Fri Mar 15 18:58:36 2024 +0100
+24/02/2024
+- allowed DownloadMenu::setItems() to specify a widget which takes the focus after a download. Usefull in DlgTB
 
-    - recommit
+24/02/2024
+- bugfix: main window was not updated after editing a TB by double-clicking its entry
 
-commit 96da1edc9ec4f496b4447be96ee3455712828fca
-Author: Folco <martial.demolins@gmail.com>
-Date:   Fri Mar 15 18:57:36 2024 +0100
+24/02/2024
+- added the changelog from Github
+- externalized the help text (Docs/Help.txt)
+- started to build the DlgHelp with external ressources (HelpRes.qrc)
+- added a lot of comment
+- renamed some files/methods/variables to be more consistent
 
-    - added a next step
+25/02/2024
+- revamped the DlgHelp dialog (new tabs, dynamic strings, usage of QRC to embed text files)
 
-commit 8a3b7312aa22e1fc4f493808ae598c2c22a48d13
-Author: Folco <martial.demolins@gmail.com>
-Date:   Fri Mar 15 18:34:30 2024 +0100
+25/02/2024
+- added the ability to download Technical Bulletin and Customer Technical Information files
+- renamed some Windows Registry keys
+- automatically clean some old keys (once per application run)
 
-    - FIXED: Impossible to download the RM of old-style TB, because the first part of the doc number is trimmed (the name should not be trimmed if it starts with a figure)
-    - Removed a debug string chunk in the status line of MainWindow
+25/02/2024
+- fixed the DL sub-menu not offering to download TB PDF/CTI
+- fixed the DL sub-menu offering to download TB PDF/CTI even if there is no  RK number
 
-commit 3924efa39c6ec8a1fe2721e57eee2007c77f7575
-Author: Folco <martial.demolins@gmail.com>
-Date:   Mon Feb 26 03:52:19 2024 +0100
+26/02/2024
+- bumped to version 1.6.0
 
-    - bumped to version 1.6.0
+16/03/2024
+- FIXED: Impossible to download the RM of old-style TB, because the first part of the doc number is trimmed (the name should not be trimmed if it starts with a figure)
+- Removed a debug string chunk in the status line of MainWindow
 
-commit 12447c97351ad062ad0cc55922001c6b262e952a
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sun Feb 25 21:31:36 2024 +0100
+22/12/2024
+- added Window and executable icons
+- bumped to version 1.6.2
 
-    - Fixed the DL sub-menu not offering to download TB PDF/CTI
-    - Fixed the DL sub-menu offering to download TB PDF/CTI even if there is no  RK number
-
-commit b19181bbeb2ac7c1146fddb70a0468dc02c033be
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sun Feb 25 18:21:19 2024 +0100
-
-    - added the ability to download Technical Bulletin and Customer Technical Information files
-    - renamed some Windows Registry keys
-    - automatically clean some old keys (once per application run)
-
-commit 080a56b2212be33ad08352f47852e54045cda1ff
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sun Feb 25 15:13:54 2024 +0100
-
-    - revamped the DlgHelp dialog (new tabs, dynamic strings, usage of QRC to embed text files)
-
-commit eb0dbb8cd8d6825167c61b3883370142e9f6fac4
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Feb 24 22:11:25 2024 +0100
-
-    - added the changelog from Github
-    - externalized the help text (Docs/Help.txt)
-    - started to build the DlgHelp with external ressources (HelpRes.qrc)
-    - added a lot of comment
-    - renamed some files/methods/variables to be more consistent
-
-commit c0ec7359e3cdbb98b3916292a284b15638b5247f
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Feb 24 10:52:57 2024 +0100
-
-    - bugfix: main window was not updated after editing a TB by double-clicking its entry
-
-commit f1fd8dedc0d162d6b4bdae4fadd411ce5066bbe2
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Feb 24 09:47:57 2024 +0100
-
-    - Allow DownloadMenu::setItems() to specify a widget which takes the focus after a download. Usefull in DlgTB
-
-commit fea1e2e1966b49d51797a54272b85e4fd77195d6
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Feb 24 03:02:20 2024 +0100
-
-    - made the case of local variables more consistent
-    - dramatically improved startup time (again) by calling UI update only once, when the main window is fully populated
-    - use a class to have dynamic sub-menu to download the documentations, in the main window and in the TB edition window
-
-commit e220e40642655d6c85296070f36ab5e7ff42f3e2
-Author: Folco <martial.demolins@gmail.com>
-Date:   Mon Feb 19 08:22:07 2024 +0100
-
-    - Bumped to version 1.3.0
-    - Dramatically reduced the startup time by removing a lot of useless UI refreshes
-    - Made possible to download all available technical publications
-    - Fixed a lambda declaration in DlgSettings
-
-commit a9cdc0f8f62a88b201ba89f2222b71f685ebabbc
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sun Feb 18 19:47:13 2024 +0100
-
-    - started to support the new format of TB mail, showing the RM, SPC, UP
-    - dpcumented db formats
-
-commit bb119a074885cdf6e665570fadcb736670374710
-Author: Martial <martial.demolins@gmail.com>
-Date:   Mon Feb 5 08:23:31 2024 +0100
-
-    - Added Ctrl+F shortcut to focus the search field in the main window
-
-commit 179180aa18e4be9eade94f3d7d7395a46b0958f0
-Author: Folco <martial.demolins@gmail.com>
-Date:   Wed Dec 13 15:56:59 2023 +0100
-
-    - Added an idea in the todo list
-
-commit a14705fb15f3327c841e6932799ff7a2cec21c0d
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sun Oct 1 18:48:00 2023 +0200
-
-    - reinforce the .tbi format by specifying the length of integers used in the header
-
-commit 444d8d6636699c76d4e6bb5f23c97a52f7f64f6a
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sun Oct 1 18:27:53 2023 +0200
-
-    - introduce versionning fot the .tbi file
-    - still a lot of formatting done because of the broken configuration of clang-format in Qt Creator...
-
-commit 2c1797c8eed4f90fdf7dd691ade3562cfc9edd33
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Sep 16 21:39:04 2023 +0200
-
-    - updated the TB parser to support the new TB mail format. Many thanks to Elena Kislian!
-
-commit ab5be59cb8db0d476a6a759e0524e76d607eef90
-Author: Folco <martial.demolins@gmail.com>
-Date:   Sat Sep 16 11:38:56 2023 +0200
-
-    - fix all the "pass a context object as 3rd connect parameters (clazy-connect-3 args-lambda)" warnings by adding a parent object pointer to specify the thread to be used
-    - fix the promotion of QLineEdit to LineEditNoFocus by adding the path of Dialog/LineEditNoFocus.hpp in the UI editor (broken by Qt upgrade)
-    - set "Update old TB and merge keywords" as the default button of the Replace Previous TB dialog
-
-commit b2269dda32cc62c9c36eb33d97abc9d0d0651c96
-Author: Martial <martial.demolins@gmail.com>
-Date:   Sat May 6 18:53:22 2023 +0200
-
-    - when adding a TB, indicate in the creation window if an older one is already present in the database
-    - typo
-
-commit ca2bd3e4b4197de5303bd31d6851f7f0cf7569a0
-Author: martial <martial.demolins@gmail.com>
-Date:   Wed Jul 27 16:03:05 2022 +0200
-
-    - fixed typo in About dialog
-    - added a title to the About dialog
-
-commit 8b3380db090d9c805df00b16fac3609c63eed979
-Author: martial <martial.demolins@gmail.com>
-Date:   Sun May 22 07:13:32 2022 +0200
-
-    - Redesigned files layout
-    - Ported project to Qt6
-    - Got rid of .pro project, moved to CMakeLists.txt
-
-commit 30304e56003d447ba750532daa2e325f19b0b8b1
-Author: martial <martial.demolins@gmail.com>
-Date:   Sat May 21 19:55:33 2022 +0200
-
-    - fixed a bug which makes the cursor invisible in the Keyword field (TB edit dialog)
-
-commit 06827354412c008890844bb7dea7fb7a7c2f819b
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sat Apr 9 18:40:52 2022 +0200
-
-    - BUGFIX: the "merge keywords" option doesn't seems to work when updating a TB. Old keywords looks lost
-
-commit 55ced4bfb349907970a57588f9815036bc500c3f
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sat Apr 9 16:19:05 2022 +0200
-
-    - add BUGS.txt
-    - add class LineEditNoFocus which inherits QLineEdit. It prevents the "Keywords" field to be selected when editing a TB
-
-commit 7ee839224ba605ca4ac53f0cb0532907eb9f0731
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Fri Apr 8 20:30:19 2022 +0200
-
-    - DlgTB: added a way to copy (global clipboard) the header or full information about a TB
-
-commit 166b515ff0ed853daa69ce5f2e9492098d961266
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Thu Apr 7 14:23:50 2022 +0200
-
-    - Add the ability to take screenshot of the TB dialog
-    - Add the ability to save the screenshots of the TB dialog
-    - Use std::min from algorithm instead of a custom macro to prevent compilation issue
-
-commit 7702e84e8b2c1a6b0cc343f09f43c127b1d157d0
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Mon Mar 14 11:59:51 2022 +0100
-
-    - Make the last added TB visible and selected
-
-commit 1a4a53016a655c2f332ce0202200603623a75921
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Wed Feb 16 20:14:04 2022 +0100
-
-    - fix a crash when a TB is added whereas the table is sorted (null pointer dereferencing)
-
-commit 72a924c8e6e70d7d4664d6e8d5fd8f5af51e29a7
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sat Jan 8 08:07:02 2022 +0100
-
-    - TB edit dialog: set focus on Keywords field after opening a link
-
-commit b00054509566f7497d592b64e351932349414e00
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Thu Jan 6 08:14:52 2022 +0100
-
-    - New TB can now be copy/pasted from mail box to TBI UI
-    - Fix some clang warnings
-
-commit acbdfeb458e50171a37da39413225d25d8ea4d96
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sun Dec 19 15:18:50 2021 +0100
-
-    - Added a database backup system, to prevent to lose everything on a crash ><
-    - Set title of the Settings dialog
-    - Add an option to force database sanity check at program startup
-    - Remove tons of warnings due to useless semicolons
-
-commit faa4b9c0430e82556ab8279372a3768d870dc13c
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sat Nov 13 23:23:43 2021 +0100
-
-    - port to Qt6
-    - don't fill the fields of the New TB Dialog with garbage when user drops garbage
-    - prevent to add twice the same TB
-    - prevent to add a TB older than an existing one
-    - replace a TB if a newer is added
-    - add a tooltip for the date format in the New TB Dialog
-
-commit 57aba775d5673c29cf3fbc0d28a7bbb3807ef174
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Thu Sep 16 08:15:24 2021 +0200
-
-    - Started portage to Qt6
-
-commit a0bbb0d86772b12259cdc445234b0649f1cf3232
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Fri Mar 19 12:21:52 2021 +0100
-
-    + set the keyword field as the default one when dropping a TB
-    + set buddies for fast access in TB edition dialog
-    + decrease data file size using UTF-8 instead of UTF-16
-
-commit 70e074dd71a705c855c97d49e7595d22c50bcd4a
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sun Nov 15 00:42:00 2020 +0100
-
-    - Allow to use all TB fields in search criteria
-    - Refresh search results if search options changed when Settings dialog closes
-    - Fix: prevent "Searching..." message in status bar when pressing ENTER in RT search mode
-    - Added some missing GPL notices
-
-commit fa242704ed259610ee4d374894e29ff57d2163ba
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sat Nov 14 00:05:49 2020 +0100
-
-    - Added persistent settings (search options, main window geometry, ...)
-    - Prevent to perform a search if keywords didn't changed
-    - Added a "Real Time Search" option, which filters TB when you type (not multi-threaded)
-    - Added a "Whole Words Only" search option
-
-commit fdb48055878d229abde08b68748d9131fd32906b
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Wed Nov 11 08:38:08 2020 +0100
-
-    - Added "Download RM" action in context menu
-    - Fixed the separator not shown in context menu
-
-commit 13a2bc6a050bf580da8cdfba698481d5e5ed8715
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Tue Nov 10 23:40:45 2020 +0100
-
-    - Added About/License dialog
-    - Added ContextMenuAction class, to easily create the action of the main context menu
-    - Added a button to visit RK web page in the new/edit TB dlg
-    - Added a button to download the RM in the new/edit TB dlg
-    - Made search functional
-    - Added Ctrl+S as a shortcut to save the index
-
-commit e9a0f562d01e2fc6b97cd8f803bf1ac862fc2ed0
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sun Nov 8 23:26:11 2020 +0100
-
-    - removed MainWindow buttons for TB creation, edition and deletion
-    - added a context menu to handle TB
-    - added the ability to copy or open TB URL
-
-commit a0da34acb23a6fa4a496bbcc3b6aeed6fc9c9fea
-Author: Folcogh <martial.demolins@gmail.com>
-Date:   Sun Nov 8 07:26:56 2020 +0100
-
-    - initial commit
-    - UI working
-    - search engine still to do

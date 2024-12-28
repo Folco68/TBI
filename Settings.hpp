@@ -1,34 +1,32 @@
-/*******************************************************************************
- *                                                                             *
- *   TBI - Technical Bulletin Indexer - Save and index Technical Bulletins.    *
- *        Provide a search engine and documentations download features.        *
- *             Copyright (C) 2020-2025 Martial Demolins AKA Folco              *
- *                                                                             *
- *    This program is free software: you can redistribute it and/or modify     *
- *    it under the terms of the GNU General Public License as published by     *
- *      the Free Software Foundation, either version 3 of the License, or      *
- *                      at your option) any later version                      *
- *                                                                             *
- *       This program is distributed in the hope that it will be useful        *
- *       but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
- *                 GNU General Public License for more details                 *
- *                                                                             *
- *      You should have received a copy of the GNU General Public License      *
- *     along with this program. If not, see <https://www.gnu.org/licenses      *
- *                                                                             *
- *              mail: martial <dot> demolins <at> gmail <dot> com              *
- *                                                                             *
- ******************************************************************************/
+/*
+ * TBI - Technical Bulletin Indexer - Save and index Technical Bulletins,
+ * allowing to use keywords to find them easily
+ * Copyright (C) 2020 Martial Demolins AKA Folco
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * mail: martial <dot> demolins <at> gmail <dot> com
+ */
 
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
 
-#include <Global.hpp>
 #include <QSettings>
 #include <QSize>
 #include <QString>
 #include <QStringList>
+#include "Global.hpp"
 
 // Key names
 #define KEY_BASE_URL_TB_WEBPAGE  "baseUrlTBwebpage"
@@ -48,7 +46,6 @@
 #define KEY_SEARCH_REPLACES      "searchReplaces"
 #define KEY_SEARCH_REPLACED_BY   "searchReplacedBy"
 #define KEY_SEARCH_COMMENT       "searchComment"
-#define KEY_FIRST_RUN            "firstRun"
 
 // Default values
 #define DEFAULT_BASE_URL_TB_WEBPAGE  "https://piv.tetrapak.com/techbull/detail_techbull.aspx?id=%1"
@@ -67,7 +64,6 @@
 #define DEFAULT_SEARCH_REPLACES      false
 #define DEFAULT_SEARCH_REPLACED_BY   false
 #define DEFAULT_SEARCH_COMMENT       false
-#define DEFAULT_FIRST_RUN            true
 
 //  Settings
 //
@@ -137,9 +133,6 @@ class Settings: public QSettings
 
     bool searchCommentEnabled() { return value(KEY_SEARCH_COMMENT, DEFAULT_SEARCH_COMMENT).toBool(); }
     void setSearchComment(bool enabled) { setValue(KEY_SEARCH_COMMENT, enabled); }
-
-    bool firstRun() { return value(KEY_FIRST_RUN, DEFAULT_FIRST_RUN).toBool(); }
-    void firstRunDone() { setValue(KEY_FIRST_RUN, false); }
 
   private:
     static Settings* settings;

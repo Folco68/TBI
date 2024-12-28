@@ -733,7 +733,7 @@ copy of the Program in return for a fee.
      <item>
       <spacer name="HSpacerButton">
        <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>

@@ -14,20 +14,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-# Warnings
-if (MSVC)
-    add_compile_options(/W3)
-else()
-    add_compile_options(-Wall -Wextra)
-endif()
-
 set(PROJECT_SOURCES
-
     # Root
-    .gitignore
     BeforeRelease.hpp
-    main.cpp
     HelpRes.qrc
+    main.cpp
     Settings.cpp
     Settings.hpp
 
@@ -35,52 +26,62 @@ set(PROJECT_SOURCES
     Docs/About.txt
     Docs/BUGS.txt
     Docs/Changelog.txt
-    Docs/Draft.txt
     Docs/Help.txt
     Docs/TBformats.txt
     Docs/TODO.txt
 
     # Icons
     Icon/Icon.qrc
-    Icon/Icon.rc
-    Icon/Icon.png
     Icon/Icon.ico
+    Icon/Icon.png
+    Icon/Icon.rc
 
     # Index
-    Index/Index.cpp
-    Index/Index.hpp
     Index/TechnicalBulletin.cpp
     Index/TechnicalBulletin.hpp
 
-    # UI - Misc
+    # UI
     UI/ContextMenuAction.cpp
     UI/ContextMenuAction.hpp
-    UI/DownloadMenu.cpp
-    UI/DownloadMenu.hpp
-    UI/LineEditDeselect.cpp
-    UI/LineEditDeselect.hpp
-
-    # UI - Dialogs
     UI/DlgHelp.cpp
     UI/DlgHelp.hpp
     UI/DlgHelp.ui
     UI/DlgSettings.cpp
     UI/DlgSettings.hpp
-    UI/DlgSettings.ui
+    UI/DlgHelp.ui
     UI/DlgTB.cpp
     UI/DlgTB.hpp
     UI/DlgTB.ui
+    UI/DownloadMenu.cpp
+    UI/DownloadMenu.hpp
+    UI/LineEditDeselect.cpp
+    UI/LineEditDeselect.hpp
     UI/MainWindow.cpp
     UI/MainWindow.hpp
     UI/MainWindow.ui
 )
-
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TBI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET TBI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+else()
+    if(ANDROID)
+        add_library(TBI SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(TBI
+            ${PROJECT_SOURCES}
+        )
+    endif()
 endif()
 
 target_link_libraries(TBI PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

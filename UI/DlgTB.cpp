@@ -1,31 +1,25 @@
-/*******************************************************************************
- *                                                                             *
- *   TBI - Technical Bulletin Indexer - Save and index Technical Bulletins.    *
- *        Provide a search engine and documentations download features.        *
- *             Copyright (C) 2020-2025 Martial Demolins AKA Folco              *
- *                                                                             *
- *    This program is free software: you can redistribute it and/or modify     *
- *    it under the terms of the GNU General Public License as published by     *
- *      the Free Software Foundation, either version 3 of the License, or      *
- *                      at your option) any later version                      *
- *                                                                             *
- *       This program is distributed in the hope that it will be useful        *
- *       but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
- *                 GNU General Public License for more details                 *
- *                                                                             *
- *      You should have received a copy of the GNU General Public License      *
- *     along with this program. If not, see <https://www.gnu.org/licenses      *
- *                                                                             *
- *              mail: martial <dot> demolins <at> gmail <dot> com              *
- *                                                                             *
- ******************************************************************************/
+/*
+ * TBI - Technical Bulletin Indexer - Save and index Technical Bulletins,
+ * allowing to use keywords to find them easily
+ * Copyright (C) 2020 Martial Demolins AKA Folco
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * mail: martial <dot> demolins <at> gmail <dot> com
+ */
 
 #include "DlgTB.hpp"
-#include "Global.hpp"
-#include "LineEditDeselect.hpp"
-#include "Settings.hpp"
-#include "ui_DlgTB.h"
 #include <QAction>
 #include <QApplication>
 #include <QChar>
@@ -39,6 +33,10 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QStringList>
+#include "../Global.hpp"
+#include "../Settings.hpp"
+#include "../UI/LineEditDeselect.hpp"
+#include "ui_DlgTB.h"
 
 //  DlgTB
 //
@@ -105,7 +103,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
     : DlgTB(parent, title)
 {
     fillUI(tb);
-    // TODO uncomment when implemented    ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
+    ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
 }
 
 DlgTB::~DlgTB()
