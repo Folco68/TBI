@@ -142,6 +142,11 @@ MainWindow::MainWindow(bool ForceDBCheck)
                 }
             });
 
+    // Table/Log toggle shortcut
+    connect(new QShortcut(QKeySequence(Qt::Key_F5), this), &QShortcut::activated, [this]() {
+        ui->StackCentral->setCurrentIndex(ui->StackCentral->currentIndex() ^ 1);
+    });
+
     // Buttons connections
     connect(ui->ButtonSave, &QPushButton::clicked, [this]() {
         save();

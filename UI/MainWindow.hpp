@@ -24,6 +24,9 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+#include "../Index/TechnicalBulletin.hpp"
+#include "ContextMenuAction.hpp"
+#include "DownloadMenu.hpp"
 #include <QByteArray>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -32,9 +35,7 @@
 #include <QMainWindow>
 #include <QString>
 #include <QStringList>
-#include "../Index/TechnicalBulletin.hpp"
-#include "ContextMenuAction.hpp"
-#include "DownloadMenu.hpp"
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -76,6 +77,9 @@ class MainWindow: public QMainWindow
 
     // Download sub-menu
     DownloadMenu* DLMenu;
+
+    // Index thread
+    QThread IndexThread;
 
     // TBs
     void updateUI();
