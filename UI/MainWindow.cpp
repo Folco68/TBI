@@ -21,7 +21,14 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
+#include "../Global.hpp"
+#include "../Settings.hpp"
+#include "DlgHelp.hpp"
+#include "DlgSettings.hpp"
+#include "DlgTB.hpp"
+#include "DownloadMenu.hpp"
 #include "MainWindow.hpp"
+#include "ui_MainWindow.h"
 #include <QAbstractButton>
 #include <QAbstractScrollArea>
 #include <QClipboard>
@@ -42,13 +49,6 @@
 #include <QStatusBar>
 #include <QTableWidget>
 #include <QTableWidgetItem>
-#include "../Global.hpp"
-#include "../Settings.hpp"
-#include "DlgHelp.hpp"
-#include "DlgSettings.hpp"
-#include "DlgTB.hpp"
-#include "DownloadMenu.hpp"
-#include "ui_MainWindow.h"
 
 MainWindow::MainWindow(bool ForceDBCheck)
     : QMainWindow()
@@ -88,9 +88,7 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // TB table context menu
     ui->TableTB->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->TableTB, &QWidget::customContextMenuRequested, [this]() {
-        this->TableContextMenu->exec(QCursor::pos());
-    });
+    connect(ui->TableTB, &QWidget::customContextMenuRequested, [this]() { this->TableContextMenu->exec(QCursor::pos()); });
     connect(this->ActionNewTB, &QAction::triggered, [this]() { newTB(); });
     connect(this->ActionEditTB, &QAction::triggered, [this]() { editTB(); });
     connect(this->ActionDeleteTB, &QAction::triggered, [this]() {
@@ -109,38 +107,33 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
     // Add actions to the context menu and to the main window to allow kbd shortcuts
     QList<QAction*> Actions;
-    Actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionDownload << this->ActionSettings
-            << this->ActionHelp;
+    Actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl
+            << this->ActionDownload << this->ActionSettings << this->ActionHelp;
     this->TableContextMenu->addActions(Actions);
     this->TableContextMenu->insertSeparator(this->ActionCopyUrl);
     this->TableContextMenu->insertSeparator(this->ActionSettings);
     this->addActions(Actions);
 
     // Paste shortcut
-    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this),
-            &QShortcut::activated,
-            [this]() { paste(); });
+    connect(new QShortcut(QKeySequence(QKeySequence::Paste), this), &QShortcut::activated, [this]() { paste(); });
 
     // Save shortcut
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this),
-            &QShortcut::activated,
-            [this]() {
-                if (this->Modified) {
-                    save();
-                    updateUI();
-                }
-            });
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, [this]() {
+        if (this->Modified) {
+            save();
+            updateUI();
+        }
+    });
 
     // Search shortcut. Toggle between seach field and table
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this),
-            &QShortcut::activated,
-            [this]() {
-                if (ui->EditKeywords->hasFocus()) {
-                    ui->TableTB->setFocus();
-                } else {
-                    ui->EditKeywords->setFocus();
-                }
-            });
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this), &QShortcut::activated, [this]() {
+        if (ui->EditKeywords->hasFocus()) {
+            ui->TableTB->setFocus();
+        }
+        else {
+            ui->EditKeywords->setFocus();
+        }
+    });
 
     // Table/Log toggle shortcut
     connect(new QShortcut(QKeySequence(Qt::Key_F5), this), &QShortcut::activated, [this]() {
@@ -209,14 +202,19 @@ MainWindow::MainWindow(bool ForceDBCheck)
 
                         default:
                             // Version of the future, unhandled by this binary...
-                            QMessageBox::critical(this, WINDOW_TITLE, tr("The DB file is too recent for this executable. Please find a newer one. Opening aborted."));
+                            QMessageBox::critical(
+                                this,
+                                WINDOW_TITLE,
+                                tr("The DB file is too recent for this executable. Please find a newer one. Opening aborted."));
                     }
                 }
 
                 else {
-                    QMessageBox::critical(this,
-                                          WINDOW_TITLE,
-                                          tr("Invalid file identifier. It looks that the file %1 is corrupted or not authentic. Opening aborted.").arg(TBI_FILENAME));
+                    QMessageBox::critical(
+                        this,
+                        WINDOW_TITLE,
+                        tr("Invalid file identifier. It looks that the file %1 is corrupted or not authentic. Opening aborted.")
+                            .arg(TBI_FILENAME));
                 }
             }
 
@@ -274,7 +272,6 @@ MainWindow::~MainWindow()
 //
 void MainWindow::updateUI()
 {
-
     // Window title
     setWindowTitle(QString("%1 %2").arg(WINDOW_TITLE, this->Modified ? "- (modified)" : ""));
 
@@ -297,8 +294,8 @@ void MainWindow::updateUI()
 
     // Download action and sub-menu
     if (ItemSelected) {
-        int     Row       = ui->TableTB->currentRow();
-        QString DocsField = ui->TableTB->item(Row, COLUMN_TECH_PUB)->text();
+        int     Row           = ui->TableTB->currentRow();
+        QString DocsField     = ui->TableTB->item(Row, COLUMN_TECH_PUB)->text();
         QString TBnumberField = ui->TableTB->item(Row, COLUMN_NUMBER)->text().trimmed();
         this->DLMenu->setItems(DocsField, TBnumberField);
         this->ActionDownload->setMenu(this->DLMenu);
@@ -332,13 +329,13 @@ void MainWindow::save()
     QDataStream Stream(&File);
 
     // First, write 0 to support old DB
-    Stream << (qint32)0;
+    Stream << (qint32) 0;
 
     // Then write magic + current version
-    Stream << QString(TBI_MAGIC) << (qint32)CURRENT_TBI_VERSION;
+    Stream << QString(TBI_MAGIC) << (qint32) CURRENT_TBI_VERSION;
 
     // Write TB count
-    Stream << (qint32)(ui->TableTB->rowCount());
+    Stream << (qint32) (ui->TableTB->rowCount());
 
     // Serialize TBs
     for (int i = 0; i < ui->TableTB->rowCount(); i++) {
@@ -399,7 +396,10 @@ void MainWindow::deleteTB()
     TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
 
     // Show a confirmation dialog
-    QMessageBox::StandardButton Answer = QMessageBox::question(this, WINDOW_TITLE, tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(TB->number(), TB->title()));
+    QMessageBox::StandardButton Answer
+        = QMessageBox::question(this,
+                                WINDOW_TITLE,
+                                tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(TB->number(), TB->title()));
     if (Answer == QMessageBox::Yes) {
         delete TB;
         ui->TableTB->removeRow(Row);
@@ -519,7 +519,10 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
             // Check that the TB doesn't exist yet
             // Don't allow to add twice the same TB
             if (tb->number() == CurrentTB->number()) {
-                QMessageBox::critical(this, tr("Error"), tr("TB %1 already exists in the database").arg(tb->title()), QMessageBox::Ok);
+                QMessageBox::critical(this,
+                                      tr("Error"),
+                                      tr("TB %1 already exists in the database").arg(tb->title()),
+                                      QMessageBox::Ok);
                 return;
             }
 
@@ -527,7 +530,10 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
             // Don't allow to add an old TB
             QString ReplacedBy = tb->replacedBy();
             if ((!ReplacedBy.isNull()) && (ReplacedBy == CurrentTB->number())) {
-                QMessageBox::critical(this, tr("Error"), tr("A new version of TB %1 already exists in the database").arg(CurrentTB->title()), QMessageBox::Ok);
+                QMessageBox::critical(this,
+                                      tr("Error"),
+                                      tr("A new version of TB %1 already exists in the database").arg(CurrentTB->title()),
+                                      QMessageBox::Ok);
                 return;
             }
 
@@ -537,7 +543,8 @@ void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
             if (tb->replaces() == CurrentTB->number()) {
                 QMessageBox* MessageBox = new QMessageBox(QMessageBox::Question,
                                                           tr("Replace previous TB"),
-                                                          tr("An older version of TB %1 is present. Do you want to update it?").arg(CurrentTB->title()));
+                                                          tr("An older version of TB %1 is present. Do you want to update it?")
+                                                              .arg(CurrentTB->title()));
                 MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
                 QPushButton* ButtonMerge  = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
                 QPushButton* ButtonCancel = MessageBox->addButton(tr("Cancel"), QMessageBox::RejectRole);
@@ -689,8 +696,10 @@ bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (this->Modified) {
-        QMessageBox::StandardButtons Answer
-          = QMessageBox::question(this, WINDOW_TITLE, tr("Do you want to save changes before exiting?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        QMessageBox::StandardButtons Answer = QMessageBox::question(this,
+                                                                    WINDOW_TITLE,
+                                                                    tr("Do you want to save changes before exiting?"),
+                                                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
         // User wants to save index
         if (Answer == QMessageBox::Yes) {
             save();
