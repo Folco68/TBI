@@ -18,6 +18,8 @@ set(PROJECT_SOURCES
     # Root
     BeforeRelease.hpp
     HelpRes.qrc
+    Logger.hpp
+    Logger.cpp
     main.cpp
     Settings.cpp
     Settings.hpp
