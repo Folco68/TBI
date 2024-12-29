@@ -66,7 +66,6 @@ MainWindow::MainWindow(bool ForceDBCheck)
     , ActionSettings(new ContextMenuAction(tr("Settings"), this))
     , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
     , DLMenu(new DownloadMenu)
-    , IndexThread(this)
 {
     // Window
     ui->setupUi(this);
@@ -142,11 +141,6 @@ MainWindow::MainWindow(bool ForceDBCheck)
                     ui->EditKeywords->setFocus();
                 }
             });
-
-    // Table/Log toggle shortcut
-    connect(new QShortcut(QKeySequence(Qt::Key_F5), this), &QShortcut::activated, [this]() {
-        ui->StackCentral->setCurrentIndex(ui->StackCentral->currentIndex() ^ 1);
-    });
 
     // Buttons connections
     connect(ui->ButtonSave, &QPushButton::clicked, [this]() {
