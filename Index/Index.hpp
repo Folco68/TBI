@@ -19,7 +19,7 @@ class Index : public QObject
   signals:
     // Opening on its normal way
     void openingStarting();
-    void openingHeader(int version, int count);
+    void openingHeader(int version, qint32 count);
     void openingProgress(int count);
     void openingSuccessful(int count); // Mark end of opening
     void noIndexFound();               // Mark end of opening
@@ -38,7 +38,7 @@ class Index : public QObject
 
     bool event(QEvent* event) override;
     void open(bool ForceIndexCheck);
-    void openIndexV0(int count, QDataStream& stream, bool ForceIndexCheck);
+    void openIndexV0(qint32 count, QDataStream& stream, bool ForceIndexCheck);
     void openIndexV1(QDataStream& stream, bool ForceIndexCheck);
 
     QList<TechnicalBulletin*> Bulletins;

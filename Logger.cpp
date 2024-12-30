@@ -39,10 +39,9 @@ void Logger::startTimer()
     this->Timer.start();
 }
 
-void Logger::displayTimer()
+QString Logger::timer()
 {
     int   ms = this->Timer.elapsed();
     QTime Duration(0, 0, 0, ms);
-    this->Log.append(QString("[%1]").arg(Duration.toString("HH:mm:ss.zzz")));
-    emit textAdded(this->Log);
+    return Duration.toString("HH:mm:ss.zzz");
 }

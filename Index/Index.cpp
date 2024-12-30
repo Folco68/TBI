@@ -76,6 +76,7 @@ void Index::open(bool ForceIndexCheck)
     // Early return if the file does not exist
     if (!QFileInfo::exists(TBI_FILENAME)) {
         emit noIndexFound();
+        return;
     }
 
     // Opening
@@ -157,7 +158,7 @@ void Index::open(bool ForceIndexCheck)
 //
 // Open a DB in the legacy format
 //
-void Index::openIndexV0(int count, QDataStream& stream, bool ForceIndexCheck)
+void Index::openIndexV0(qint32 count, QDataStream& stream, bool ForceIndexCheck)
 {
     // Emit index version + TB count
     emit openingHeader(0, count);

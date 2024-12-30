@@ -107,6 +107,15 @@ class MainWindow: public QMainWindow
 
     // Signals handling
     void openingStarting();
+    void openingHeader(int version, qint32 count);
+    void openingProgress(int count);
+    void openingSuccessful(int count);
+    void noIndexFound();
+    void indexTooRecent(qint32 version);
+    void invalidMagic(QString magic);
+    void cantOpenIndex();
+    void unableToReadFileContent();
+    void openingFailed(int count);
 };
 
 // Table header index

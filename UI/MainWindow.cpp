@@ -79,6 +79,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     ui->setupUi(this);
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
     resize(Settings::instance()->mainWindowSize());
+    ui->StackCentral->setCurrentIndex(PAGE_LOG);
 
     //------------------------------------------------------------------------------------
     //                                     Status bar
@@ -234,19 +235,15 @@ MainWindow::MainWindow(bool ForceIndexCheck)
      ******************************************************************************************************************/
 
     connect(Index::instance(), &Index::openingStarting, this, &MainWindow::openingStarting, Qt::QueuedConnection);
-
-    /*  
-    void openingStarting();
-    void openingHeader(int version, int count);
-    void openingProgress(int count);
-    void openingSuccessful(int count); // Mark end of opening
-    void noIndexFound();               // Mark end of opening
-    void indexTooRecent(qint32 version);
-    void invalidMagic(QString magic);
-    void cantOpenIndex();
-    void unableToReadFileContent();
-    void openingFailed(int count); // Mark end of opening
-*/
+    connect(Index::instance(), &Index::openingHeader, this, &MainWindow::openingHeader, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingProgress, this, &MainWindow::openingProgress, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingSuccessful, this, &MainWindow::openingSuccessful, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::noIndexFound, this, &MainWindow::noIndexFound, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::indexTooRecent, this, &MainWindow::indexTooRecent, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::invalidMagic, this, &MainWindow::invalidMagic, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::cantOpenIndex, this, &MainWindow::cantOpenIndex, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::unableToReadFileContent, this, &MainWindow::unableToReadFileContent, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingFailed, this, &MainWindow::openingFailed, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -314,8 +311,44 @@ void MainWindow::updateUI()
 
 void MainWindow::openingStarting()
 {
-    QString Message = QString("Trying to open index file: %1").arg(TBI_FILENAME);
+    QString Message = tr("Trying to open index file: %1").arg(TBI_FILENAME);
     Logger::instance()->newEntry(Message);
+}
+
+void MainWindow::openingHeader(int version, qint32 count)
+{
+    QString Message = tr("Opening index version %1, containing %2 technical bulletins").arg(version).arg(count);
+    Logger::instance()->newEntry(Message);
+    Logger::instance()->newEntry(tr("Reading technical bulletins: "));
+    Logger::instance()->startTimer();
+}
+
+void MainWindow::openingProgress(int count)
+{
+    Logger::instance()->append(QString("%1... ").arg(count));
+}
+
+void MainWindow::openingSuccessful(int count)
+{
+    QString Message = tr("Opeing successful. %1 bulletins read in %2").arg(count).arg(Logger::instance()->timer());
+    Logger::instance()->newEntry(Message);
+    ui->StackCentral->setCurrentIndex(PAGE_TABLE);
+}
+
+void MainWindow::noIndexFound()
+{
+    Logger::instance()->newEntry(tr("No index file found"));
+    ui->StackCentral->setCurrentIndex(PAGE_TABLE);
+}
+
+void MainWindow::indexTooRecent(qint32 version) {}
+void MainWindow::invalidMagic(QString magic) {}
+void MainWindow::cantOpenIndex() {}
+void MainWindow::unableToReadFileContent() {}
+
+void MainWindow::openingFailed(int count)
+{
+    // tr("Opening failed.")
 }
 
 //  save

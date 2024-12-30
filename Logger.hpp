@@ -15,7 +15,7 @@ class Logger : public QObject
     void newEntry(QString text);
     void append(QString text);
     void startTimer();
-    void displayTimer();
+    QString timer();
 
   private:
     static Logger* logger;
