@@ -52,7 +52,7 @@ class MainWindow: public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(bool ForceDBCheck);
+    MainWindow(bool ForceIndexCheck);
     ~MainWindow() override;
     bool tbNumberAlreadyExists(TechnicalBulletin* tb);
 
@@ -79,7 +79,7 @@ class MainWindow: public QMainWindow
     DownloadMenu* DLMenu;
 
     // Index thread
-    QThread IndexThread;
+    QThread* ThreadIndex;
 
     // TBs
     void updateUI();
@@ -90,10 +90,6 @@ class MainWindow: public QMainWindow
     void search(bool ForceNewSearch = false);
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
-
-    // TB opening
-    void openDBv0(int count, QDataStream& stream, bool ForceDBCheck);
-    void openDBv1(QDataStream& stream, bool ForceDBCheck);
 
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -108,6 +104,9 @@ class MainWindow: public QMainWindow
     // URL handling
     void copyURLToClipboard();
     void openURL();
+
+    // Signals handling
+    void openingStarting();
 };
 
 // Table header index
@@ -133,5 +132,9 @@ typedef enum {
 
 // Enable consistency and update checks when adding a TB
 #define PERFORM_ADD_CHECKS true
+
+// Stacked central widget
+#define PAGE_TABLE 0
+#define PAGE_LOG   1
 
 #endif // MAINWINDOW_HPP

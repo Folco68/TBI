@@ -2,8 +2,10 @@
 #define INDEX_HPP
 
 #include "TechnicalBulletin.hpp"
+#include <QEvent>
 #include <QList>
 #include <QObject>
+#include <QString>
 
 class Index : public QObject
 {
@@ -14,11 +16,33 @@ class Index : public QObject
 
     QList<TechnicalBulletin*> bulletins() const;
 
+  signals:
+    // Opening on its normal way
+    void openingStarting();
+    void openingHeader(int version, int count);
+    void openingProgress(int count);
+    void openingSuccessful(int count); // Mark end of opening
+    void noIndexFound();               // Mark end of opening
+
+    // Opening failing
+    void indexTooRecent(qint32 version);
+    void invalidMagic(QString magic);
+    void cantOpenIndex();
+    void unableToReadFileContent();
+    void openingFailed(int count); // Mark end of opening
+
   private:
+    Index();
     ~Index();
     static Index* index;
 
+    bool event(QEvent* event) override;
+    void open(bool ForceIndexCheck);
+    void openIndexV0(int count, QDataStream& stream, bool ForceIndexCheck);
+    void openIndexV1(QDataStream& stream, bool ForceIndexCheck);
+
     QList<TechnicalBulletin*> Bulletins;
+    bool                      OpeningSuccessful;
 };
 
 #endif // INDEX_HPP

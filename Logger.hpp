@@ -23,7 +23,7 @@ class Logger : public QObject
     QElapsedTimer  Timer;
 
   signals:
-    void textAdded(QString text);
+    void textAdded(QString log);
 };
 
 #endif // LOGGER_HPP

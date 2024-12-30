@@ -5,7 +5,7 @@ Logger* Logger::logger = nullptr;
 
 Logger* Logger::instance()
 {
-    if (logger != nullptr) {
+    if (logger == nullptr) {
         logger = new Logger;
     }
     return logger;
@@ -22,16 +22,16 @@ void Logger::release()
 void Logger::newEntry(QString text)
 {
     if (!this->Log.isEmpty()) {
-        text.prepend('\n');
+        this->Log.append('\n');
     }
-    this->Log.append(text);
-    emit textAdded(text);
+    this->Log.append(QString("[%1] ").arg(QTime::currentTime().toString("HH:mm:ss:zzz"))).append(text);
+    emit textAdded(this->Log);
 }
 
 void Logger::append(QString text)
 {
     this->Log.append(text);
-    emit textAdded(text);
+    emit textAdded(this->Log);
 }
 
 void Logger::startTimer()
@@ -42,6 +42,7 @@ void Logger::startTimer()
 void Logger::displayTimer()
 {
     int   ms = this->Timer.elapsed();
-    QTime Time(0, 0, 0, ms);
-    this->Log.append(Time.toString("HH:mm:ss.zzz"));
+    QTime Duration(0, 0, 0, ms);
+    this->Log.append(QString("[%1]").arg(Duration.toString("HH:mm:ss.zzz")));
+    emit textAdded(this->Log);
 }

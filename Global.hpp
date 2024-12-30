@@ -24,6 +24,8 @@
 #ifndef GLOBAL_HPP
 #define GLOBAL_HPP
 
+#include <QEvent>
+
 // Window parameters
 #define WINDOW_TITLE "Technical Bulletin Indexer"
 
@@ -60,5 +62,8 @@
 
 // Magic string to identify a TBI DB
 #define TBI_MAGIC "TBI_DB_BY_MARTIAL_DEMOLINS"
+
+// Application-wide events
+#define EVENT_OPEN_INDEX (QEvent::User)
 
 #endif // GLOBAL_HPP

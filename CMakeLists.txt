@@ -32,6 +32,10 @@ set(PROJECT_SOURCES
     Docs/TBformats.txt
     Docs/TODO.txt
 
+    # Events
+    Event/EventOpenIndex.hpp
+    Event/EventOpenIndex.cpp
+
     # Icons
     Icon/Icon.qrc
     Icon/Icon.ico
