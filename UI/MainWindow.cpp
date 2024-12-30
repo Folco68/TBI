@@ -330,7 +330,7 @@ void MainWindow::openingProgress(int count)
 
 void MainWindow::openingSuccessful(int count)
 {
-    QString Message = tr("Opeing successful. %1 bulletins read in %2").arg(count).arg(Logger::instance()->timer());
+    QString Message = tr("Opening successful. %1 bulletins read in %2").arg(count).arg(Logger::instance()->timer());
     Logger::instance()->newEntry(Message);
     ui->StackCentral->setCurrentIndex(PAGE_TABLE);
 }
@@ -341,14 +341,33 @@ void MainWindow::noIndexFound()
     ui->StackCentral->setCurrentIndex(PAGE_TABLE);
 }
 
-void MainWindow::indexTooRecent(qint32 version) {}
-void MainWindow::invalidMagic(QString magic) {}
-void MainWindow::cantOpenIndex() {}
-void MainWindow::unableToReadFileContent() {}
+void MainWindow::indexTooRecent(qint32 version)
+{
+    QString Message = tr("Index version is too recent (%1), please update your program").arg(version);
+    Logger::instance()->newEntry(Message);
+}
+
+void MainWindow::invalidMagic(QString magic)
+{
+    QString Message = tr("File corrupted or invalid. Magic found is: %1").arg(magic);
+    Logger::instance()->newEntry(Message);
+}
+
+void MainWindow::cantOpenIndex()
+{
+    QString Message = tr("Impossible to open the file '%1'").arg(TBI_FILENAME);
+    Logger::instance()->newEntry(Message);
+}
+
+void MainWindow::unableToReadFileContent()
+{
+    Logger::instance()->newEntry(tr("Failed to read file content"));
+}
 
 void MainWindow::openingFailed(int count)
 {
-    // tr("Opening failed.")
+    QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened").arg(count);
+    Logger::instance()->newEntry(Message);
 }
 
 //  save
