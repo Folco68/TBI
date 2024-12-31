@@ -35,6 +35,8 @@ set(PROJECT_SOURCES
     # Events
     Event/EventOpenIndex.hpp
     Event/EventOpenIndex.cpp
+    Event/EventSave.hpp
+    Event/EventSave.cpp
 
     # Icons
     Icon/Icon.qrc

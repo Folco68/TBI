@@ -64,6 +64,7 @@
 #define TBI_MAGIC "TBI_DB_BY_MARTIAL_DEMOLINS"
 
 // Application-wide events
-#define EVENT_OPEN_INDEX (QEvent::User)
+#define EVENT_OPEN_INDEX ((QEvent::Type) QEvent::User)
+#define EVENT_SAVE       ((QEvent::Type)(QEvent::User + 1))
 
 #endif // GLOBAL_HPP

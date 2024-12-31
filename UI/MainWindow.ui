@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="StackCentral">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="PageTable">
        <layout class="QVBoxLayout" name="verticalLayout_2">

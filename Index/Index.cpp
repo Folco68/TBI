@@ -1,4 +1,5 @@
 #include "../Event/EventOpenIndex.hpp"
+#include "../Event/EventSave.hpp"
 #include "../Global.hpp"
 #include "Index.hpp"
 #include <QFile>
@@ -30,6 +31,7 @@ void Index::release()
 
 Index::Index()
     : OpeningSuccessful(true)
+    , Modified(false)
 {}
 
 Index::~Index()
@@ -50,10 +52,18 @@ Index::~Index()
 bool Index::event(QEvent* event)
 {
     switch (event->type()) {
+        //
         // First event received, only once, to open the index
         case (EVENT_OPEN_INDEX): {
-            EventOpenIndex* Event = static_cast<EventOpenIndex*>(event);
+            EventOpenIndex* Event(static_cast<EventOpenIndex*>(event));
             open(Event->forceIndexCheck());
+            return true;
+        }
+
+        // Save event. Default event asks to perform a backup before saving
+        case (EVENT_SAVE): {
+            EventSave* Event(static_cast<EventSave*>(event));
+            save(Event->backup());
             return true;
         }
 
@@ -111,7 +121,7 @@ void Index::open(bool ForceIndexCheck)
 
                     switch (Version) {
                         case 1:
-                            openIndexV1(Stream, ForceIndexCheck);
+                            openIndexVersion1(Stream, ForceIndexCheck);
                             break;
 
                         default:
@@ -136,12 +146,12 @@ void Index::open(bool ForceIndexCheck)
 
         // If count != 0, it's an old file, no doubt.
         else {
-            openIndexV0(Count, Stream, ForceIndexCheck);
+            openIndexVersion0(Count, Stream, ForceIndexCheck);
         }
     }
     // Throw an error if the file exists and couldn't be opened
     else if (QFileInfo::exists(TBI_FILENAME)) {
-        emit cantOpenIndex();
+        emit failedToOpenIndex();
         this->OpeningSuccessful = false;
     }
 
@@ -154,11 +164,11 @@ void Index::open(bool ForceIndexCheck)
     }
 }
 
-//  openDBv0
+//  openIndexVersion0
 //
-// Open a DB in the legacy format
+// Open an index (legacy format)
 //
-void Index::openIndexV0(qint32 count, QDataStream& stream, bool ForceIndexCheck)
+void Index::openIndexVersion0(qint32 count, QDataStream& stream, bool ForceIndexCheck)
 {
     // Emit index version + TB count
     emit openingHeader(0, count);
@@ -170,9 +180,10 @@ void Index::openIndexV0(qint32 count, QDataStream& stream, bool ForceIndexCheck)
 
         // Check stream status
         if (stream.status() != QDataStream::Ok) {
-            emit unableToReadFileContent();
+            emit failedToReadFileContent();
             delete TB;
             this->OpeningSuccessful = false;
+            this->Modified          = true;
             break;
         }
 
@@ -186,10 +197,10 @@ void Index::openIndexV0(qint32 count, QDataStream& stream, bool ForceIndexCheck)
     }
 }
 
-//  openDBv1
+//  openIndexVersion1
 //
-// Open a DB version 1
-void Index::openIndexV1(QDataStream& stream, bool ForceIndexCheck)
+// Open an index version 1
+void Index::openIndexVersion1(QDataStream& stream, bool ForceIndexCheck)
 {
     // Read the number of TB
     qint32 Count;
@@ -205,9 +216,10 @@ void Index::openIndexV1(QDataStream& stream, bool ForceIndexCheck)
 
         // Check stream status
         if (stream.status() != QDataStream::Ok) {
-            emit unableToReadFileContent();
+            emit failedToReadFileContent();
             delete TB;
             this->OpeningSuccessful = false;
+            this->Modified          = true;
             break;
         }
 
@@ -224,4 +236,48 @@ void Index::openIndexV1(QDataStream& stream, bool ForceIndexCheck)
 QList<TechnicalBulletin*> Index::bulletins() const
 {
     return this->Bulletins;
+}
+
+void Index::save(bool backup)
+{
+    // On demand, create a backup by renaming the current index.
+    // Remove current backup because File::rename() won't overwrite current file
+    if (backup) {
+        QFile::remove(TBI_BACKUP_FILENAME);
+        if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
+            emit failedToCreateBackup();
+            return;
+        }
+    }
+
+    // Try to open the file
+    QFile File(TBI_FILENAME);
+    if (!File.open(QIODevice::WriteOnly)) {
+        emit failedToOpenFileForSaving();
+        return;
+    }
+
+    // Open a data stream and write into it
+    QDataStream Stream(&File);
+
+    // First, write 0 to support old DB
+    Stream << (qint32) 0;
+
+    // Then write magic + current version
+    Stream << QString(TBI_MAGIC) << (qint32) CURRENT_TBI_VERSION;
+
+    // Write TB count
+    Stream << (qint32) (this->Bulletins.count());
+
+    // Serialize TBs
+    for (int i = 0; i < this->Bulletins.count(); i++) {
+        Stream << *this->Bulletins.at(i);
+        if (Stream.status() != QDataStream::Ok) {
+            emit failedToWriteContent(i);
+            return;
+        }
+    }
+
+    this->Modified = false;
+    emit savingSuccessful(this->Bulletins.count());
 }

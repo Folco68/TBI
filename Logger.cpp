@@ -13,7 +13,7 @@ Logger* Logger::instance()
 
 void Logger::release()
 {
-    if (logger != nullptr) {
+    if (logger != nullptr) {    
         delete logger;
         logger = nullptr;
     }
@@ -39,9 +39,9 @@ void Logger::startTimer()
     this->Timer.start();
 }
 
-QString Logger::timer()
+QString Logger::elapsedTime()
 {
     int   ms = this->Timer.elapsed();
-    QTime Duration(0, 0, 0, ms);
-    return Duration.toString("HH:mm:ss.zzz");
+    QTime Duration(0, 0);
+    return Duration.addMSecs(ms).toString("HH:mm:ss.zzz");
 }

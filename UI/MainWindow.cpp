@@ -22,6 +22,7 @@
  **********************************************************************************************************************/
 
 #include "../Event/EventOpenIndex.hpp"
+#include "../Event/EventSave.hpp"
 #include "../Global.hpp"
 #include "../Index/Index.hpp"
 #include "../Logger.hpp"
@@ -73,6 +74,9 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     , DLMenu(new DownloadMenu)
     , ThreadIndex(new QThread)
 {
+    // Log boot
+    Logger::instance()->newEntry(tr("TBI starting..."));
+
     //------------------------------------------------------------------------------------
     //                                       Window
     //------------------------------------------------------------------------------------
@@ -216,7 +220,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
     connect(this->ThreadIndex, &QThread::started, [ForceIndexCheck]() {
-        QCoreApplication::postEvent(Index::instance(), new EventOpenIndex(EVENT_OPEN_INDEX, ForceIndexCheck));
+        QCoreApplication::postEvent(Index::instance(), new EventOpenIndex(ForceIndexCheck));
     });
 
     //------------------------------------------------------------------------------------
@@ -241,9 +245,17 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(Index::instance(), &Index::noIndexFound, this, &MainWindow::noIndexFound, Qt::QueuedConnection);
     connect(Index::instance(), &Index::indexTooRecent, this, &MainWindow::indexTooRecent, Qt::QueuedConnection);
     connect(Index::instance(), &Index::invalidMagic, this, &MainWindow::invalidMagic, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::cantOpenIndex, this, &MainWindow::cantOpenIndex, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::unableToReadFileContent, this, &MainWindow::unableToReadFileContent, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToOpenIndex, this, &MainWindow::cantOpenIndex, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToReadFileContent, this, &MainWindow::unableToReadFileContent, Qt::QueuedConnection);
     connect(Index::instance(), &Index::openingFailed, this, &MainWindow::openingFailed, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToCreateBackup, this, &MainWindow::failedToCreateBackup, Qt::QueuedConnection);
+    connect(Index::instance(),
+            &Index::failedToOpenFileForSaving,
+            this,
+            &MainWindow::failedToOpenFileForSaving,
+            Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToWriteContent, this, &MainWindow::failedToWriteContent, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::savingSuccessful, this, &MainWindow::savingSuccessful, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -303,11 +315,11 @@ void MainWindow::updateUI()
     }
 }
 
-/*******************************************************************************************************************
- *                                                                                                                 *
- *                                      Messages received by the Index thread                                      *
- *                                                                                                                 *
- ******************************************************************************************************************/
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                    Index opening                                                    *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
 
 void MainWindow::openingStarting()
 {
@@ -330,8 +342,9 @@ void MainWindow::openingProgress(int count)
 
 void MainWindow::openingSuccessful(int count)
 {
-    QString Message = tr("Opening successful. %1 bulletins read in %2").arg(count).arg(Logger::instance()->timer());
+    QString Message = tr("Opening successful. %1 bulletins read in %2").arg(count).arg(Logger::instance()->elapsedTime());
     Logger::instance()->newEntry(Message);
+    fillTBtable();
     ui->StackCentral->setCurrentIndex(PAGE_TABLE);
 }
 
@@ -368,57 +381,101 @@ void MainWindow::openingFailed(int count)
 {
     QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened").arg(count);
     Logger::instance()->newEntry(Message);
+    fillTBtable();
 }
 
-//  save
-//
-// Save current TBI
-//
+void MainWindow::fillTBtable()
+{
+    Logger::instance()->newEntry(tr("Filling technical bulletins table..."));
+    QCoreApplication::processEvents(); // Force the refresh of the log display
+    Logger::instance()->startTimer();
+    QList<TechnicalBulletin*> Bulletins = Index::instance()->bulletins();
+
+    //
+    // Fill and update UI
+    //
+
+    // Set the table size
+    ui->TableTB->setRowCount(Bulletins.count());
+
+    // Create a QTableWidgetItem in every cell
+    // Once a line is completed, populate it with a TB
+    for (int i = 0; i < Bulletins.count(); i++) {
+        for (int j = 0; j < ui->TableTB->columnCount(); j++) {
+            ui->TableTB->setItem(i, j, new QTableWidgetItem);
+        }
+        updateTB(Bulletins.at(i), i);
+    }
+
+    updateUI();
+
+    // Resize columns
+    for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
+        ui->TableTB->resizeColumnToContents(i);
+    }
+
+    QString Message = tr("Table filled in %1").arg(Logger::instance()->elapsedTime());
+    Logger::instance()->newEntry(Message);
+}
+
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                    Index saving                                                     *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
 void MainWindow::save()
 {
-    // First, create a backup by renaming the current index database
-    // Remove current backup because File::rename() won't overwrite backup file
-    QFile::remove(TBI_BACKUP_FILENAME);
-    if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
-        if (QMessageBox::question(this, WINDOW_TITLE, tr("Couldn't create database backup. Save anyway?")) == QMessageBox::No) {
-            return;
-        }
-    }
-
-    // Try to open the file
-    QFile File(TBI_FILENAME);
-    if (!File.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(this, WINDOW_TITLE, tr("Couldn't open file %1").arg(TBI_FILENAME));
-        return;
-    }
-
-    // Open a data stream and write into it
-    QDataStream Stream(&File);
-
-    // First, write 0 to support old DB
-    Stream << (qint32) 0;
-
-    // Then write magic + current version
-    Stream << QString(TBI_MAGIC) << (qint32) CURRENT_TBI_VERSION;
-
-    // Write TB count
-    Stream << (qint32) (ui->TableTB->rowCount());
-
-    // Serialize TBs
-    for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-        // Get TB ptr
-        TechnicalBulletin* TB = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-        Stream << *TB;
-
-        // Check stream status
-        if (Stream.status() != QDataStream::Ok) {
-            QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to save file %1").arg(TBI_FILENAME));
-            return;
-        }
-    }
-
-    this->Modified = false;
+    QCoreApplication::postEvent(Index::instance(), new EventSave);
 }
+
+void MainWindow::failedToCreateBackup()
+{
+    Logger::instance()->newEntry(tr("Unable to create the backup file before saving"));
+    if (QMessageBox::critical(this,
+                              tr("Save error"),
+                              tr("Failed to create a backup file when saving the index. Save without backup?"),
+                              QMessageBox::Yes | QMessageBox::No)
+        == QMessageBox::Yes) {
+        QCoreApplication::postEvent(Index::instance(), new EventSave(SAVE_WITHOUT_BACKUP));
+    }
+}
+
+void MainWindow::failedToOpenFileForSaving()
+{
+    Logger::instance()->newEntry(tr("Unable to open the index file to write into"));
+    if (QMessageBox::critical(this,
+                              tr("Save error"),
+                              tr("Failed to open the index file to save technical bulletins. Retry?"),
+                              QMessageBox::Yes | QMessageBox::No)
+        == QMessageBox::Yes) {
+        QCoreApplication::postEvent(Index::instance(), new EventSave);
+    }
+}
+
+void MainWindow::failedToWriteContent(int count)
+{
+    Logger::instance()->newEntry(tr("Writing failure while saving the index file. %1 TB saved"));
+    if (QMessageBox::critical(this,
+                              tr("Save error"),
+                              tr("Failed to fully save index file. Nevertheless %1 technical bulletins were saved. Retry?")
+                                  .arg(count),
+                              QMessageBox::Yes | QMessageBox::No)
+        == QMessageBox::Yes) {
+        QCoreApplication::postEvent(Index::instance(), new EventSave);
+    }
+}
+
+void MainWindow::savingSuccessful(int count)
+{
+    Logger::instance()->newEntry(tr("Saving successful, index contains %1 technical bulletins").arg(count));
+}
+
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                        Next                                                         *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
 
 //  newTB
 //

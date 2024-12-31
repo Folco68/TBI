@@ -27,9 +27,15 @@ class Index : public QObject
     // Opening failing
     void indexTooRecent(qint32 version);
     void invalidMagic(QString magic);
-    void cantOpenIndex();
-    void unableToReadFileContent();
+    void failedToOpenIndex();
+    void failedToReadFileContent();
     void openingFailed(int count); // Mark end of opening
+
+    // Save failure
+    void failedToCreateBackup();
+    void failedToOpenFileForSaving();
+    void failedToWriteContent(int count);
+    void savingSuccessful(int count);
 
   private:
     Index();
@@ -38,11 +44,14 @@ class Index : public QObject
 
     bool event(QEvent* event) override;
     void open(bool ForceIndexCheck);
-    void openIndexV0(qint32 count, QDataStream& stream, bool ForceIndexCheck);
-    void openIndexV1(QDataStream& stream, bool ForceIndexCheck);
+    void openIndexVersion0(qint32 count, QDataStream& stream, bool ForceIndexCheck);
+    void openIndexVersion1(QDataStream& stream, bool ForceIndexCheck);
+    void save(bool backup);
 
     QList<TechnicalBulletin*> Bulletins;
-    bool                      OpeningSuccessful;
+
+    bool OpeningSuccessful;
+    bool Modified;
 };
 
 #endif // INDEX_HPP

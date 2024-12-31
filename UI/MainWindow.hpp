@@ -90,6 +90,7 @@ class MainWindow: public QMainWindow
     void search(bool ForceNewSearch = false);
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
+    void fillTBtable();
 
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -116,6 +117,10 @@ class MainWindow: public QMainWindow
     void cantOpenIndex();
     void unableToReadFileContent();
     void openingFailed(int count);
+    void failedToCreateBackup();
+    void failedToOpenFileForSaving();
+    void failedToWriteContent(int count);
+    void savingSuccessful(int count);
 };
 
 // Table header index
