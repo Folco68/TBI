@@ -31,7 +31,6 @@ void Index::release()
 
 Index::Index()
     : OpeningSuccessful(true)
-    , Modified(false)
 {}
 
 Index::~Index()
@@ -183,7 +182,6 @@ void Index::openIndexVersion0(qint32 count, QDataStream& stream, bool ForceIndex
             emit failedToReadFileContent();
             delete TB;
             this->OpeningSuccessful = false;
-            this->Modified          = true;
             break;
         }
 
@@ -219,7 +217,6 @@ void Index::openIndexVersion1(QDataStream& stream, bool ForceIndexCheck)
             emit failedToReadFileContent();
             delete TB;
             this->OpeningSuccessful = false;
-            this->Modified          = true;
             break;
         }
 
@@ -278,6 +275,5 @@ void Index::save(bool backup)
         }
     }
 
-    this->Modified = false;
     emit savingSuccessful(this->Bulletins.count());
 }

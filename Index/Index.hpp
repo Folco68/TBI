@@ -49,9 +49,7 @@ class Index : public QObject
     void save(bool backup);
 
     QList<TechnicalBulletin*> Bulletins;
-
-    bool OpeningSuccessful;
-    bool Modified;
+    bool                      OpeningSuccessful;
 };
 
 #endif // INDEX_HPP

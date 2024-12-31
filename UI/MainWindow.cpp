@@ -59,7 +59,6 @@
 MainWindow::MainWindow(bool ForceIndexCheck)
     : QMainWindow()
     , ui(new Ui::MainWindow)
-    , Modified(false)
     , MessageTBCount(new QLabel)
     , MessagePendingModifications(new QLabel)
     , TableContextMenu(new QMenu(this))
@@ -73,6 +72,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
     , DLMenu(new DownloadMenu)
     , ThreadIndex(new QThread)
+    , Modified(false)
 {
     // Log boot
     Logger::instance()->newEntry(tr("TBI starting..."));
@@ -238,6 +238,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
      *                                                                                                                 *
      ******************************************************************************************************************/
 
+    connect(this->ThreadIndex, &QThread::finished, [this]() { this->ThreadIndex->deleteLater(); });
     connect(Index::instance(), &Index::openingStarting, this, &MainWindow::openingStarting, Qt::QueuedConnection);
     connect(Index::instance(), &Index::openingHeader, this, &MainWindow::openingHeader, Qt::QueuedConnection);
     connect(Index::instance(), &Index::openingProgress, this, &MainWindow::openingProgress, Qt::QueuedConnection);
@@ -245,24 +246,19 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(Index::instance(), &Index::noIndexFound, this, &MainWindow::noIndexFound, Qt::QueuedConnection);
     connect(Index::instance(), &Index::indexTooRecent, this, &MainWindow::indexTooRecent, Qt::QueuedConnection);
     connect(Index::instance(), &Index::invalidMagic, this, &MainWindow::invalidMagic, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToOpenIndex, this, &MainWindow::cantOpenIndex, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToReadFileContent, this, &MainWindow::unableToReadFileContent, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToOpenIndex, this, &MainWindow::failedToOpenIndex, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToReadFileContent, this, &MainWindow::failedToReadFileContent, Qt::QueuedConnection);
     connect(Index::instance(), &Index::openingFailed, this, &MainWindow::openingFailed, Qt::QueuedConnection);
     connect(Index::instance(), &Index::failedToCreateBackup, this, &MainWindow::failedToCreateBackup, Qt::QueuedConnection);
-    connect(Index::instance(),
-            &Index::failedToOpenFileForSaving,
-            this,
-            &MainWindow::failedToOpenFileForSaving,
-            Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToOpenFileForSaving, this, &MainWindow::failedToOpenFileForSaving, Qt::QueuedConnection);
     connect(Index::instance(), &Index::failedToWriteContent, this, &MainWindow::failedToWriteContent, Qt::QueuedConnection);
     connect(Index::instance(), &Index::savingSuccessful, this, &MainWindow::savingSuccessful, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
 {
-    // Index thread termination
+    // Index thread termination. deleteLater() is called when the finished signal is emitted
     this->ThreadIndex->quit();
-    this->ThreadIndex->deleteLater();
 
     // Destroy singletons here and not in main(),
     // because QGuiApplication doesn't return on all platforms
@@ -366,13 +362,13 @@ void MainWindow::invalidMagic(QString magic)
     Logger::instance()->newEntry(Message);
 }
 
-void MainWindow::cantOpenIndex()
+void MainWindow::failedToOpenIndex()
 {
     QString Message = tr("Impossible to open the file '%1'").arg(TBI_FILENAME);
     Logger::instance()->newEntry(Message);
 }
 
-void MainWindow::unableToReadFileContent()
+void MainWindow::failedToReadFileContent()
 {
     Logger::instance()->newEntry(tr("Failed to read file content"));
 }
@@ -390,10 +386,6 @@ void MainWindow::fillTBtable()
     QCoreApplication::processEvents(); // Force the refresh of the log display
     Logger::instance()->startTimer();
     QList<TechnicalBulletin*> Bulletins = Index::instance()->bulletins();
-
-    //
-    // Fill and update UI
-    //
 
     // Set the table size
     ui->TableTB->setRowCount(Bulletins.count());
@@ -444,10 +436,7 @@ void MainWindow::failedToCreateBackup()
 void MainWindow::failedToOpenFileForSaving()
 {
     Logger::instance()->newEntry(tr("Unable to open the index file to write into"));
-    if (QMessageBox::critical(this,
-                              tr("Save error"),
-                              tr("Failed to open the index file to save technical bulletins. Retry?"),
-                              QMessageBox::Yes | QMessageBox::No)
+    if (QMessageBox::critical(this, tr("Save error"), tr("Failed to open the index file to save technical bulletins. Retry?"), QMessageBox::Yes | QMessageBox::No)
         == QMessageBox::Yes) {
         QCoreApplication::postEvent(Index::instance(), new EventSave);
     }
@@ -458,8 +447,7 @@ void MainWindow::failedToWriteContent(int count)
     Logger::instance()->newEntry(tr("Writing failure while saving the index file. %1 TB saved"));
     if (QMessageBox::critical(this,
                               tr("Save error"),
-                              tr("Failed to fully save index file. Nevertheless %1 technical bulletins were saved. Retry?")
-                                  .arg(count),
+                              tr("Failed to fully save index file. Nevertheless %1 technical bulletins were saved. Retry?").arg(count),
                               QMessageBox::Yes | QMessageBox::No)
         == QMessageBox::Yes) {
         QCoreApplication::postEvent(Index::instance(), new EventSave);
@@ -748,7 +736,7 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
     ui->TableTB->item(row, COLUMN_REPLACED_BY)->setText(tb->replacedBy());
     ui->TableTB->item(row, COLUMN_KEYWORDS)->setText(tb->keywordsString());
 
-    // Save tb ptr in the corresponding column and update UI
+    // Save tb ptr in the dedicated column
     ui->TableTB->item(row, COLUMN_METADATA)->setData(TB_ROLE, QVariant::fromValue(tb));
 }
 
@@ -784,7 +772,7 @@ void MainWindow::dropEvent(QDropEvent* event)
 void MainWindow::paste()
 {
     const QClipboard* Clipboard = QApplication::clipboard();
-    if (Clipboard->mimeData()->hasFormat("text/plain")) {
+    if (Clipboard->mimeData()->hasText()) {
         TechnicalBulletin* TB = DlgTB::newDlgTB(this, Clipboard->mimeData()->data("text/plain"));
         if (TB != nullptr) {
             this->Modified = true;
@@ -797,7 +785,7 @@ void MainWindow::paste()
 //  tbNumberAlreadyExists
 //
 // Return true if an older TB exits in the database
-// Used by DlgTB to display a message staying that
+// Used by DlgTB to display a message saying that
 // there is already an older version of the TB in the database
 //
 bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)

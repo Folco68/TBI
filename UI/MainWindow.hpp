@@ -58,7 +58,6 @@ class MainWindow: public QMainWindow
 
   private:
     Ui::MainWindow* ui;
-    bool            Modified;
 
     // Status bar
     QLabel* MessageTBCount;
@@ -80,6 +79,9 @@ class MainWindow: public QMainWindow
 
     // Index thread
     QThread* ThreadIndex;
+
+    // Modification
+    bool Modified;
 
     // TBs
     void updateUI();
@@ -114,8 +116,8 @@ class MainWindow: public QMainWindow
     void noIndexFound();
     void indexTooRecent(qint32 version);
     void invalidMagic(QString magic);
-    void cantOpenIndex();
-    void unableToReadFileContent();
+    void failedToOpenIndex();
+    void failedToReadFileContent();
     void openingFailed(int count);
     void failedToCreateBackup();
     void failedToOpenFileForSaving();
