@@ -76,35 +76,22 @@ Index::~Index()
 bool Index::event(QEvent* event)
 {
     bool Return = false;
-    switch (event->type()) {
-        //
-        // First event received, only once, to open the index
-        case (EVENT_OPEN_INDEX): {
-            open(event);
-            Return = true;
-            break;
-        }
 
-        // Save Index event. Default event asks to perform a backup before saving
-        case (EVENT_SAVE): {
-            save(event);
-            Return = true;
-            break;
-        }
-
-        // New TB event
-        case (EVENT_NEW_TB): {
-            newTB(event);
-            Return = true;
-            break;
-        }
-
-        // Delete TB event
-        case (EVENT_DELETE_TB): {
-            deleteTB(event);
-            Return = true;
-            break;
-        }
+    if (event->type() == EVENT_OPEN_INDEX) {
+        open(event);
+        Return = true;
+    }
+    else if (event->type() == EVENT_SAVE) {
+        save(event);
+        Return = true;
+    }
+    else if (event->type() == EVENT_NEW_TB) {
+        newTB(event);
+        Return = true;
+    }
+    else if (event->type() == EVENT_DELETE_TB) {
+        deleteTB(event);
+        Return = true;
     }
 
     // Defer the event to the QObject if it was not handled by the switch/case
