@@ -75,6 +75,10 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     , ThreadIndex(new QThread)
     , Modified(false)
 {
+    // Logger. Establish the connection after the first log because UI is not set up yet
+    Logger::instance()->newEntry(tr("TBI starting..."));
+    connect(Logger::instance(), &Logger::textAdded, [this](QString text) { ui->TextEditLog->setPlainText(text); });
+
     //------------------------------------------------------------------------------------
     //                                       Window
     //------------------------------------------------------------------------------------
@@ -82,8 +86,6 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
     resize(Settings::instance()->mainWindowSize());
     ui->StackCentral->setCurrentIndex(PAGE_LOG);
-
-    Logger::instance()->newEntry(tr("TBI starting..."));
 
     //------------------------------------------------------------------------------------
     //                                     Status bar
@@ -192,9 +194,6 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
         ui->TableTB->resizeColumnToContents(i);
     }
-
-    // Logger -> UI connection
-    connect(Logger::instance(), &Logger::textAdded, [this](QString text) { ui->TextEditLog->setPlainText(text); });
 
     //------------------------------------------------------------------------------------
     //

@@ -58,14 +58,14 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
 
     // Create the Screen menu
     QMenu*   ScreenMenu           = new QMenu(this);
-    QAction* ActionCopyScreenshot = ScreenMenu->addAction("Copy to clipboard");
-    QAction* ActionSaveToFile     = ScreenMenu->addAction("Save to file");
+    QAction* ActionCopyScreenshot = ScreenMenu->addAction(tr("Copy to clipboard"));
+    QAction* ActionSaveToFile     = ScreenMenu->addAction(tr("Save to file"));
     ui->ButtonScreen->setMenu(ScreenMenu);
 
     // Create the Copy menu
     QMenu*   CopyMenu         = new QMenu(this);
-    QAction* ActionCopyHeader = CopyMenu->addAction("Header");
-    QAction* ActionCopyAll    = CopyMenu->addAction("All");
+    QAction* ActionCopyHeader = CopyMenu->addAction(tr("Header"));
+    QAction* ActionCopyAll    = CopyMenu->addAction(tr("All"));
     ui->ButtonCopy->setMenu(CopyMenu);
 
     // Standard buttons
