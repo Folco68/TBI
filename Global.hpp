@@ -2,7 +2,7 @@
  *                                                                                                                     *
  *                        TBI - Technical Bulletin Indexer - Save and index Technical Bulletins                        *
  *                                    allowing to use keywords to find them easily                                     *
- *                                    Copyright (C) 2020 Martial Demolins AKA Folco                                    *
+ *                                 Copyright (C) 2020-2025 Martial Demolins AKA Folco                                  *
  *                                                                                                                     *
  *                        This program is free software: you can redistribute it and/or modify                         *
  *                        it under the terms of the GNU General Public License as published by                         *
@@ -66,5 +66,9 @@
 // Application-wide events
 #define EVENT_OPEN_INDEX ((QEvent::Type) QEvent::User)
 #define EVENT_SAVE       ((QEvent::Type)(QEvent::User + 1))
+#define EVENT_NEW_TB     ((QEvent::Type)(QEvent::User + 2))
+#define EVENT_EDIT_TB    ((QEvent::Type)(QEvent::User + 3))
+#define EVENT_DELETE_TB  ((QEvent::Type)(QEvent::User + 4))
+//#define EVENT_NEW_TB     ((QEvent::Type)(QEvent::User + 5))
 
 #endif // GLOBAL_HPP

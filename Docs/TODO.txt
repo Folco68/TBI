@@ -42,3 +42,4 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 - standardize machine names
 - decode TB name to fill Keyword field with the machine name
 - tr() all strings
+- remove categories from settings. Embed it in the index file

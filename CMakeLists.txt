@@ -33,6 +33,10 @@ set(PROJECT_SOURCES
     Docs/TODO.txt
 
     # Events
+    Event/EventDeleteTB.hpp
+    Event/EventDeleteTB.cpp
+    Event/EventNewTB.hpp
+    Event/EventNewTB.cpp
     Event/EventOpenIndex.hpp
     Event/EventOpenIndex.cpp
     Event/EventSave.hpp

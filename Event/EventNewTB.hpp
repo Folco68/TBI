@@ -21,27 +21,15 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
-#ifndef LINEEDITDESELECT_HPP
-#define LINEEDITDESELECT_HPP
+#ifndef EVENTNEWTB_HPP
+#define EVENTNEWTB_HPP
 
-#include <QFocusEvent>
-#include <QLineEdit>
+#include <QEvent>
 
-//  LineEditDeselect
-//
-// This class prevents the QLineEdit widget to have its text selected when it
-// gets focused.
-// I don't know why the text is selected when compiling with MSVC,
-// while it is not with MinGW
-//
-class LineEditDeselect: public QLineEdit
+class EventNewTB : public QEvent
 {
   public:
-    LineEditDeselect(QWidget* parent);
-    ~LineEditDeselect() override;
-
-  protected:
-    void focusInEvent(QFocusEvent* event) override;
+    EventNewTB();
 };
 
-#endif // LINEEDITDESELECT_HPP
+#endif // EVENTNEWTB_HPP

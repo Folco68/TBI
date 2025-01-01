@@ -2,7 +2,7 @@
  *                                                                                                                     *
  *                        TBI - Technical Bulletin Indexer - Save and index Technical Bulletins                        *
  *                                    allowing to use keywords to find them easily                                     *
- *                                    Copyright (C) 2020 Martial Demolins AKA Folco                                    *
+ *                                 Copyright (C) 2020-2025 Martial Demolins AKA Folco                                  *
  *                                                                                                                     *
  *                        This program is free software: you can redistribute it and/or modify                         *
  *                        it under the terms of the GNU General Public License as published by                         *
@@ -21,17 +21,18 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
-#include "../Event/EventOpenIndex.hpp"
-#include "../Event/EventSave.hpp"
-#include "../Global.hpp"
-#include "../Index/Index.hpp"
-#include "../Logger.hpp"
-#include "../Settings.hpp"
 #include "DlgHelp.hpp"
 #include "DlgSettings.hpp"
 #include "DlgTB.hpp"
 #include "DownloadMenu.hpp"
+#include "Event/EventDeleteTB.hpp"
+#include "Event/EventOpenIndex.hpp"
+#include "Event/EventSave.hpp"
+#include "Global.hpp"
+#include "Index/Index.hpp"
+#include "Logger.hpp"
 #include "MainWindow.hpp"
+#include "Settings.hpp"
 #include "ui_MainWindow.h"
 #include <QAbstractButton>
 #include <QAbstractScrollArea>
@@ -274,10 +275,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-//  updateUI
-//
-// Adjust display according to index state
-//
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                       Window                                                        *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
 void MainWindow::updateUI()
 {
     // Window title
@@ -308,6 +311,30 @@ void MainWindow::updateUI()
         this->DLMenu->setItems(DocsField, TBnumberField);
         this->ActionDownload->setMenu(this->DLMenu);
         this->ActionDownload->setDisabled(this->DLMenu->isEmpty());
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    if (this->Modified) {
+        QMessageBox::StandardButtons Answer = QMessageBox::question(this,
+                                                                    WINDOW_TITLE,
+                                                                    tr("Do you want to save changes before exiting?"),
+                                                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        // User wants to save index
+        if (Answer == QMessageBox::Yes) {
+            save();
+        }
+
+        // User wants to cancel closing process
+        if (Answer == QMessageBox::Cancel) {
+            event->ignore();
+        }
+
+        // User wants to close without saving changes
+        else {
+            event->accept();
+        }
     }
 }
 
@@ -461,14 +488,10 @@ void MainWindow::savingSuccessful(int count)
 
 /***********************************************************************************************************************
  *                                                                                                                     *
- *                                                        Next                                                         *
+ *                                                 New / Edit / Delete                                                 *
  *                                                                                                                     *
  **********************************************************************************************************************/
 
-//  newTB
-//
-// Open a dialog allowing to create a TB by hand
-//
 void MainWindow::newTB()
 {
     TechnicalBulletin* TB = DlgTB::newDlgTB(this);
@@ -479,52 +502,35 @@ void MainWindow::newTB()
     }
 }
 
-//  editTB
-//
-// Open a dialog allowing to edit an existing TB
 void MainWindow::editTB()
 {
-    // Get current TB
-    QList<QTableWidgetItem*> Items = ui->TableTB->selectedItems();
-    int                      Row   = Items.at(0)->row();
-    TechnicalBulletin*       TB    = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-
-    // Open edition dialog
+    TechnicalBulletin* TB = currentTB();
     if (DlgTB::editDlgTB(this, TB)) {
         this->Modified = true;
-        updateTB(TB, Row);
+        updateTB(TB, ui->TableTB->currentRow());
     }
 }
 
-//  deleteTB
-//
-// Delete the TB currently selected
-//
 void MainWindow::deleteTB()
 {
-    // Get current TB
-    QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
-    int                      Row       = Selection.at(0)->row();
-    TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-
     // Show a confirmation dialog
-    QMessageBox::StandardButton Answer
-        = QMessageBox::question(this,
-                                WINDOW_TITLE,
-                                tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(TB->number(), TB->title()));
+    TechnicalBulletin*          TB     = currentTB();
+    QMessageBox::StandardButton Answer = QMessageBox::question(this,
+                                                               WINDOW_TITLE,
+                                                               tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(TB->number(), TB->title()));
     if (Answer == QMessageBox::Yes) {
-        delete TB;
-        ui->TableTB->removeRow(Row);
-
-        // Update UI
         this->Modified = true;
+        delete TB;
+        ui->TableTB->removeRow(ui->TableTB->currentRow());
     }
 }
 
-//  search
-//
-// Search the TB with keywords
-//
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                       Search                                                        *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
 void MainWindow::search(bool ForceNewSearch)
 {
     // Split and clean the list
@@ -618,10 +624,20 @@ void MainWindow::search(bool ForceNewSearch)
     ui->StatusBar->clearMessage();
 }
 
-//  addTB
-//
-// Add a TB at the bottom of the table
-//
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                 Technical bulletin                                                  *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
+TechnicalBulletin* MainWindow::currentTB() const
+{
+    QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
+    int                      Row       = Selection.at(0)->row();
+    TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+    return TB;
+}
+
 void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
 {
     if (PerformAddChecks) {
@@ -740,48 +756,6 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
     ui->TableTB->item(row, COLUMN_METADATA)->setData(TB_ROLE, QVariant::fromValue(tb));
 }
 
-//  dragEnterEvent
-//
-// Allow to drop data if data type can be handled
-//
-void MainWindow::dragEnterEvent(QDragEnterEvent* event)
-{
-    if (event->mimeData()->hasFormat("text/plain")) {
-        event->acceptProposedAction();
-    }
-}
-
-//  dropEvent
-//
-// Handle dropped data. It should be a mail content
-//
-void MainWindow::dropEvent(QDropEvent* event)
-{
-    TechnicalBulletin* TB = DlgTB::newDlgTB(this, event->mimeData()->data("text/plain"));
-    if (TB != nullptr) {
-        this->Modified = true;
-        addTB(TB, PERFORM_ADD_CHECKS);
-        updateUI();
-    }
-}
-
-//  paste
-//
-// Accept TB copy/pasted from mails
-//
-void MainWindow::paste()
-{
-    const QClipboard* Clipboard = QApplication::clipboard();
-    if (Clipboard->mimeData()->hasText()) {
-        TechnicalBulletin* TB = DlgTB::newDlgTB(this, Clipboard->mimeData()->data("text/plain"));
-        if (TB != nullptr) {
-            this->Modified = true;
-            addTB(TB, PERFORM_ADD_CHECKS);
-            updateUI();
-        }
-    }
-}
-
 //  tbNumberAlreadyExists
 //
 // Return true if an older TB exits in the database
@@ -801,54 +775,54 @@ bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)
     return false;
 }
 
-//  closeEvent
-//
-// Prevent the program from closing with modified data
-//
-void MainWindow::closeEvent(QCloseEvent* event)
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                              Drag & drop, copy & paste                                              *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
-    if (this->Modified) {
-        QMessageBox::StandardButtons Answer = QMessageBox::question(this,
-                                                                    WINDOW_TITLE,
-                                                                    tr("Do you want to save changes before exiting?"),
-                                                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-        // User wants to save index
-        if (Answer == QMessageBox::Yes) {
-            save();
-        }
+    if (event->mimeData()->hasFormat("text/plain")) {
+        event->acceptProposedAction();
+    }
+}
 
-        // User wants to cancel closing process
-        if (Answer == QMessageBox::Cancel) {
-            event->ignore();
-        }
+void MainWindow::dropEvent(QDropEvent* event)
+{
+    TechnicalBulletin* TB = DlgTB::newDlgTB(this, event->mimeData()->data("text/plain"));
+    if (TB != nullptr) {
+        this->Modified = true;
+        addTB(TB, PERFORM_ADD_CHECKS);
+        updateUI();
+    }
+}
 
-        // User wants to close without saving changes
-        else {
-            event->accept();
+void MainWindow::paste()
+{
+    const QClipboard* Clipboard = QApplication::clipboard();
+    if (Clipboard->mimeData()->hasText()) {
+        TechnicalBulletin* TB = DlgTB::newDlgTB(this, Clipboard->mimeData()->data("text/plain"));
+        if (TB != nullptr) {
+            this->Modified = true;
+            addTB(TB, PERFORM_ADD_CHECKS);
+            updateUI();
         }
     }
 }
 
-//  copyURLToClipboard
-//
-// Copy the URL of the TB page in the global clipboard
-//
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                    URL handling                                                     *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
 void MainWindow::copyURLToClipboard()
 {
-    QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
-    int                      Row       = Selection.at(0)->row();
-    TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QGuiApplication::clipboard()->setText(Settings::instance()->baseURLTechnicalBulletinWebpage().arg(TB->number()));
+    QGuiApplication::clipboard()->setText(Settings::instance()->baseURLTechnicalBulletinWebpage().arg(currentTB()->number()));
 }
 
-//  openURL
-//
-// Open the web page of the TB in the default browser
-//
 void MainWindow::openURL()
 {
-    QList<QTableWidgetItem*> Selection = ui->TableTB->selectedItems();
-    int                      Row       = Selection.at(0)->row();
-    TechnicalBulletin*       TB        = ui->TableTB->item(Row, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-    QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinWebpage()).arg(TB->number()));
+    QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinWebpage()).arg(currentTB()->number()));
 }

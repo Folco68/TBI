@@ -2,7 +2,7 @@
  *                                                                                                                     *
  *                        TBI - Technical Bulletin Indexer - Save and index Technical Bulletins                        *
  *                                    allowing to use keywords to find them easily                                     *
- *                                    Copyright (C) 2020 Martial Demolins AKA Folco                                    *
+ *                                 Copyright (C) 2020-2025 Martial Demolins AKA Folco                                  *
  *                                                                                                                     *
  *                        This program is free software: you can redistribute it and/or modify                         *
  *                        it under the terms of the GNU General Public License as published by                         *
@@ -31,6 +31,6 @@
 //
 #define APPLICATION_VERSION_STR "1.6.3"
 #define POSITION_STR            "Service Engineer (S2), Market France/BeNeLux"
-#define COPYRIGHT_STR           "(c)2020-2024 Martial Demolins"
+#define COPYRIGHT_STR           "(c)2020-2025 Martial Demolins"
 
 #endif // BEFORERELEASE_HPP

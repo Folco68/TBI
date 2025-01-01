@@ -2,7 +2,7 @@
  *                                                                                                                     *
  *                        TBI - Technical Bulletin Indexer - Save and index Technical Bulletins                        *
  *                                    allowing to use keywords to find them easily                                     *
- *                                    Copyright (C) 2020 Martial Demolins AKA Folco                                    *
+ *                                 Copyright (C) 2020-2025 Martial Demolins AKA Folco                                  *
  *                                                                                                                     *
  *                        This program is free software: you can redistribute it and/or modify                         *
  *                        it under the terms of the GNU General Public License as published by                         *
@@ -24,9 +24,9 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-#include "../Index/TechnicalBulletin.hpp"
 #include "ContextMenuAction.hpp"
 #include "DownloadMenu.hpp"
+#include "Index/TechnicalBulletin.hpp"
 #include <QByteArray>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -93,6 +93,7 @@ class MainWindow: public QMainWindow
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
     void fillTBtable();
+    TechnicalBulletin* currentTB() const;
 
     // Drag & drop stuff
     void dragEnterEvent(QDragEnterEvent* event) override;

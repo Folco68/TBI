@@ -2,7 +2,7 @@
  *                                                                                                                     *
  *                        TBI - Technical Bulletin Indexer - Save and index Technical Bulletins                        *
  *                                    allowing to use keywords to find them easily                                     *
- *                                    Copyright (C) 2020 Martial Demolins AKA Folco                                    *
+ *                                 Copyright (C) 2020-2025 Martial Demolins AKA Folco                                  *
  *                                                                                                                     *
  *                        This program is free software: you can redistribute it and/or modify                         *
  *                        it under the terms of the GNU General Public License as published by                         *
@@ -21,8 +21,8 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
-#include "Settings.hpp"
 #include "Global.hpp"
+#include "Settings.hpp"
 
 Settings::Settings(QString organization, QString application)
     : QSettings(organization, application)
