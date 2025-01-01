@@ -69,7 +69,7 @@ class DlgTB: public QDialog
 
     // Menus actions
     void copyScreenshot();
-    void saveToFile();
+    void saveScreenshot();
     void copyHeader();
     void copyAll();
     void updateButtonDownload();

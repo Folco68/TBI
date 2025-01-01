@@ -24,12 +24,50 @@
 #ifndef EVENTNEWTB_HPP
 #define EVENTNEWTB_HPP
 
+#include <QDate>
 #include <QEvent>
+#include <QList>
+#include <QString>
 
 class EventNewTB : public QEvent
 {
   public:
-    EventNewTB();
+    EventNewTB(QString        Number,
+               QString        Title,
+               QString        Category,
+               QString        RK,
+               QString        TechPub,
+               QString        Comment,
+               QDate          ReleaseDate,
+               QString        RegisteredBy,
+               QString        Replaces,
+               QString        ReplacedBy,
+               QList<QString> Keywords);
+
+    QString        number() const { return Number; };
+    QString        title() const { return Title; };
+    QString        category() const { return Category; };
+    QString        rk() const { return RK; };
+    QString        techPub() const { return TechPub; };
+    QString        comment() const { return Comment; };
+    QDate          releaseDate() const { return ReleaseDate; };
+    QString        registeredBy() const { return RegisteredBy; };
+    QString        replaces() const { return Replaces; };
+    QString        replacedBy() const { return ReplacedBy; };
+    QList<QString> keywords() const { return Keywords; };
+
+  private:
+    QString        Number;
+    QString        Title;
+    QString        Category;
+    QString        RK;
+    QString        TechPub;
+    QString        Comment;
+    QDate          ReleaseDate;
+    QString        RegisteredBy;
+    QString        Replaces;
+    QString        ReplacedBy;
+    QList<QString> Keywords;
 };
 
 #endif // EVENTNEWTB_HPP

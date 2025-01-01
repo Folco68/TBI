@@ -22,6 +22,7 @@
  **********************************************************************************************************************/
 
 #include "Event/EventDeleteTB.hpp"
+#include "Event/EventNewTB.hpp"
 #include "Event/EventOpenIndex.hpp"
 #include "Event/EventSave.hpp"
 #include "Global.hpp"
@@ -74,33 +75,40 @@ Index::~Index()
 
 bool Index::event(QEvent* event)
 {
+    bool Return = false;
     switch (event->type()) {
         //
         // First event received, only once, to open the index
         case (EVENT_OPEN_INDEX): {
-            EventOpenIndex* Event(static_cast<EventOpenIndex*>(event));
-            open(Event->forceIndexCheck());
-            return true;
+            open(event);
+            Return = true;
+            break;
         }
 
-        // Save event. Default event asks to perform a backup before saving
+        // Save Index event. Default event asks to perform a backup before saving
         case (EVENT_SAVE): {
-            EventSave* Event(static_cast<EventSave*>(event));
-            save(Event->backup());
-            return true;
+            save(event);
+            Return = true;
+            break;
         }
 
-        // Delete event
+        // New TB event
+        case (EVENT_NEW_TB): {
+            newTB(event);
+            Return = true;
+            break;
+        }
+
+        // Delete TB event
         case (EVENT_DELETE_TB): {
-            EventDeleteTB* Event(static_cast<EventDeleteTB*>(event));
-            deleteTB(Event->tb());
-            return true;
+            deleteTB(event);
+            Return = true;
+            break;
         }
-
-        // Unknown event: defer it to QObject
-        default:
-            return QObject::event(event);
     }
+
+    // Defer the event to the QObject if it was not handled by the switch/case
+    return Return ? Return : QObject::event(event);
 }
 
 //------------------------------------------------------------------------------------
@@ -109,9 +117,12 @@ bool Index::event(QEvent* event)
 //
 //------------------------------------------------------------------------------------
 
-void Index::open(bool ForceIndexCheck)
+void Index::open(QEvent* event)
 {
     emit openingStarting();
+
+    EventOpenIndex* Event(static_cast<EventOpenIndex*>(event));
+    bool            ForceIndexCheck = Event->forceIndexCheck();
 
     // Early return if the file does not exist
     if (!QFileInfo::exists(TBI_FILENAME)) {
@@ -266,11 +277,14 @@ QList<TechnicalBulletin*> Index::bulletins() const
     return this->Bulletins;
 }
 
-void Index::save(bool backup)
+void Index::save(QEvent* event)
 {
+    EventSave* Event(static_cast<EventSave*>(event));
+    bool       Backup = Event->backup();
+
     // On demand, create a backup by renaming the current index.
     // Remove current backup because File::rename() won't overwrite current file
-    if (backup) {
+    if (Backup) {
         QFile::remove(TBI_BACKUP_FILENAME);
         if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
             emit failedToCreateBackup();
@@ -309,21 +323,26 @@ void Index::save(bool backup)
     emit savingSuccessful(this->Bulletins.count());
 }
 
-void Index::deleteTB(TechnicalBulletin* tb)
+void Index::newTB(QEvent* event) {}
+
+void Index::deleteTB(QEvent* event)
 {
+    EventDeleteTB*     Event(static_cast<EventDeleteTB*>(event));
+    TechnicalBulletin* TB = Event->tb();
+
     // Consistency checks
-    if (tb == nullptr) {
+    if (TB == nullptr) {
         emit failedToDeleteTB("NULLPTR received!!!", "");
         return;
     }
 
-    if (!this->Bulletins.contains(tb)) {
-        emit failedToDeleteTB(tb->number(), tb->title());
+    if (!this->Bulletins.contains(TB)) {
+        emit failedToDeleteTB(TB->number(), TB->title());
         return;
     }
 
     // Delete the TB and remove it from the list
-    emit tbDeletionSuccessful(tb->number(), tb->title());
-    delete tb;
-    this->Bulletins.removeOne(tb);
+    emit tbDeletionSuccessful(TB->number(), TB->title());
+    delete TB;
+    this->Bulletins.removeOne(TB);
 }

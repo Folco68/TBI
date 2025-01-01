@@ -93,6 +93,7 @@ class MainWindow: public QMainWindow
     void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
     void fillTBtable();
+
     TechnicalBulletin* currentTB() const;
 
     // Drag & drop stuff

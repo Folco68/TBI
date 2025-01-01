@@ -24,6 +24,27 @@
 #include "EventNewTB.hpp"
 #include "Global.hpp"
 
-EventNewTB::EventNewTB()
+EventNewTB::EventNewTB(QString        Number,
+                       QString        Title,
+                       QString        Category,
+                       QString        RK,
+                       QString        TechPub,
+                       QString        Comment,
+                       QDate          ReleaseDate,
+                       QString        RegisteredBy,
+                       QString        Replaces,
+                       QString        ReplacedBy,
+                       QList<QString> Keywords)
     : QEvent(EVENT_NEW_TB)
+    , Number(Number)
+    , Title(Title)
+    , Category(Category)
+    , RK(RK)
+    , TechPub(TechPub)
+    , Comment(Comment)
+    , ReleaseDate(ReleaseDate)
+    , RegisteredBy(RegisteredBy)
+    , Replaces(Replaces)
+    , ReplacedBy(ReplacedBy)
+    , Keywords(Keywords)
 {}

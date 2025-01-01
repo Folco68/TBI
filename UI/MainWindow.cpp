@@ -402,11 +402,9 @@ void MainWindow::fillTBtable()
     Logger::instance()->startTimer();
     QList<TechnicalBulletin*> Bulletins = Index::instance()->bulletins();
 
-    // Set the table size
-    ui->TableTB->setRowCount(Bulletins.count());
-
     // Create a QTableWidgetItem in every cell
     // Once a line is completed, populate it with a TB
+    ui->TableTB->setRowCount(Bulletins.count());
     for (int i = 0; i < Bulletins.count(); i++) {
         for (int j = 0; j < ui->TableTB->columnCount(); j++) {
             ui->TableTB->setItem(i, j, new QTableWidgetItem);
@@ -414,15 +412,13 @@ void MainWindow::fillTBtable()
         updateTB(Bulletins.at(i), i);
     }
 
-    updateUI();
-
-    // Resize columns
+    // Resize columns and update UI
     for (int i = 0; i < ui->TableTB->columnCount() - 1; i++) {
         ui->TableTB->resizeColumnToContents(i);
     }
+    updateUI();
 
-    QString Message = tr("Table filled in %1").arg(Logger::instance()->elapsedTime());
-    Logger::instance()->newEntry(Message);
+    Logger::instance()->newEntry(tr("Table filled in %1").arg(Logger::instance()->elapsedTime()));
 }
 
 /***********************************************************************************************************************

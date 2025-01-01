@@ -24,6 +24,7 @@
 #ifndef INDEX_HPP
 #define INDEX_HPP
 
+#include "Event/EventNewTB.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QEvent>
 #include <QList>
@@ -70,11 +71,12 @@ class Index : public QObject
     static Index* index;
 
     bool event(QEvent* event) override;
-    void open(bool ForceIndexCheck);
+    void open(QEvent* event);
     void openIndexVersion0(qint32 count, QDataStream& stream, bool ForceIndexCheck);
     void openIndexVersion1(QDataStream& stream, bool ForceIndexCheck);
-    void save(bool backup);
-    void deleteTB(TechnicalBulletin* tb);
+    void save(QEvent* event);
+    void newTB(QEvent* event);
+    void deleteTB(QEvent* event);
 
     QList<TechnicalBulletin*> Bulletins;
     bool                      OpeningSuccessful;

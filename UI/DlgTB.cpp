@@ -88,7 +88,7 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
 
     // Menus actions
     connect(ActionCopyScreenshot, &QAction::triggered, [this]() { copyScreenshot(); });
-    connect(ActionSaveToFile, &QAction::triggered, [this]() { saveToFile(); });
+    connect(ActionSaveToFile, &QAction::triggered, [this]() { saveScreenshot(); });
     connect(ActionCopyHeader, &QAction::triggered, [this]() { copyHeader(); });
     connect(ActionCopyAll, &QAction::triggered, [this]() { copyAll(); });
 
@@ -240,7 +240,8 @@ void DlgTB::dragEnterEvent(QDragEnterEvent* event)
 
 //  dropEvent
 //
-// Offer to create a new TB from dropped data
+// Offer to create a new TB from dropped data.
+// Create a temporary TB for conveniency, because its constructor is able to parse a TB
 //
 void DlgTB::dropEvent(QDropEvent* event)
 {
@@ -255,7 +256,7 @@ void DlgTB::copyScreenshot()
     QApplication::clipboard()->setPixmap(Screenshot);
 }
 
-void DlgTB::saveToFile()
+void DlgTB::saveScreenshot()
 {
     // Build filename:
     // - get title
