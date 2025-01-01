@@ -60,9 +60,8 @@ Index::Index()
 
 Index::~Index()
 {
-    // Delete every element of the list and resize it to 0
-    while (!Bulletins.isEmpty()) {
-        delete Bulletins.takeLast();
+    for (int i = 0; i < this->Bulletins.count(); i++) {
+        delete this->Bulletins.at(i);
     }
 }
 
