@@ -75,9 +75,6 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     , ThreadIndex(new QThread)
     , Modified(false)
 {
-    // Log boot
-    Logger::instance()->newEntry(tr("TBI starting..."));
-
     //------------------------------------------------------------------------------------
     //                                       Window
     //------------------------------------------------------------------------------------
@@ -85,6 +82,8 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     setMinimumSize(MAIN_MINIMUM_WIDTH, MAIN_MINIMUM_HEIGHT);
     resize(Settings::instance()->mainWindowSize());
     ui->StackCentral->setCurrentIndex(PAGE_LOG);
+
+    Logger::instance()->newEntry(tr("TBI starting..."));
 
     //------------------------------------------------------------------------------------
     //                                     Status bar
@@ -111,10 +110,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(ui->TableTB, &QWidget::customContextMenuRequested, [this]() { this->TableContextMenu->exec(QCursor::pos()); });
     connect(this->ActionNewTB, &QAction::triggered, [this]() { newTB(); });
     connect(this->ActionEditTB, &QAction::triggered, [this]() { editTB(); });
-    connect(this->ActionDeleteTB, &QAction::triggered, [this]() {
-        deleteTB();
-        updateUI();
-    });
+    connect(this->ActionDeleteTB, &QAction::triggered, [this]() { deleteTB(); });
     connect(this->ActionCopyUrl, &QAction::triggered, [this]() { copyURLToClipboard(); });
     connect(this->ActionOpenUrl, &QAction::triggered, [this]() { openURL(); });
     connect(this->ActionSettings, &QAction::triggered, [this]() {
@@ -144,15 +140,10 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //------------------------------------------------------------------------------------
     //                                   Save shortcut
     //------------------------------------------------------------------------------------
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, [this]() {
-        if (this->Modified) {
-            save();
-            updateUI();
-        }
-    });
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, [this]() { save(); });
 
     //------------------------------------------------------------------------------------
-    //               Search shortcut. Toggle between seach field and table
+    //               Search shortcut. Toggle between search field and table
     //------------------------------------------------------------------------------------
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this), &QShortcut::activated, [this]() {
         if (ui->EditKeywords->hasFocus()) {
@@ -173,10 +164,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //------------------------------------------------------------------------------------
     //                                Buttons connections
     //------------------------------------------------------------------------------------
-    connect(ui->ButtonSave, &QPushButton::clicked, [this]() {
-        save();
-        updateUI();
-    });
+    connect(ui->ButtonSave, &QPushButton::clicked, [this]() { save(); });
     connect(ui->ButtonSearch, &QPushButton::clicked, [this]() { search(); });
 
     //------------------------------------------------------------------------------------
@@ -205,6 +193,9 @@ MainWindow::MainWindow(bool ForceIndexCheck)
         ui->TableTB->resizeColumnToContents(i);
     }
 
+    // Logger -> UI connection
+    connect(Logger::instance(), &Logger::textAdded, [this](QString text) { ui->TextEditLog->setPlainText(text); });
+
     //------------------------------------------------------------------------------------
     //
     //                         Initialization of the index thread
@@ -229,17 +220,13 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //------------------------------------------------------------------------------------
     QTimer::singleShot(0, [this]() { this->ThreadIndex->start(); });
 
-    ////èèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèèè
-    // Logger -> UI connection
-    connect(Logger::instance(), &Logger::textAdded, [this](QString text) { ui->TextEditLog->setPlainText(text); });
-
     /*******************************************************************************************************************
      *                                                                                                                 *
      *                                               Thread connections                                                *
      *                                                                                                                 *
      ******************************************************************************************************************/
 
-    connect(this->ThreadIndex, &QThread::finished, [this]() { this->ThreadIndex->deleteLater(); });
+    connect(this->ThreadIndex, &QThread::finished, this->ThreadIndex, &QThread::deleteLater);
     connect(Index::instance(), &Index::openingStarting, this, &MainWindow::openingStarting, Qt::QueuedConnection);
     connect(Index::instance(), &Index::openingHeader, this, &MainWindow::openingHeader, Qt::QueuedConnection);
     connect(Index::instance(), &Index::openingProgress, this, &MainWindow::openingProgress, Qt::QueuedConnection);
@@ -254,6 +241,8 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(Index::instance(), &Index::failedToOpenFileForSaving, this, &MainWindow::failedToOpenFileForSaving, Qt::QueuedConnection);
     connect(Index::instance(), &Index::failedToWriteContent, this, &MainWindow::failedToWriteContent, Qt::QueuedConnection);
     connect(Index::instance(), &Index::savingSuccessful, this, &MainWindow::savingSuccessful, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToDeleteTB, this, &MainWindow::failedToDeleteTB, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::tbDeletionSuccessful, this, &MainWindow::tbDeletionSuccessful, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -365,7 +354,7 @@ void MainWindow::openingProgress(int count)
 
 void MainWindow::openingSuccessful(int count)
 {
-    QString Message = tr("Opening successful. %1 bulletins read in %2").arg(count).arg(Logger::instance()->elapsedTime());
+    QString Message = tr("Opening successful. %1 technical bulletins read in %2").arg(count).arg(Logger::instance()->elapsedTime());
     Logger::instance()->newEntry(Message);
     fillTBtable();
     ui->StackCentral->setCurrentIndex(PAGE_TABLE);
@@ -484,6 +473,8 @@ void MainWindow::failedToWriteContent(int count)
 void MainWindow::savingSuccessful(int count)
 {
     Logger::instance()->newEntry(tr("Saving successful, index contains %1 technical bulletins").arg(count));
+    this->Modified = false;
+    updateUI();
 }
 
 /***********************************************************************************************************************
@@ -513,16 +504,22 @@ void MainWindow::editTB()
 
 void MainWindow::deleteTB()
 {
-    // Show a confirmation dialog
-    TechnicalBulletin*          TB     = currentTB();
-    QMessageBox::StandardButton Answer = QMessageBox::question(this,
-                                                               WINDOW_TITLE,
-                                                               tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(TB->number(), TB->title()));
-    if (Answer == QMessageBox::Yes) {
+    TechnicalBulletin* TB = currentTB();
+    if (QMessageBox::question(this, WINDOW_TITLE, tr("Do you want to delete Technical Bulletin %1 (%2)?").arg(TB->number(), TB->title())) == QMessageBox::Yes) {
         this->Modified = true;
-        delete TB;
         ui->TableTB->removeRow(ui->TableTB->currentRow());
+        QCoreApplication::postEvent(Index::instance(), new EventDeleteTB(TB));
     }
+}
+
+void MainWindow::failedToDeleteTB(QString number, QString title)
+{
+    Logger::instance()->newEntry(tr("Failed to delete technical bulletin %1 (%2)").arg(number).arg(title));
+}
+
+void MainWindow::tbDeletionSuccessful(QString number, QString title)
+{
+    Logger::instance()->newEntry(tr("Technical bulletin %1 (%2) deleted successfully").arg(number).arg(title));
 }
 
 /***********************************************************************************************************************
@@ -539,6 +536,7 @@ void MainWindow::search(bool ForceNewSearch)
     UIkeywords.removeDuplicates();
 
     // Early return if the list didn't change and we don't force a new search
+    // ForceNewSearch is used when global settings have been changed
     if ((UIkeywords == Keywords) && !ForceNewSearch) {
         return;
     }

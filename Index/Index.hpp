@@ -54,11 +54,15 @@ class Index : public QObject
     void failedToReadFileContent();
     void openingFailed(int count); // Mark end of opening
 
-    // Save failure
+    // Saving
     void failedToCreateBackup();
     void failedToOpenFileForSaving();
     void failedToWriteContent(int count);
     void savingSuccessful(int count);
+
+    // New / Edit / Delete
+    void failedToDeleteTB(QString number, QString title);
+    void tbDeletionSuccessful(QString number, QString title);
 
   private:
     Index();
@@ -70,6 +74,7 @@ class Index : public QObject
     void openIndexVersion0(qint32 count, QDataStream& stream, bool ForceIndexCheck);
     void openIndexVersion1(QDataStream& stream, bool ForceIndexCheck);
     void save(bool backup);
+    void deleteTB(TechnicalBulletin* tb);
 
     QList<TechnicalBulletin*> Bulletins;
     bool                      OpeningSuccessful;

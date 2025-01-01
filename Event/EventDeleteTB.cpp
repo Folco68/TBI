@@ -24,6 +24,12 @@
 #include "EventDeleteTB.hpp"
 #include "Global.hpp"
 
-EventDeleteTB::EventDeleteTB()
+EventDeleteTB::EventDeleteTB(TechnicalBulletin* TB)
     : QEvent(EVENT_DELETE_TB)
+    , TB(TB)
 {}
+
+TechnicalBulletin* EventDeleteTB::tb() const
+{
+    return this->TB;
+}

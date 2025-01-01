@@ -24,12 +24,17 @@
 #ifndef EVENTDELETETB_HPP
 #define EVENTDELETETB_HPP
 
+#include "Index/TechnicalBulletin.hpp"
 #include <QEvent>
 
 class EventDeleteTB : public QEvent
 {
   public:
-    EventDeleteTB();
+    EventDeleteTB(TechnicalBulletin* TB);
+    TechnicalBulletin* tb() const;
+
+  private:
+    TechnicalBulletin* TB;
 };
 
 #endif // EVENTDELETETB_HPP

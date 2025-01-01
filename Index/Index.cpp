@@ -21,6 +21,7 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
+#include "Event/EventDeleteTB.hpp"
 #include "Event/EventOpenIndex.hpp"
 #include "Event/EventSave.hpp"
 #include "Global.hpp"
@@ -86,6 +87,13 @@ bool Index::event(QEvent* event)
         case (EVENT_SAVE): {
             EventSave* Event(static_cast<EventSave*>(event));
             save(Event->backup());
+            return true;
+        }
+
+        // Delete event
+        case (EVENT_DELETE_TB): {
+            EventDeleteTB* Event(static_cast<EventDeleteTB*>(event));
+            deleteTB(Event->tb());
             return true;
         }
 
@@ -299,4 +307,23 @@ void Index::save(bool backup)
     }
 
     emit savingSuccessful(this->Bulletins.count());
+}
+
+void Index::deleteTB(TechnicalBulletin* tb)
+{
+    // Consistency checks
+    if (tb == nullptr) {
+        emit failedToDeleteTB("NULLPTR received!!!", "");
+        return;
+    }
+
+    if (!this->Bulletins.contains(tb)) {
+        emit failedToDeleteTB(tb->number(), tb->title());
+        return;
+    }
+
+    // Delete the TB and remove it from the list
+    emit tbDeletionSuccessful(tb->number(), tb->title());
+    delete tb;
+    this->Bulletins.removeOne(tb);
 }

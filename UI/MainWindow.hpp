@@ -124,6 +124,8 @@ class MainWindow: public QMainWindow
     void failedToOpenFileForSaving();
     void failedToWriteContent(int count);
     void savingSuccessful(int count);
+    void failedToDeleteTB(QString number, QString title);
+    void tbDeletionSuccessful(QString number, QString title);
 };
 
 // Table header index
