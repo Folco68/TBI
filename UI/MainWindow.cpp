@@ -272,7 +272,7 @@ MainWindow::~MainWindow()
 void MainWindow::updateUI()
 {
     // Window title
-    setWindowTitle(QString("%1 %2").arg(WINDOW_TITLE, this->Modified ? "- (modified)" : ""));
+    setWindowTitle(QString("%1 %2").arg(WINDOW_TITLE, this->Modified ? tr("- (modified)") : ""));
 
     // Button
     ui->ButtonSave->setEnabled(this->Modified);

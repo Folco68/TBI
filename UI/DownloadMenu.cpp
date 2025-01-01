@@ -49,7 +49,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
 
     if (!TBnumber.isEmpty()) {
         // Add the TB (pfd)
-        QAction* PdfAction = addAction("Technical Bulletin");
+        QAction* PdfAction = addAction(tr("Technical Bulletin"));
         this->ActionList.append(PdfAction);
         connect(PdfAction, &QAction::triggered, [TBnumber, WidgetToFocus]() {
             QDesktopServices::openUrl(QString(Settings::instance()->baseURLTechnicalBulletinPDF()).arg(TBnumber));
@@ -59,7 +59,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
         });
 
         // Add the TB CTI (pfd)
-        QAction* CTIAction = addAction("Customer Technical Information");
+        QAction* CTIAction = addAction(tr("Customer Technical Information"));
         this->ActionList.append(CTIAction);
         TBnumber += CTI_SUFFIX;
         connect(CTIAction, &QAction::triggered, [TBnumber, WidgetToFocus]() {
