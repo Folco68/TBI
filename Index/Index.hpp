@@ -62,6 +62,7 @@ class Index : public QObject
     void savingSuccessful(int count);
 
     // New / Edit / Delete
+    void bulletinCreated(TechnicalBulletin* tb);
     void failedToDeleteTB(QString number, QString title);
     void tbDeletionSuccessful(QString number, QString title);
 

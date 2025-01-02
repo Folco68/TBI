@@ -38,7 +38,6 @@ class TechnicalBulletin
 {
   public:
     TechnicalBulletin() {}
-    TechnicalBulletin(QByteArray data);
     TechnicalBulletin(QString        number,
                       QString        title,
                       QString        category,
@@ -50,17 +49,17 @@ class TechnicalBulletin
                       QString        replaces,
                       QString        replacedby,
                       QList<QString> keywords);
-    void setData(QString        number,
-                 QString        title,
-                 QString        category,
-                 QString        rk,
-                 QString        techpub,
-                 QString        comment,
-                 QDate          releasedate,
-                 QString        registeredby,
-                 QString        replaces,
-                 QString        replacedby,
-                 QList<QString> keywords);
+    void updateData(QString        number,
+                    QString        title,
+                    QString        category,
+                    QString        rk,
+                    QString        techpub,
+                    QString        comment,
+                    QDate          releasedate,
+                    QString        registeredby,
+                    QString        replaces,
+                    QString        replacedby,
+                    QList<QString> keywords);
 
     QString        number() const { return this->Number; }
     QString        title() const { return this->Title; }
@@ -75,8 +74,7 @@ class TechnicalBulletin
     QList<QString> keywords() const { return this->Keywords; }
 
     QString keywordsString() const;
-
-    void setKeywords(QList<QString> keywords) { this->Keywords = keywords; }
+    void    setKeywords(QList<QString> keywords) { this->Keywords = keywords; }
 
   private:
     QString        Number;

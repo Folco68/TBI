@@ -24,73 +24,10 @@
 #include "Global.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QByteArrayView>
-#include <algorithm>
 
 //  TechnicalBulletin
 //
-// Create a TB using dropped data
-// This constructor is designed to handle standard mails sent via the
-// subscription list
-//
-TechnicalBulletin::TechnicalBulletin(QByteArray data)
-{
-    qsizetype Start, End;
-
-    // Parse most of the strings
-    QList<QString> Strings;
-    QList<QString> StringLabels;
-    StringLabels << "Bulletin No:"
-                 << "Title:"
-                 << "TB Category:"
-                 << "Rebuilding Kit(s):"
-                 << "Technical Publication(s):"
-                 << "Registered by:"
-                 << "Replaces:"
-                 << "Replaced by:";
-
-    for (int i = 0; i < StringLabels.count(); i++) {
-        Start = data.indexOf(QByteArrayView(StringLabels.at(i).toUtf8())); // Look for a label
-        if (Start == -1) {
-            // No label found, don't write anything in the field
-            Strings << "";
-        }
-        else {
-            // Label found
-            Start = data.indexOf('\t', Start) + 1;                                  // Skip the label, and find the fist byte of the data string
-            End   = std::min(data.indexOf('\t', Start), data.indexOf('\n', Start)); // End of data string. May terminate with a Tab or a New Line
-            Strings << data.mid(Start, End - Start);                                // Grab and save data
-        }
-    }
-
-    // Comment box. Don't fill it if no comment field is found
-    Start = data.indexOf("Comments:");
-    if (Start == -1) {
-        Start = 0;
-        End   = 0;
-    }
-    else {
-        Start = data.indexOf('\t', Start) + 1;
-        End   = data.indexOf('\t', Start);
-    }
-    QString Comment(data.mid(Start, End - Start));
-
-    // Release date
-    Start = data.indexOf("Release date:");
-    Start = data.indexOf('\t', Start) + 1;
-    End   = data.indexOf('\n', Start);
-    QDate Date(QDate::fromString(data.mid(Start, End - Start), "yyyy-MM-dd"));
-
-    // Keywords
-    QList<QString> Keywords;
-    Keywords << "";
-
-    // Save data into members
-    setData(Strings.at(0), Strings.at(1), Strings.at(2), Strings.at(3), Strings.at(4), Comment, Date, Strings.at(5), Strings.at(6), Strings.at(7), Keywords);
-}
-
-//  TechnicalBulletin
-//
-// Create a TB using data provided UI
+// Create a TB using data provided by UI
 //
 TechnicalBulletin::TechnicalBulletin(QString        number,
                                      QString        title,
@@ -117,21 +54,21 @@ TechnicalBulletin::TechnicalBulletin(QString        number,
 {
 }
 
-//  setData
+//  updateData
 //
 // Update an existing TB
 //
-void TechnicalBulletin::setData(QString        number,
-                                QString        title,
-                                QString        category,
-                                QString        rk,
-                                QString        techpub,
-                                QString        comment,
-                                QDate          releasedate,
-                                QString        registeredby,
-                                QString        replaces,
-                                QString        replacedby,
-                                QList<QString> keywords)
+void TechnicalBulletin::updateData(QString        number,
+                                   QString        title,
+                                   QString        category,
+                                   QString        rk,
+                                   QString        techpub,
+                                   QString        comment,
+                                   QDate          releasedate,
+                                   QString        registeredby,
+                                   QString        replaces,
+                                   QString        replacedby,
+                                   QList<QString> keywords)
 {
     this->Number       = number;
     this->Title        = title;
@@ -186,17 +123,17 @@ QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb)
     QList<QString> Keywords;
 
     stream >> Number >> Title >> Category >> RK >> TechPub >> Comment >> ReleaseDate >> RegisteredBy >> Replaces >> ReplacedBy >> Keywords;
-    tb->setData(QString::fromUtf8(Number),
-                QString::fromUtf8(Title),
-                QString::fromUtf8(Category),
-                QString::fromUtf8(RK),
-                QString::fromUtf8(TechPub),
-                QString::fromUtf8(Comment),
-                ReleaseDate,
-                QString::fromUtf8(RegisteredBy),
-                QString::fromUtf8(Replaces),
-                QString::fromUtf8(ReplacedBy),
-                Keywords);
+    tb->updateData(QString::fromUtf8(Number),
+                   QString::fromUtf8(Title),
+                   QString::fromUtf8(Category),
+                   QString::fromUtf8(RK),
+                   QString::fromUtf8(TechPub),
+                   QString::fromUtf8(Comment),
+                   ReleaseDate,
+                   QString::fromUtf8(RegisteredBy),
+                   QString::fromUtf8(Replaces),
+                   QString::fromUtf8(ReplacedBy),
+                   Keywords);
     return stream;
 }
 

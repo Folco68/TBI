@@ -127,6 +127,7 @@ class MainWindow: public QMainWindow
     void savingSuccessful(int count);
     void failedToDeleteTB(QString number, QString title);
     void tbDeletionSuccessful(QString number, QString title);
+    void bulletinCreated(TechnicalBulletin* tb);
 };
 
 // Table header index

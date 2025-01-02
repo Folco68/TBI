@@ -23,9 +23,11 @@
 
 #include "DlgTB.hpp"
 #include "Global.hpp"
+#include "Index/Index.hpp"
 #include "Settings.hpp"
 #include "UI/LineEditDeselect.hpp"
 #include "ui_DlgTB.h"
+#include <Event/EventNewTB.hpp>
 #include <QAction>
 #include <QApplication>
 #include <QChar>
@@ -44,17 +46,16 @@
 //
 // New TB from scratch
 //
-DlgTB::DlgTB(MainWindow* parent, QString title)
+DlgTB::DlgTB(MainWindow* parent)
     : QDialog(parent)
     , ui(new Ui::DlgTB)
     , DLMenu(new DownloadMenu)
 {
     // UI
     ui->setupUi(this);
-    setWindowTitle(title);
     setMinimumSize(DLGTB_WINDOW_WIDTH, DLGTB_WINDOW_HEIGHT);
-    ui->EditReleaseDate->setDate(QDate::currentDate());
     ui->ComboCategory->addItems(Settings::instance()->categories());
+    ui->EditKeywords->setFocus();
 
     // Create the Screen menu
     QMenu*   ScreenMenu           = new QMenu(this);
@@ -94,20 +95,6 @@ DlgTB::DlgTB(MainWindow* parent, QString title)
 
     // Default: don't display the warning about an existing older TB
     ui->LabelReplaceExistent->setVisible(false);
-
-    // Set the edit keyword field as the current one
-    ui->EditKeywords->setFocus();
-}
-
-//  DlgTB
-//
-// New TB from drop, or TB edition
-//
-DlgTB::DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb)
-    : DlgTB(parent, title)
-{
-    fillUI(tb);
-    ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
 }
 
 DlgTB::~DlgTB()
@@ -116,7 +103,7 @@ DlgTB::~DlgTB()
     delete this->DLMenu;
 }
 
-void DlgTB::accept()
+void DlgTB::accept() // override
 {
     // Save the category if it does not exist in the list yet
     QStringList List     = Settings::instance()->categories();
@@ -125,89 +112,41 @@ void DlgTB::accept()
         List << Category;
         Settings::instance()->setCategories(List);
     }
-
-    // Finally, run QDialog accept
     QDialog::accept();
-}
-
-//  fillUI
-//
-// Populate UI fields with an existing TB
-//
-void DlgTB::fillUI(TechnicalBulletin* tb)
-{
-    ui->EditNumber->setText(tb->number());
-    ui->EditTitle->setText(tb->title());
-    ui->ComboCategory->setCurrentText(tb->category());
-    ui->EditRK->setText(tb->rk());
-    ui->EditTechPub->setText(tb->techpub());
-    ui->TexteditComment->setPlainText(tb->comment());
-    ui->EditReleaseDate->setDate(tb->releaseDate());
-    ui->EditRegisteredBy->setText(tb->registeredBy());
-    ui->EditReplaces->setText(tb->replaces());
-    ui->EditReplacedBy->setText(tb->replacedBy());
-    ui->EditKeywords->setText(tb->keywordsString());
-}
-
-//  fillTB
-//
-// Grab UI data and save them in a TB
-//
-void DlgTB::fillTB(TechnicalBulletin* tb)
-{
-    tb->setData(ui->EditNumber->text(),
-                ui->EditTitle->text(),
-                ui->ComboCategory->currentText(),
-                ui->EditRK->text(),
-                ui->EditTechPub->text(),
-                ui->TexteditComment->toPlainText(),
-                ui->EditReleaseDate->date(),
-                ui->EditRegisteredBy->text(),
-                ui->EditReplaces->text(),
-                ui->EditReplacedBy->text(),
-                ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts));
 }
 
 //  newDlgTB (static)
 //
 // New TB from scratch
 //
-TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent)
+void DlgTB::newDlgTB(MainWindow* parent)
 {
-    TechnicalBulletin* TB = nullptr;
-
     // Create and exec dialog
-    DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2").arg(WINDOW_TITLE, tr("Add a new Technical Bulletin")));
+    DlgTB* Dlg = new DlgTB(parent);
+    Dlg->setWindowTitle(tr("%1 - %2").arg(WINDOW_TITLE).arg(tr("Add a new Technical Bulletin")));
+    Dlg->ui->EditReleaseDate->setDate(QDate::currentDate());
     Dlg->updateButtonDownload();
     if (Dlg->exec() == QDialog::Accepted) {
-        TB = new TechnicalBulletin;
-        Dlg->fillTB(TB);
+        Dlg->postTBcreationEvent(Dlg);
     }
-
     delete Dlg;
-    return TB;
 }
 
 //  newDlgTB (static)
 //
 // New TB from drop
 //
-TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
+void DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
 {
-    TechnicalBulletin* TB = new TechnicalBulletin(data);
-
-    // Create and exec the dialog. Update TB if the dialog was accepted, else destroy it
-    DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), TB->number()), TB);
+    // Create and exec the dialog
+    DlgTB* Dlg = new DlgTB(parent);
+    Dlg->parseDroppedData(data);
+    Dlg->setWindowTitle(QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), Dlg->ui->EditNumber->text()));
+    Dlg->updateButtonDownload();
     if (Dlg->exec() == QDialog::Accepted) {
-        Dlg->fillTB(TB);
+        Dlg->postTBcreationEvent(Dlg);
     }
-    else {
-        delete TB;
-        TB = nullptr;
-    }
-
     delete Dlg;
-    return TB;
 }
 
 //  editDlgTB (static)
@@ -216,16 +155,128 @@ TechnicalBulletin* DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
 //
 bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
 {
-    bool Ret = false;
+    bool Return = false;
 
-    DlgTB* Dlg = new DlgTB(parent, QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()), tb);
+    DlgTB* Dlg = new DlgTB(parent);
+    Dlg->ui->EditNumber->setText(tb->number());
+    Dlg->ui->EditTitle->setText(tb->title());
+    Dlg->ui->ComboCategory->setCurrentText(tb->category());
+    Dlg->ui->EditRK->setText(tb->rk());
+    Dlg->ui->EditTechPub->setText(tb->techpub());
+    Dlg->ui->TexteditComment->setPlainText(tb->comment());
+    Dlg->ui->EditReleaseDate->setDate(tb->releaseDate());
+    Dlg->ui->EditRegisteredBy->setText(tb->registeredBy());
+    Dlg->ui->EditReplaces->setText(tb->replaces());
+    Dlg->ui->EditReplacedBy->setText(tb->replacedBy());
+    Dlg->ui->EditKeywords->setText(tb->keywordsString());
+
+    Dlg->ui->LabelReplaceExistent->setVisible(parent->tbNumberAlreadyExists(tb));
+    Dlg->updateButtonDownload();
+
+    Dlg->setWindowTitle(QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Edit Technical Bulletin"), tb->number()));
     if (Dlg->exec() == QDialog::Accepted) {
-        Dlg->fillTB(tb);
-        Ret = true;
+        tb->updateData(Dlg->ui->EditNumber->text(),
+                       Dlg->ui->EditTitle->text(),
+                       Dlg->ui->ComboCategory->currentText(),
+                       Dlg->ui->EditRK->text(),
+                       Dlg->ui->EditTechPub->text(),
+                       Dlg->ui->TexteditComment->toPlainText(),
+                       Dlg->ui->EditReleaseDate->date(),
+                       Dlg->ui->EditRegisteredBy->text(),
+                       Dlg->ui->EditReplaces->text(),
+                       Dlg->ui->EditReplacedBy->text(),
+                       Dlg->ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts));
+        Return = true;
     }
 
     delete Dlg;
-    return Ret;
+    return Return;
+}
+
+void DlgTB::postTBcreationEvent(DlgTB* dlg) const
+{
+    EventNewTB* Event = new EventNewTB(dlg->ui->EditNumber->text(),
+                                       dlg->ui->EditTitle->text(),
+                                       dlg->ui->ComboCategory->currentText(),
+                                       dlg->ui->EditRK->text(),
+                                       dlg->ui->EditTechPub->text(),
+                                       dlg->ui->TexteditComment->toPlainText(),
+                                       dlg->ui->EditReleaseDate->date(),
+                                       dlg->ui->EditRegisteredBy->text(),
+                                       dlg->ui->EditReplaces->text(),
+                                       dlg->ui->EditReplacedBy->text(),
+                                       dlg->ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts));
+    QCoreApplication::postEvent(Index::instance(), Event);
+}
+
+void DlgTB::updateButtonDownload()
+{
+    QString DocsField   = ui->EditTechPub->text();
+    QString NumberField = ui->EditNumber->text().trimmed();
+    this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
+    ui->ButtonDownload->setMenu(this->DLMenu);
+    ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
+}
+
+void DlgTB::parseDroppedData(QByteArray data)
+{
+    qsizetype Start, End;
+
+    // Parse most of the strings
+    QList<QString> Strings;
+    QList<QString> StringLabels;
+    StringLabels << "Bulletin No:"
+                 << "Title:"
+                 << "TB Category:"
+                 << "Rebuilding Kit(s):"
+                 << "Technical Publication(s):"
+                 << "Registered by:"
+                 << "Replaces:"
+                 << "Replaced by:";
+
+    for (int i = 0; i < StringLabels.count(); i++) {
+        Start = data.indexOf(QByteArrayView(StringLabels.at(i).toUtf8())); // Look for a label
+        if (Start == -1) {
+            // No label found, don't write anything in the field
+            Strings << "";
+        }
+        else {
+            // Label found
+            Start = data.indexOf('\t', Start) + 1;                                  // Skip the label, and find the fist byte of the data string
+            End   = std::min(data.indexOf('\t', Start), data.indexOf('\n', Start)); // End of data string. May terminate with a Tab or a New Line
+            Strings << data.mid(Start, End - Start);                                // Grab and save data
+        }
+    }
+
+    // Comment box. Don't fill it if no comment field is found
+    Start = data.indexOf("Comments:");
+    if (Start == -1) {
+        Start = 0;
+        End   = 0;
+    }
+    else {
+        Start = data.indexOf('\t', Start) + 1;
+        End   = data.indexOf('\t', Start);
+    }
+    QString Comment(data.mid(Start, End - Start));
+
+    // Release date
+    Start = data.indexOf("Release date:");
+    Start = data.indexOf('\t', Start) + 1;
+    End   = data.indexOf('\n', Start);
+    QDate Date(QDate::fromString(data.mid(Start, End - Start), "yyyy-MM-dd"));
+
+    // Fill UI
+    ui->EditNumber->setText(Strings.at(0));
+    ui->EditTitle->setText(Strings.at(1));
+    ui->ComboCategory->setCurrentText(Strings.at(2));
+    ui->EditRK->setText(Strings.at(3));
+    ui->EditTechPub->setText(Strings.at(4));
+    ui->EditRegisteredBy->setText(Strings.at(5));
+    ui->EditReplaces->setText(Strings.at(6));
+    ui->EditReplacedBy->setText(Strings.at(7));
+    ui->TexteditComment->setPlainText(Comment);
+    ui->EditReleaseDate->setDate(Date);
 }
 
 //  dragEnterEvent
@@ -240,14 +291,11 @@ void DlgTB::dragEnterEvent(QDragEnterEvent* event)
 
 //  dropEvent
 //
-// Offer to create a new TB from dropped data.
-// Create a temporary TB for conveniency, because its constructor is able to parse a TB
+// Fill UI with dropped data
 //
 void DlgTB::dropEvent(QDropEvent* event)
 {
-    TechnicalBulletin* TB = new TechnicalBulletin(event->mimeData()->data("text/plain"));
-    fillUI(TB);
-    delete TB;
+    parseDroppedData(event->mimeData()->data("text/plain"));
 }
 
 void DlgTB::copyScreenshot()
@@ -293,33 +341,22 @@ void DlgTB::copyHeader()
 
 void DlgTB::copyAll()
 {
-    QString Data = getHeader() + '\n';
-    Data.append("Notes: %1");
-    Data = Data.arg(ui->TexteditComment->toPlainText());
+    QString Data = getHeader().append("\nNotes: \n").append(ui->TexteditComment->toPlainText());
     QApplication::clipboard()->setText(Data);
-}
-
-void DlgTB::updateButtonDownload()
-{
-    QString DocsField   = ui->EditTechPub->text();
-    QString NumberField = ui->EditNumber->text().trimmed();
-    this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
-    ui->ButtonDownload->setMenu(this->DLMenu);
-    ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
 }
 
 QString DlgTB::getHeader()
 {
     QString Data;
     Data.append("Bulletin No: %1\n")
-      .append("Title: %2\n")
-      .append("TB Category: %3\n")
-      .append("Rebuilding Kit: %4\n")
-      .append("Technical Publication: %5\n")
-      .append("Release date: %6\n")
-      .append("Registered by: %7\n")
-      .append("Replaces: %8\n")
-      .append("Replaced by: %9");
+        .append("Title: %2\n")
+        .append("TB Category: %3\n")
+        .append("Rebuilding Kit: %4\n")
+        .append("Technical Publication: %5\n")
+        .append("Release date: %6\n")
+        .append("Registered by: %7\n")
+        .append("Replaces: %8\n")
+        .append("Replaced by: %9");
 
     return Data.arg(ui->EditNumber->text(),
                     ui->EditTitle->text(),

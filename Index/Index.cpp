@@ -309,7 +309,23 @@ void Index::save(QEvent* event)
     emit savingSuccessful(this->Bulletins.count());
 }
 
-void Index::newTB(QEvent* event) {}
+void Index::newTB(QEvent* event)
+{
+    EventNewTB*        Event(static_cast<EventNewTB*>(event));
+    TechnicalBulletin* TB = new TechnicalBulletin(Event->number(),
+                                                  Event->title(),
+                                                  Event->category(),
+                                                  Event->rk(),
+                                                  Event->techPub(),
+                                                  Event->comment(),
+                                                  Event->releaseDate(),
+                                                  Event->registeredBy(),
+                                                  Event->replaces(),
+                                                  Event->replacedBy(),
+                                                  Event->keywords());
+    this->Bulletins.append(TB);
+    emit bulletinCreated(TB);
+}
 
 void Index::deleteTB(QEvent* event)
 {

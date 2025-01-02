@@ -49,18 +49,17 @@ class DlgTB: public QDialog
     Q_OBJECT
 
   public:
-    static TechnicalBulletin* newDlgTB(MainWindow* parent);                         // New TB, created by hand
-    static TechnicalBulletin* newDlgTB(MainWindow* parent, QByteArray data);        // New TB, created by drag'n drop or Copy/Paste
-    static bool               editDlgTB(MainWindow* parent, TechnicalBulletin* tb); // Existing TB, edition
+    static void newDlgTB(MainWindow* parent);                         // New TB, created by hand
+    static void newDlgTB(MainWindow* parent, QByteArray data);        // New TB, created by drag'n drop or Copy/Paste
+    static bool editDlgTB(MainWindow* parent, TechnicalBulletin* tb); // Existing TB, edition
 
   private:
     Ui::DlgTB* ui;
     DownloadMenu* DLMenu = nullptr; // Technical publications download menu, cleared then rebuilt at each relevant event
 
     // Class
-    DlgTB(MainWindow* parent, QString title);
-    DlgTB(MainWindow* parent, QString title, TechnicalBulletin* tb);
-    ~DlgTB() override;
+    DlgTB(MainWindow* parent);
+    ~DlgTB();
     void accept() override; // Override this method to update the list of TB category if the current one is a new one
 
     // Drag & drop stuff
@@ -68,18 +67,16 @@ class DlgTB: public QDialog
     void dropEvent(QDropEvent* event) override;
 
     // Menus actions
-    void copyScreenshot();
-    void saveScreenshot();
-    void copyHeader();
-    void copyAll();
-    void updateButtonDownload();
-
+    void    copyScreenshot();
+    void    saveScreenshot();
+    void    copyHeader();
+    void    copyAll();
+    void    updateButtonDownload();
     QString getHeader();
 
     // Misc
-    void fillUI(TechnicalBulletin* tb);
-    void fillTB(TechnicalBulletin* tb);
-    void deleteMenuAndActions();
+    void postTBcreationEvent(DlgTB* dlg) const;
+    void parseDroppedData(QByteArray data);
 };
 
 #endif // DLGTB_HPP

@@ -242,6 +242,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(Index::instance(), &Index::savingSuccessful, this, &MainWindow::savingSuccessful, Qt::QueuedConnection);
     connect(Index::instance(), &Index::failedToDeleteTB, this, &MainWindow::failedToDeleteTB, Qt::QueuedConnection);
     connect(Index::instance(), &Index::tbDeletionSuccessful, this, &MainWindow::tbDeletionSuccessful, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::bulletinCreated, this, &MainWindow::bulletinCreated, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -480,12 +481,15 @@ void MainWindow::savingSuccessful(int count)
 
 void MainWindow::newTB()
 {
-    TechnicalBulletin* TB = DlgTB::newDlgTB(this);
-    if (TB != nullptr) {
-        this->Modified = true;
-        addTB(TB, PERFORM_ADD_CHECKS);
-        updateUI();
-    }
+    DlgTB::newDlgTB(this);
+}
+
+void MainWindow::bulletinCreated(TechnicalBulletin* tb)
+{
+    Logger::instance()->newEntry(tr("New technical bulletin created: %1, %2").arg(tb->number(), tb->title()));
+    this->Modified = true;
+    addTB(tb, PERFORM_ADD_CHECKS);
+    updateUI();
 }
 
 void MainWindow::editTB()
@@ -783,24 +787,14 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 
 void MainWindow::dropEvent(QDropEvent* event)
 {
-    TechnicalBulletin* TB = DlgTB::newDlgTB(this, event->mimeData()->data("text/plain"));
-    if (TB != nullptr) {
-        this->Modified = true;
-        addTB(TB, PERFORM_ADD_CHECKS);
-        updateUI();
-    }
+    DlgTB::newDlgTB(this, event->mimeData()->data("text/plain"));
 }
 
 void MainWindow::paste()
 {
     const QClipboard* Clipboard = QApplication::clipboard();
     if (Clipboard->mimeData()->hasText()) {
-        TechnicalBulletin* TB = DlgTB::newDlgTB(this, Clipboard->mimeData()->data("text/plain"));
-        if (TB != nullptr) {
-            this->Modified = true;
-            addTB(TB, PERFORM_ADD_CHECKS);
-            updateUI();
-        }
+        DlgTB::newDlgTB(this, Clipboard->mimeData()->data("text/plain"));
     }
 }
 
