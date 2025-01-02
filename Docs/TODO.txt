@@ -38,12 +38,13 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 + Ctrl-F focus TB table is Keyword field has the focus
 + tr() all strings
 o decode TB name to fill Keyword field with the machine name
++ DlgTB::updateButtonDownload() is enabled for a new TB from scratch
++ remove hh:mm from ElapsedTimer
+
 - download everything in a dedicated location when saving the TB
 - separate TB index and UI (a singleton holding all the TBs?)
 - RT search starts to show some slight lags with around 450 TB. Perform the search in a thread separated from the UI
 - standardize machine names
 - remove categories from settings. Embed it in the index file
 - MainWindow: defer the "add checks" to the Index
-- remove hh:mm from ElapsedTimer
-- DlgTB::updateButtonDownload() is enabled for a new TB from scratch
 - DlgTB: properly handle the "already existing" label

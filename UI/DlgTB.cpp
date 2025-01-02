@@ -24,6 +24,7 @@
 #include "DlgTB.hpp"
 #include "Global.hpp"
 #include "Index/Index.hpp"
+#include "Logger.hpp"
 #include "Settings.hpp"
 #include "UI/LineEditDeselect.hpp"
 #include "ui_DlgTB.h"
@@ -42,10 +43,12 @@
 #include <QPushButton>
 #include <QStringList>
 
-//  DlgTB
-//
-// New TB from scratch
-//
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                       Dialog                                                        *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
 DlgTB::DlgTB(MainWindow* parent)
     : QDialog(parent)
     , ui(new Ui::DlgTB)
@@ -111,19 +114,31 @@ void DlgTB::accept() // override
     if (!List.contains(Category, Qt::CaseInsensitive)) {
         List << Category;
         Settings::instance()->setCategories(List);
+        Logger::instance()->newEntry(tr("Category added: %1").arg(Category));
     }
     QDialog::accept();
 }
 
-//  newDlgTB (static)
-//
-// New TB from scratch
-//
-void DlgTB::newDlgTB(MainWindow* parent)
+void DlgTB::updateButtonDownload()
 {
-    // Create and exec dialog
+    QString DocsField   = ui->EditTechPub->text();
+    QString NumberField = ui->EditNumber->text().trimmed();
+    this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
+    ui->ButtonDownload->setMenu(this->DLMenu);
+    ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
+}
+
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                     New / Edit                                                      *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
+// New TB from scratch
+void DlgTB::newDlgTB(MainWindow* parent) // static
+{
     DlgTB* Dlg = new DlgTB(parent);
-    Dlg->setWindowTitle(tr("%1 - %2").arg(WINDOW_TITLE).arg(tr("Add a new Technical Bulletin")));
+    Dlg->setWindowTitle(tr("%1 - %2").arg(WINDOW_TITLE).arg(tr("New Technical Bulletin")));
     Dlg->ui->EditReleaseDate->setDate(QDate::currentDate());
     Dlg->updateButtonDownload();
     if (Dlg->exec() == QDialog::Accepted) {
@@ -132,13 +147,9 @@ void DlgTB::newDlgTB(MainWindow* parent)
     delete Dlg;
 }
 
-//  newDlgTB (static)
-//
 // New TB from drop
-//
-void DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
+void DlgTB::newDlgTB(MainWindow* parent, QByteArray data) // static
 {
-    // Create and exec the dialog
     DlgTB* Dlg = new DlgTB(parent);
     Dlg->parseDroppedData(data);
     Dlg->setWindowTitle(QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), Dlg->ui->EditNumber->text()));
@@ -149,11 +160,8 @@ void DlgTB::newDlgTB(MainWindow* parent, QByteArray data)
     delete Dlg;
 }
 
-//  editDlgTB (static)
-//
-// Existing TB edition
-//
-bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
+// Edit existing TB
+bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb) // static
 {
     bool Return = false;
 
@@ -187,6 +195,7 @@ bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb)
                        Dlg->ui->EditReplacedBy->text(),
                        Dlg->ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts));
         Return = true;
+        Logger::instance()->newEntry(tr("Technical bulletin updated: %1 (%2)").arg(tb->number()).arg(tb->title()));
     }
 
     delete Dlg;
@@ -209,17 +218,27 @@ void DlgTB::postTBcreationEvent(DlgTB* dlg) const
     QCoreApplication::postEvent(Index::instance(), Event);
 }
 
-void DlgTB::updateButtonDownload()
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                     Drag & Drop                                                     *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
+void DlgTB::dragEnterEvent(QDragEnterEvent* event)
 {
-    QString DocsField   = ui->EditTechPub->text();
-    QString NumberField = ui->EditNumber->text().trimmed();
-    this->DLMenu->setItems(DocsField, NumberField, ui->EditKeywords);
-    ui->ButtonDownload->setMenu(this->DLMenu);
-    ui->ButtonDownload->setDisabled(this->DLMenu->isEmpty());
+    if (event->mimeData()->hasFormat("text/plain"))
+        event->acceptProposedAction();
+}
+
+void DlgTB::dropEvent(QDropEvent* event)
+{
+    parseDroppedData(event->mimeData()->data("text/plain"));
 }
 
 void DlgTB::parseDroppedData(QByteArray data)
 {
+    Logger::instance()->newEntry(tr("Parsing data from Drag & Drop..."));
+
     qsizetype Start, End;
 
     // Parse most of the strings
@@ -279,29 +298,17 @@ void DlgTB::parseDroppedData(QByteArray data)
     ui->EditReleaseDate->setDate(Date);
 }
 
-//  dragEnterEvent
-//
-// Allow a drop to start if dragged data is valid
-//
-void DlgTB::dragEnterEvent(QDragEnterEvent* event)
-{
-    if (event->mimeData()->hasFormat("text/plain"))
-        event->acceptProposedAction();
-}
-
-//  dropEvent
-//
-// Fill UI with dropped data
-//
-void DlgTB::dropEvent(QDropEvent* event)
-{
-    parseDroppedData(event->mimeData()->data("text/plain"));
-}
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                     Screenshot                                                      *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
 
 void DlgTB::copyScreenshot()
 {
     QPixmap Screenshot = this->grab();
     QApplication::clipboard()->setPixmap(Screenshot);
+    Logger::instance()->newEntry(tr("Screenshot of %1 copied to clipboard").arg(ui->EditNumber->text()));
 }
 
 void DlgTB::saveScreenshot()
@@ -331,18 +338,29 @@ void DlgTB::saveScreenshot()
     if (!Screenshot.save(Filename)) {
         QMessageBox::critical(this, WINDOW_TITLE, tr("Can't save the screenshot"));
     }
+    else {
+        Logger::instance()->newEntry(tr("Screenshot of %1 saved to file %2").arg(ui->EditNumber->text()).arg(Filename));
+    }
 }
+
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                     Text export                                                     *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
 
 void DlgTB::copyHeader()
 {
     QString Data = getHeader();
     QApplication::clipboard()->setText(Data);
+    Logger::instance()->newEntry(tr("Header of %1 copied to clipboard").arg(ui->EditNumber->text()));
 }
 
 void DlgTB::copyAll()
 {
     QString Data = getHeader().append("\nNotes: \n").append(ui->TexteditComment->toPlainText());
     QApplication::clipboard()->setText(Data);
+    Logger::instance()->newEntry(tr("Whole nformation of %1 copied to clipboard").arg(ui->EditNumber->text()));
 }
 
 QString DlgTB::getHeader()

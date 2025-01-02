@@ -47,7 +47,7 @@ void Logger::newEntry(QString text)
     if (!this->Log.isEmpty()) {
         this->Log.append('\n');
     }
-    this->Log.append(QString("[%1] ").arg(QTime::currentTime().toString("HH:mm:ss:zzz"))).append(text);
+    this->Log.append(QString("[%1] ").arg(QTime::currentTime().toString("HH:mm:ss"))).append(text);
     emit textAdded(this->Log);
 }
 
@@ -66,5 +66,5 @@ QString Logger::elapsedTime()
 {
     int   ms = this->Timer.elapsed();
     QTime Duration(0, 0);
-    return Duration.addMSecs(ms).toString("HH:mm:ss.zzz");
+    return QString("%1 second(s)").arg(Duration.addMSecs(ms).toString("s.zzz"));
 }
