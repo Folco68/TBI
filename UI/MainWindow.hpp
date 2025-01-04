@@ -90,7 +90,6 @@ class MainWindow: public QMainWindow
     void deleteTB();
     void save();
     void search(bool ForceNewSearch = false);
-    void addTB(TechnicalBulletin* tb, bool PerformAddChecks = false);
     void updateTB(TechnicalBulletin* tb, int row);
     void fillTBtable();
 
@@ -128,6 +127,9 @@ class MainWindow: public QMainWindow
     void failedToDeleteTB(QString number, QString title);
     void tbDeletionSuccessful(QString number, QString title);
     void bulletinCreated(TechnicalBulletin* tb);
+    void tbAlreadyExists(QString number);
+    void unrecognizedTBnumber(QString number);
+    void olderTBfound(TechnicalBulletin* tb);
 };
 
 // Table header index

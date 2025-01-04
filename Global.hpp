@@ -51,8 +51,8 @@
 #define OPTION_FORCE_DATABASE_CHECK "--check-database"
 
 // Data filename
-#define TBI_BACKUP_FILENAME "index.bak"
-#define TBI_FILENAME        "index.tbi"
+#define INDEX_BACKUP_FILENAME "index.bak"
+#define INDEX_FILENAME        "index.tbi"
 
 // Screenshot file extension
 #define SCREENSHOT_EXTENSION ".png"
@@ -68,5 +68,6 @@
 #define EVENT_SAVE       ((QEvent::Type)(QEvent::User + 1))
 #define EVENT_NEW_TB     ((QEvent::Type)(QEvent::User + 2))
 #define EVENT_DELETE_TB  ((QEvent::Type)(QEvent::User + 3))
+#define EVENT_MERGE_TB   ((QEvent::Type)(QEvent::User + 4))
 
 #endif // GLOBAL_HPP

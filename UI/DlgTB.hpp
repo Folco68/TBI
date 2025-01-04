@@ -76,7 +76,7 @@ class DlgTB: public QDialog
 
     // Misc
     void postTBcreationEvent(DlgTB* dlg) const;
-    void parseDroppedData(QByteArray data);
+    void parseTechPubMailContent(QByteArray data);
 };
 
 #endif // DLGTB_HPP

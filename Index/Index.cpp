@@ -22,11 +22,13 @@
  **********************************************************************************************************************/
 
 #include "Event/EventDeleteTB.hpp"
-#include "Event/EventNewTB.hpp"
+#include "Event/EventMergeTB.hpp"
 #include "Event/EventOpenIndex.hpp"
 #include "Event/EventSave.hpp"
 #include "Global.hpp"
 #include "Index.hpp"
+#include <QCoreApplication>
+#include <QDate>
 #include <QFile>
 #include <QFileInfo>
 
@@ -92,6 +94,10 @@ bool Index::event(QEvent* event)
         deleteTB(event);
         Return = true;
     }
+    else if (event->type() == EVENT_MERGE_TB) {
+        mergeTB(event);
+        Return = true;
+    }
 
     // Defer the event to the QObject if it was not handled by the switch/case
     return Return ? Return : QObject::event(event);
@@ -111,13 +117,13 @@ void Index::open(QEvent* event)
     bool            ForceIndexCheck = Event->forceIndexCheck();
 
     // Early return if the file does not exist
-    if (!QFileInfo::exists(TBI_FILENAME)) {
+    if (!QFileInfo::exists(INDEX_FILENAME)) {
         emit noIndexFound();
         return;
     }
 
     // Opening
-    QFile file(TBI_FILENAME);
+    QFile file(INDEX_FILENAME);
     if (file.open(QIODevice::ReadOnly)) {
         QDataStream Stream(&file);
 
@@ -167,7 +173,7 @@ void Index::open(QEvent* event)
             // Stream status control failed
             // But don't throw a message, most probably it means that it was an empty and unversionned file
             // else {
-            //     QMessageBox::critical(this, WINDOW_TITLE, tr("Invalid file %1").arg(TBI_FILENAME));
+            //     QMessageBox::critical(this, WINDOW_TITLE, tr("Invalid file %1").arg(INDEX_FILENAME));
             // }
         }
 
@@ -177,7 +183,7 @@ void Index::open(QEvent* event)
         }
     }
     // Throw an error if the file exists and couldn't be opened
-    else if (QFileInfo::exists(TBI_FILENAME)) {
+    else if (QFileInfo::exists(INDEX_FILENAME)) {
         emit failedToOpenIndex();
         this->OpeningSuccessful = false;
     }
@@ -271,15 +277,15 @@ void Index::save(QEvent* event)
     // On demand, create a backup by renaming the current index.
     // Remove current backup because File::rename() won't overwrite current file
     if (Backup) {
-        QFile::remove(TBI_BACKUP_FILENAME);
-        if (!QFile::rename(TBI_FILENAME, TBI_BACKUP_FILENAME)) {
+        QFile::remove(INDEX_BACKUP_FILENAME);
+        if (!QFile::rename(INDEX_FILENAME, INDEX_BACKUP_FILENAME)) {
             emit failedToCreateBackup();
             return;
         }
     }
 
     // Try to open the file
-    QFile File(TBI_FILENAME);
+    QFile File(INDEX_FILENAME);
     if (!File.open(QIODevice::WriteOnly)) {
         emit failedToOpenFileForSaving();
         return;
@@ -311,7 +317,44 @@ void Index::save(QEvent* event)
 
 void Index::newTB(QEvent* event)
 {
-    EventNewTB*        Event(static_cast<EventNewTB*>(event));
+    EventNewTB* Event(static_cast<EventNewTB*>(event));
+
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                             Perform multiple checks before adding a TB to the index                             *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    QString Number = Event->number();
+
+    // TB number must be valid to perform these tests
+    if (validateNumber(Number)) {
+        QString Radix(Number.chopped(1 + 2)); // sizeof('_') + sizeof(version)
+        QString Version(Number.last(2));      // sizeof(version)
+
+        for (int i = 0; i < this->Bulletins.size(); i++) {
+            QString TmpNumber = this->Bulletins.at(i)->number();
+            if (TmpNumber.chopped(1 + 2) == Radix) {
+                QString TmpVersion(TmpNumber.right(2)); // sizeof(version)
+
+                // Forbid TB with identical number
+                if (Version == TmpVersion) {
+                    emit tbAlreadyExists(Number);
+                    return;
+                }
+
+                // If the TB replaces an old one, offer to upgrade it.
+                // The TB can be added now, merge will be done later
+                if (Version > TmpVersion) {
+                    emit olderTBfound(this->Bulletins.at(i));
+                }
+            }
+        }
+    }
+    else {
+        emit unrecognizedTBnumber(Number);
+    }
+
     TechnicalBulletin* TB = new TechnicalBulletin(Event->number(),
                                                   Event->title(),
                                                   Event->category(),
@@ -325,6 +368,18 @@ void Index::newTB(QEvent* event)
                                                   Event->keywords());
     this->Bulletins.append(TB);
     emit bulletinCreated(TB);
+}
+
+void Index::mergeTB(QEvent* event)
+{
+    EventMergeTB*      Event(static_cast<EventMergeTB*>(event));
+    TechnicalBulletin* OldTB(Event->tb());
+    TechnicalBulletin* NewTB(this->Bulletins.constLast());
+    // TODO: merge keywords
+
+    // Delete the old TB
+    EventDeleteTB DeleteEvent(OldTB);
+    QCoreApplication::sendEvent(this, &DeleteEvent);
 }
 
 void Index::deleteTB(QEvent* event)
@@ -347,4 +402,52 @@ void Index::deleteTB(QEvent* event)
     emit tbDeletionSuccessful(TB->number(), TB->title());
     delete TB;
     this->Bulletins.removeOne(TB);
+}
+
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                    Validation / Sanitization / Checks / Whatever                                    *
+ *                                                                                                                     *
+ *                         The number of a TB looks like: [machines]_[year]_[rank]_[version],                          *
+ *                                                       where:                                                        *
+ *      [machines] is for one type of machine ('TPA3F'), for a category ('TPA3E3'), or a group of category ('FM')      *
+ *                                 [year] 4 digits. The year in the Gregorian calendar                                 *
+ *                              [rank] 2 digits. Reset at 01 at the beginning of the year                              *
+ *                  [version] 2 digits. Starts at 01, increased by 1 at every release of the same TB                   *
+ *                                                                                                                     *
+ *              This is unofficial, so there are extra consistency checks to prevent a bad interpretation              *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
+bool Index::validateNumber(QString number) const
+{
+    // Split the 4 groups of the TB number
+    QList<QString> SplittedNumber(number.split('_', Qt::KeepEmptyParts));
+
+    // We need 4 groups of information
+    if (SplittedNumber.count() != 4) {
+        return false;
+    }
+
+    QString Year(SplittedNumber.at(1));
+    QString Rank(SplittedNumber.at(2));
+    QString Version(SplittedNumber.at(3));
+
+    // Year must be 4 digits and <= current year
+    if ((Year.size() != 4) || (Year.toInt() > QDate::currentDate().year())) {
+        return false;
+    }
+
+    // Rank must be 2 digits
+    if (Rank.size() != 2) {
+        return false;
+    }
+
+    // Version must be 2 digits
+    if (Version.size() != 2) {
+        return false;
+    }
+
+    // All looks fine
+    return true;
 }

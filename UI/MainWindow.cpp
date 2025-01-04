@@ -26,6 +26,7 @@
 #include "DlgTB.hpp"
 #include "DownloadMenu.hpp"
 #include "Event/EventDeleteTB.hpp"
+#include "Event/EventMergeTB.hpp"
 #include "Event/EventOpenIndex.hpp"
 #include "Event/EventSave.hpp"
 #include "Global.hpp"
@@ -243,6 +244,9 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     connect(Index::instance(), &Index::failedToDeleteTB, this, &MainWindow::failedToDeleteTB, Qt::QueuedConnection);
     connect(Index::instance(), &Index::tbDeletionSuccessful, this, &MainWindow::tbDeletionSuccessful, Qt::QueuedConnection);
     connect(Index::instance(), &Index::bulletinCreated, this, &MainWindow::bulletinCreated, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::tbAlreadyExists, this, &MainWindow::tbAlreadyExists, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::unrecognizedTBnumber, this, &MainWindow::unrecognizedTBnumber, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::olderTBfound, this, &MainWindow::olderTBfound, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -335,7 +339,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::openingStarting()
 {
-    QString Message = tr("Trying to open index file: %1").arg(TBI_FILENAME);
+    QString Message = tr("Trying to open index file: %1").arg(INDEX_FILENAME);
     Logger::instance()->newEntry(Message);
 }
 
@@ -370,23 +374,27 @@ void MainWindow::indexTooRecent(qint32 version)
 {
     QString Message = tr("Index version is too recent (%1), please update your program").arg(version);
     Logger::instance()->newEntry(Message);
+    QMessageBox::critical(this, WINDOW_TITLE, tr("The index that you want to open is too recent for your software version. Please upgrade the software."));
 }
 
 void MainWindow::invalidMagic(QString magic)
 {
     QString Message = tr("File corrupted or invalid. Magic found is: %1").arg(magic);
     Logger::instance()->newEntry(Message);
+    QMessageBox::critical(this, WINDOW_TITLE, tr("Invalid magic in the index file. %1 is corrupted or not authentic. Please use a backup.").arg(INDEX_FILENAME));
 }
 
 void MainWindow::failedToOpenIndex()
 {
-    QString Message = tr("Impossible to open the file '%1'").arg(TBI_FILENAME);
+    QString Message = tr("Impossible to open the file '%1'").arg(INDEX_FILENAME);
     Logger::instance()->newEntry(Message);
+    QMessageBox::critical(this, WINDOW_TITLE, tr("Impossible to open %1. Please check permissions or use a backup.").arg(INDEX_FILENAME));
 }
 
 void MainWindow::failedToReadFileContent()
 {
     Logger::instance()->newEntry(tr("Failed to read file content"));
+    QMessageBox::critical(this, WINDOW_TITLE, tr("Error while parsing the index filename %1. Please use a backup.").arg(INDEX_FILENAME));
 }
 
 void MainWindow::openingFailed(int count)
@@ -394,6 +402,7 @@ void MainWindow::openingFailed(int count)
     QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened").arg(count);
     Logger::instance()->newEntry(Message);
     fillTBtable();
+    QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to read fully %1. %2 have been read and will be displayed.").arg(INDEX_FILENAME).arg(count));
 }
 
 void MainWindow::fillTBtable()
@@ -487,8 +496,21 @@ void MainWindow::newTB()
 void MainWindow::bulletinCreated(TechnicalBulletin* tb)
 {
     Logger::instance()->newEntry(tr("New technical bulletin created: %1, %2").arg(tb->number(), tb->title()));
-    this->Modified = true;
-    addTB(tb, PERFORM_ADD_CHECKS);
+    this->Modified = true;                  // Modified status changes
+    ui->TableTB->setSortingEnabled(false);  // Disable table sorting to prevent a null ptr dereferencing
+    int RowCount = ui->TableTB->rowCount(); // Read table size
+    ui->TableTB->setRowCount(RowCount + 1); // Update table size
+
+    // Populate the new line with empty items
+    for (int i = 0; i < ui->TableTB->columnCount(); i++) {
+        ui->TableTB->setItem(RowCount, i, new QTableWidgetItem);
+    }
+
+    updateTB(tb, RowCount);                                  // Display new TB in the new line
+    ui->TableTB->setSortingEnabled(true);                    // Re-enable table sorting
+    QTableWidgetItem* Item = ui->TableTB->item(RowCount, 0); // Save an item ptr to make the last entry become the current one
+    ui->TableTB->setCurrentItem(Item);                       // Select the created TB
+    ui->TableTB->scrollToItem(Item);                         // And make it visible
     updateUI();
 }
 
@@ -498,6 +520,46 @@ void MainWindow::editTB()
     if (DlgTB::editDlgTB(this, TB)) {
         this->Modified = true;
         updateTB(TB, ui->TableTB->currentRow());
+    }
+}
+
+void MainWindow::tbAlreadyExists(QString number)
+{
+    QMessageBox::critical(this, WINDOW_TITLE, tr("The technical bulletin %1 already exists in the index").arg(number));
+    Logger::instance()->newEntry(tr("Technical bulletin %1 already exists").arg(number));
+}
+
+void MainWindow::unrecognizedTBnumber(QString number)
+{
+    Logger::instance()->newEntry(tr("Unrecognized TB number: %1").arg(number));
+}
+
+void MainWindow::olderTBfound(TechnicalBulletin* tb)
+{
+    // Prepare dialog
+    QMessageBox* MessageBox = new QMessageBox(QMessageBox::Question,
+                                              WINDOW_TITLE,
+                                              tr("An older version of TB %1 is present. Do you want to replace it with the new TB?").arg(tb->title()));
+    MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
+    QPushButton* ButtonMerge = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
+    MessageBox->setDefaultButton(ButtonMerge);
+
+    // Exec dialog and grab result
+    MessageBox->exec();
+    QAbstractButton* ClickedButton = MessageBox->clickedButton();
+    delete MessageBox;
+
+    // Send the corresponding event to the index
+    bool Merge = (ClickedButton == ButtonMerge);
+    QCoreApplication::postEvent(Index::instance(), new EventMergeTB(tb, Merge));
+
+    // Remove the TB from the table
+    for (int i = 0; i < ui->TableTB->rowCount(); i++) {
+        TechnicalBulletin* TB = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
+        if (TB == tb) {
+            ui->TableTB->removeRow(i);
+            break;
+        }
     }
 }
 
@@ -514,6 +576,7 @@ void MainWindow::deleteTB()
 void MainWindow::failedToDeleteTB(QString number, QString title)
 {
     Logger::instance()->newEntry(tr("Failed to delete technical bulletin %1 (%2)").arg(number).arg(title));
+    QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to delete technical bulletin %1.").arg(number));
 }
 
 void MainWindow::tbDeletionSuccessful(QString number, QString title)
@@ -635,106 +698,6 @@ TechnicalBulletin* MainWindow::currentTB() const
     return TB;
 }
 
-void MainWindow::addTB(TechnicalBulletin* tb, bool PerformAddChecks)
-{
-    if (PerformAddChecks) {
-        for (int i = 0; i < ui->TableTB->rowCount(); i++) {
-            TechnicalBulletin* CurrentTB = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
-
-            // Check that the TB doesn't exist yet
-            // Don't allow to add twice the same TB
-            if (tb->number() == CurrentTB->number()) {
-                QMessageBox::critical(this,
-                                      tr("Error"),
-                                      tr("TB %1 already exists in the database").arg(tb->title()),
-                                      QMessageBox::Ok);
-                return;
-            }
-
-            // Check for newer TB
-            // Don't allow to add an old TB
-            QString ReplacedBy = tb->replacedBy();
-            if ((!ReplacedBy.isNull()) && (ReplacedBy == CurrentTB->number())) {
-                QMessageBox::critical(this,
-                                      tr("Error"),
-                                      tr("A new version of TB %1 already exists in the database").arg(CurrentTB->title()),
-                                      QMessageBox::Ok);
-                return;
-            }
-
-            // Check for older TB
-            // Don't allow to keep old TB
-            // Offer to merge keywords
-            if (tb->replaces() == CurrentTB->number()) {
-                QMessageBox* MessageBox = new QMessageBox(QMessageBox::Question,
-                                                          tr("Replace previous TB"),
-                                                          tr("An older version of TB %1 is present. Do you want to update it?")
-                                                              .arg(CurrentTB->title()));
-                MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
-                QPushButton* ButtonMerge  = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
-                QPushButton* ButtonCancel = MessageBox->addButton(tr("Cancel"), QMessageBox::RejectRole);
-                MessageBox->setDefaultButton(ButtonMerge);
-
-                MessageBox->exec();
-                QAbstractButton* ClickedButton = MessageBox->clickedButton();
-                delete MessageBox;
-
-                // Nothing to do if the user cancelled the dialog
-                if (ClickedButton == ButtonCancel) {
-                    return;
-                }
-
-                // Merge keywords
-                if (ClickedButton == ButtonMerge) {
-                    QList<QString> NewKeywords = tb->keywords();
-                    QList<QString> OldKeywords = CurrentTB->keywords();
-                    for (int j = 0; j < OldKeywords.count(); j++) {
-                        if (!NewKeywords.contains(OldKeywords.at(j))) {
-                            NewKeywords << OldKeywords.at(j);
-                        }
-                    }
-                    tb->setKeywords(NewKeywords);
-                }
-
-                // Delete old TB
-                delete CurrentTB;
-                ui->TableTB->removeRow(i);
-
-                // Finally, quit the loop to add the new TB
-                this->Modified = true;
-                break;
-            }
-        }
-    }
-
-    // Disable table sorting to prevent a null ptr dereferencing
-    ui->TableTB->setSortingEnabled(false);
-
-    // Update table size
-    int RowCount = ui->TableTB->rowCount();
-    ui->TableTB->setRowCount(RowCount + 1);
-
-    // Populate the new line with empty items
-    for (int i = 0; i < ui->TableTB->columnCount(); i++) {
-        ui->TableTB->setItem(RowCount, i, new QTableWidgetItem);
-    }
-
-    // Save an item ptr to make the last entry become the current one
-    QTableWidgetItem* Item = ui->TableTB->item(RowCount, 0);
-
-    // Display new TB in the new line
-    updateTB(tb, RowCount);
-
-    // Re-enable table sorting, and set the TB as the current one
-    ui->TableTB->setSortingEnabled(true);
-    ui->TableTB->setCurrentItem(Item);
-    ui->TableTB->scrollToItem(Item);
-}
-
-//  updateTB
-//
-// Update the displayed data of an existing TB
-//
 void MainWindow::updateTB(TechnicalBulletin* tb, int row)
 {
     // Set text corresponding to each TB data

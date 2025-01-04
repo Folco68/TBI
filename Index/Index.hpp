@@ -63,6 +63,9 @@ class Index : public QObject
 
     // New / Edit / Delete
     void bulletinCreated(TechnicalBulletin* tb);
+    void tbAlreadyExists(QString number);
+    void unrecognizedTBnumber(QString number);
+    void olderTBfound(TechnicalBulletin* tb);
     void failedToDeleteTB(QString number, QString title);
     void tbDeletionSuccessful(QString number, QString title);
 
@@ -78,6 +81,10 @@ class Index : public QObject
     void save(QEvent* event);
     void newTB(QEvent* event);
     void deleteTB(QEvent* event);
+    void mergeTB(QEvent* event);
+
+    // Validation / Sanitization / Checks / Whatever
+    bool validateNumber(QString number) const;
 
     QList<TechnicalBulletin*> Bulletins;
     bool                      OpeningSuccessful;

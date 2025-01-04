@@ -35,6 +35,8 @@ set(PROJECT_SOURCES
     # Events
     Event/EventDeleteTB.hpp
     Event/EventDeleteTB.cpp
+    Event/EventMergeTB.hpp
+    Event/EventMergeTB.cpp
     Event/EventNewTB.hpp
     Event/EventNewTB.cpp
     Event/EventOpenIndex.hpp

@@ -60,13 +60,13 @@ DlgTB::DlgTB(MainWindow* parent)
     ui->ComboCategory->addItems(Settings::instance()->categories());
     ui->EditKeywords->setFocus();
 
-    // Create the Screen menu
+    // Screen menu
     QMenu*   ScreenMenu           = new QMenu(this);
     QAction* ActionCopyScreenshot = ScreenMenu->addAction(tr("Copy to clipboard"));
     QAction* ActionSaveToFile     = ScreenMenu->addAction(tr("Save to file"));
     ui->ButtonScreen->setMenu(ScreenMenu);
 
-    // Create the Copy menu
+    // Copy menu
     QMenu*   CopyMenu         = new QMenu(this);
     QAction* ActionCopyHeader = CopyMenu->addAction(tr("Header"));
     QAction* ActionCopyAll    = CopyMenu->addAction(tr("All"));
@@ -76,7 +76,7 @@ DlgTB::DlgTB(MainWindow* parent)
     connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
 
-    // Button Web page
+    // Web page buttons
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() {
         ui->ButtonWebPage->setDisabled(ui->EditNumber->text().isEmpty());
     });
@@ -85,7 +85,7 @@ DlgTB::DlgTB(MainWindow* parent)
         ui->EditKeywords->setFocus();
     });
 
-    // Button Download
+    // Download Button
     // The downloads are available in the menu attached to the button
     connect(ui->EditNumber, &QLineEdit::textChanged, [this]() { updateButtonDownload(); });
     connect(ui->EditTechPub, &QLineEdit::textChanged, [this]() { updateButtonDownload(); });
@@ -151,7 +151,7 @@ void DlgTB::newDlgTB(MainWindow* parent) // static
 void DlgTB::newDlgTB(MainWindow* parent, QByteArray data) // static
 {
     DlgTB* Dlg = new DlgTB(parent);
-    Dlg->parseDroppedData(data);
+    Dlg->parseTechPubMailContent(data);
     Dlg->setWindowTitle(QString("%1 - %2: %3").arg(WINDOW_TITLE, tr("Import Technical Bulletin: "), Dlg->ui->EditNumber->text()));
     Dlg->updateButtonDownload();
     if (Dlg->exec() == QDialog::Accepted) {
@@ -226,16 +226,16 @@ void DlgTB::postTBcreationEvent(DlgTB* dlg) const
 
 void DlgTB::dragEnterEvent(QDragEnterEvent* event)
 {
-    if (event->mimeData()->hasFormat("text/plain"))
+    if (event->mimeData()->hasText())
         event->acceptProposedAction();
 }
 
 void DlgTB::dropEvent(QDropEvent* event)
 {
-    parseDroppedData(event->mimeData()->data("text/plain"));
+    parseTechPubMailContent(event->mimeData()->data("text/plain"));
 }
 
-void DlgTB::parseDroppedData(QByteArray data)
+void DlgTB::parseTechPubMailContent(QByteArray data)
 {
     Logger::instance()->newEntry(tr("Parsing data from Drag & Drop..."));
 
@@ -337,6 +337,7 @@ void DlgTB::saveScreenshot()
     QPixmap Screenshot = this->grab();
     if (!Screenshot.save(Filename)) {
         QMessageBox::critical(this, WINDOW_TITLE, tr("Can't save the screenshot"));
+        Logger::instance()->newEntry(tr("Failed to save screenshot of %1 to file %2").arg(ui->EditNumber->text()).arg(Filename));
     }
     else {
         Logger::instance()->newEntry(tr("Screenshot of %1 saved to file %2").arg(ui->EditNumber->text()).arg(Filename));

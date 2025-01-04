@@ -45,6 +45,10 @@ o decode TB name to fill Keyword field with the machine name
 - separate TB index and UI (a singleton holding all the TBs?)
 - RT search starts to show some slight lags with around 450 TB. Perform the search in a thread separated from the UI
 - standardize machine names
-- remove categories from settings. Embed it in the index file
+- remove categories from settings. Embed it in the index file?
 - MainWindow: defer the "add checks" to the Index
 - DlgTB: properly handle the "already existing" label
+- index sanitization
+- replace all QList/QByteArray/QString::count() with size() (count is deprecated)
+- remove Index::bulletins() const. Transmit it using signals
+- really perform keywords merging
