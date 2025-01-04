@@ -75,7 +75,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
 
     if (!DocList.isEmpty()) {
         // Add all the docs, creating their own lambda function to start the download when the menu item is triggered
-        for (int i = 0; i < DocList.count(); i++) {
+        for (int i = 0; i < DocList.size(); i++) {
             QAction* DocAction = addAction(DocList.at(i).trimmed());
             this->ActionList.append(DocAction);
             connect(DocAction, &QAction::triggered, [DocAction, WidgetToFocus]() {

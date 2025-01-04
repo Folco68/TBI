@@ -253,7 +253,7 @@ void DlgTB::parseTechPubMailContent(QByteArray data)
                  << "Replaces:"
                  << "Replaced by:";
 
-    for (int i = 0; i < StringLabels.count(); i++) {
+    for (int i = 0; i < StringLabels.size(); i++) {
         Start = data.indexOf(QByteArrayView(StringLabels.at(i).toUtf8())); // Look for a label
         if (Start == -1) {
             // No label found, don't write anything in the field
@@ -321,7 +321,7 @@ void DlgTB::saveScreenshot()
     QStringList Words    = Filename.split(' ', Qt::SkipEmptyParts);
     Filename             = QDir::homePath() + '/';
 
-    for (int i = 0; i < Words.count(); i++) {
+    for (int i = 0; i < Words.size(); i++) {
         QString Word = Words.at(i);
         Filename += Word.at(0).toUpper() + Word.mid(1);
     }

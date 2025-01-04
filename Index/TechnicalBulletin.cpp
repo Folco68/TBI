@@ -96,7 +96,7 @@ QString TechnicalBulletin::keywordsString() const
     // If there are some keywords, build the string
     if (!this->Keywords.isEmpty()) {
         String = this->Keywords.at(0);
-        for (int i = 1; i < this->Keywords.count(); i++) {
+        for (int i = 1; i < this->Keywords.size(); i++) {
             String.append(KEYWORD_SEPARATOR).append(this->Keywords.at(i));
         }
     }

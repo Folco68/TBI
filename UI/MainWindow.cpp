@@ -414,8 +414,8 @@ void MainWindow::fillTBtable()
 
     // Create a QTableWidgetItem in every cell
     // Once a line is completed, populate it with a TB
-    ui->TableTB->setRowCount(Bulletins.count());
-    for (int i = 0; i < Bulletins.count(); i++) {
+    ui->TableTB->setRowCount(Bulletins.size());
+    for (int i = 0; i < Bulletins.size(); i++) {
         for (int j = 0; j < ui->TableTB->columnCount(); j++) {
             ui->TableTB->setItem(i, j, new QTableWidgetItem);
         }
@@ -608,7 +608,7 @@ void MainWindow::search(bool ForceNewSearch)
     ui->StatusBar->showMessage(tr("Searching..."));
 
     // Display all entries if there is no filter
-    if (Keywords.count() == 0) {
+    if (Keywords.size() == 0) {
         // No keyword: display all TBs
         for (int i = 0; i < ui->TableTB->rowCount(); i++) {
             ui->TableTB->setRowHidden(i, false);
@@ -657,7 +657,7 @@ void MainWindow::search(bool ForceNewSearch)
 
             // Only exact matches are allowed
             if (Settings::instance()->wholeWordsOnlyEnabled()) {
-                for (int j = 0; j < Keywords.count(); j++) {
+                for (int j = 0; j < Keywords.size(); j++) {
                     if (!TBkeywords.contains(Keywords[j], Qt::CaseInsensitive)) {
                         Hidden = true;
                         break;
@@ -668,15 +668,15 @@ void MainWindow::search(bool ForceNewSearch)
             // Partial matches are allowed
             else {
                 int Match = 0;
-                for (int j = 0; j < Keywords.count(); j++) {
-                    for (int k = 0; k < TBkeywords.count(); k++) {
+                for (int j = 0; j < Keywords.size(); j++) {
+                    for (int k = 0; k < TBkeywords.size(); k++) {
                         if (TBkeywords.at(k).contains(Keywords[j], Qt::CaseInsensitive)) {
                             Match++;
                             break;
                         }
                     }
                 }
-                Hidden = Match < Keywords.count();
+                Hidden = Match < Keywords.size();
             }
             ui->TableTB->setRowHidden(i, Hidden);
         }

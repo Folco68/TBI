@@ -40,6 +40,8 @@ o implement bool MainWindow::checkStream(QDataStream&) to remove code duplicatio
 o decode TB name to fill Keyword field with the machine name
 + DlgTB::updateButtonDownload() is enabled for a new TB from scratch
 + remove hh:mm from ElapsedTimer
++ really perform keywords merging
++ replace all QList/QByteArray/QString::count() with size() (count is deprecated)
 
 - download everything in a dedicated location when saving the TB
 - separate TB index and UI (a singleton holding all the TBs?)
@@ -49,6 +51,4 @@ o decode TB name to fill Keyword field with the machine name
 - MainWindow: defer the "add checks" to the Index
 - DlgTB: properly handle the "already existing" label
 - index sanitization
-- replace all QList/QByteArray/QString::count() with size() (count is deprecated)
 - remove Index::bulletins() const. Transmit it using signals
-- really perform keywords merging

@@ -62,7 +62,7 @@ Index::Index()
 
 Index::~Index()
 {
-    for (int i = 0; i < this->Bulletins.count(); i++) {
+    for (int i = 0; i < this->Bulletins.size(); i++) {
         delete this->Bulletins.at(i);
     }
 }
@@ -190,10 +190,10 @@ void Index::open(QEvent* event)
 
     // Opening is complete now
     if (this->OpeningSuccessful) {
-        emit openingSuccessful(this->Bulletins.count());
+        emit openingSuccessful(this->Bulletins.size());
     }
     else {
-        emit openingFailed(this->Bulletins.count());
+        emit openingFailed(this->Bulletins.size());
     }
 }
 
@@ -301,10 +301,10 @@ void Index::save(QEvent* event)
     Stream << QString(TBI_MAGIC) << (qint32) CURRENT_TBI_VERSION;
 
     // Write TB count
-    Stream << (qint32) (this->Bulletins.count());
+    Stream << (qint32) (this->Bulletins.size());
 
     // Serialize TBs
-    for (int i = 0; i < this->Bulletins.count(); i++) {
+    for (int i = 0; i < this->Bulletins.size(); i++) {
         Stream << *this->Bulletins.at(i);
         if (Stream.status() != QDataStream::Ok) {
             emit failedToWriteContent(i);
@@ -312,7 +312,7 @@ void Index::save(QEvent* event)
         }
     }
 
-    emit savingSuccessful(this->Bulletins.count());
+    emit savingSuccessful(this->Bulletins.size());
 }
 
 void Index::newTB(QEvent* event)
@@ -347,6 +347,7 @@ void Index::newTB(QEvent* event)
                 // The TB can be added now, merge will be done later
                 if (Version > TmpVersion) {
                     emit olderTBfound(this->Bulletins.at(i));
+                    break;
                 }
             }
         }
@@ -375,7 +376,17 @@ void Index::mergeTB(QEvent* event)
     EventMergeTB*      Event(static_cast<EventMergeTB*>(event));
     TechnicalBulletin* OldTB(Event->tb());
     TechnicalBulletin* NewTB(this->Bulletins.constLast());
-    // TODO: merge keywords
+    QList<QString>     NewKeywords = NewTB->keywords();
+
+    if (Event->mergeKeywords()) {
+        for (int i = 0; i < OldTB->keywords().size(); i++) {
+            QString OldKeyword(OldTB->keywords().at(i));
+            if (!NewKeywords.contains(OldTB->keywords().at(i))) {
+                NewKeywords.append(OldKeyword);
+            }
+        }
+        NewTB->setKeywords(NewKeywords);
+    }
 
     // Delete the old TB
     EventDeleteTB DeleteEvent(OldTB);
@@ -425,7 +436,7 @@ bool Index::validateNumber(QString number) const
     QList<QString> SplittedNumber(number.split('_', Qt::KeepEmptyParts));
 
     // We need 4 groups of information
-    if (SplittedNumber.count() != 4) {
+    if (SplittedNumber.size() != 4) {
         return false;
     }
 
