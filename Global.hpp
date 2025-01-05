@@ -48,7 +48,7 @@
 #define APPLICATION_NAME  "TBI"
 
 // Command line option
-#define OPTION_FORCE_DATABASE_CHECK "--check-database"
+#define OPTION_FORCE_INDEX_CHECK "--check-index"
 
 // Data filename
 #define INDEX_BACKUP_FILENAME "index.bak"

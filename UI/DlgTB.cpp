@@ -237,7 +237,7 @@ void DlgTB::dropEvent(QDropEvent* event)
 
 void DlgTB::parseTechPubMailContent(QByteArray data)
 {
-    Logger::instance()->newEntry(tr("Parsing data from Drag & Drop..."));
+    Logger::instance()->newEntry(tr("Parsing data from Drag & Drop or Copy/Paste..."));
 
     qsizetype Start, End;
 
@@ -286,15 +286,15 @@ void DlgTB::parseTechPubMailContent(QByteArray data)
     QDate Date(QDate::fromString(data.mid(Start, End - Start), "yyyy-MM-dd"));
 
     // Fill UI
-    ui->EditNumber->setText(Strings.at(0));
-    ui->EditTitle->setText(Strings.at(1));
-    ui->ComboCategory->setCurrentText(Strings.at(2));
-    ui->EditRK->setText(Strings.at(3));
-    ui->EditTechPub->setText(Strings.at(4));
-    ui->EditRegisteredBy->setText(Strings.at(5));
-    ui->EditReplaces->setText(Strings.at(6));
-    ui->EditReplacedBy->setText(Strings.at(7));
-    ui->TexteditComment->setPlainText(Comment);
+    ui->EditNumber->setText(Strings.at(0).trimmed());
+    ui->EditTitle->setText(Strings.at(1).trimmed());
+    ui->ComboCategory->setCurrentText(Strings.at(2).trimmed());
+    ui->EditRK->setText(Strings.at(3).trimmed());
+    ui->EditTechPub->setText(Strings.at(4).trimmed());
+    ui->EditRegisteredBy->setText(Strings.at(5).trimmed());
+    ui->EditReplaces->setText(Strings.at(6).trimmed());
+    ui->EditReplacedBy->setText(Strings.at(7).trimmed());
+    ui->TexteditComment->setPlainText(Comment.trimmed());
     ui->EditReleaseDate->setDate(Date);
 }
 

@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 {
     QApplication Application(argc, argv);
     QGuiApplication::setWindowIcon(QIcon(":/Icon/Icon.png"));
-    bool         ForceDBCheck = Application.arguments().contains(OPTION_FORCE_DATABASE_CHECK);
+    bool         ForceDBCheck = Application.arguments().contains(OPTION_FORCE_INDEX_CHECK);
     MainWindow   Window(ForceDBCheck);
     Window.show();
     return Application.exec();

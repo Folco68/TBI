@@ -719,9 +719,9 @@ void MainWindow::updateTB(TechnicalBulletin* tb, int row)
 
 //  tbNumberAlreadyExists
 //
-// Return true if an older TB exits in the database
+// Return true if an older TB exits in the index
 // Used by DlgTB to display a message saying that
-// there is already an older version of the TB in the database
+// there is already an older version of the TB in the index
 //
 bool MainWindow::tbNumberAlreadyExists(TechnicalBulletin* tb)
 {
