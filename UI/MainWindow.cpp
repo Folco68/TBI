@@ -307,6 +307,7 @@ void MainWindow::updateUI()
     }
 }
 
+// QCloseEvent is accepted by default
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (this->Modified) {
