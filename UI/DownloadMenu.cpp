@@ -48,7 +48,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
     deleteActions();
 
     if (!TBnumber.isEmpty()) {
-        // Add the TB (pfd)
+        // Add the TB (pdf)
         QAction* PdfAction = addAction(tr("Technical Bulletin"));
         this->ActionList.append(PdfAction);
         connect(PdfAction, &QAction::triggered, [TBnumber, WidgetToFocus]() {
@@ -58,7 +58,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
             }
         });
 
-        // Add the TB CTI (pfd)
+        // Add the TB CTI (pdf)
         QAction* CTIAction = addAction(tr("Customer Technical Information"));
         this->ActionList.append(CTIAction);
         TBnumber += CTI_SUFFIX;
@@ -80,7 +80,7 @@ void DownloadMenu::setItems(QString DocsString, QString TBnumber, QWidget* Widge
             this->ActionList.append(DocAction);
             connect(DocAction, &QAction::triggered, [DocAction, WidgetToFocus]() {
                 QString FullName = DocAction->text();
-                // Support old BT style, don't remove the first part of the doc numbe rif there is not the prefix RM-/UP-/...
+                // Support old TB style, don't remove the first part of the doc number if there is not the prefix RM-/UP-/...
                 QString Name(FullName);
                 if (FullName.at(1).category() != QChar::Number_DecimalDigit) {
                     Name = FullName.section(QChar('-'), 1);

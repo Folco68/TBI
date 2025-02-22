@@ -361,7 +361,7 @@ void DlgTB::copyAll()
 {
     QString Data = getHeader().append("\nNotes: \n").append(ui->TexteditComment->toPlainText());
     QApplication::clipboard()->setText(Data);
-    Logger::instance()->newEntry(tr("Whole nformation of %1 copied to clipboard").arg(ui->EditNumber->text()));
+    Logger::instance()->newEntry(tr("Whole information of %1 copied to clipboard").arg(ui->EditNumber->text()));
 }
 
 QString DlgTB::getHeader()

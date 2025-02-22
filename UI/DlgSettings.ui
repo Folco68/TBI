@@ -209,22 +209,29 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="BoxCategories">
+    <widget class="QGroupBox" name="BoxMaintenance">
      <property name="title">
-      <string>Categories list</string>
+      <string>Maintenance</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="HLayoutCategories">
+       <layout class="QHBoxLayout" name="HLayoutMaintenance">
         <item>
-         <widget class="QPushButton" name="ButtonClearCategories">
+         <widget class="QPushButton" name="ButtonCheck">
           <property name="text">
-           <string>Reset category items</string>
+           <string>Check</string>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="HSpacerCategories2">
+         <widget class="QPushButton" name="ButtonCheckAndFix">
+          <property name="text">
+           <string>Check and fix</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="HSpacerMaintenance2">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
@@ -305,7 +312,7 @@
   <tabstop>CheckSearchRegisteredBy</tabstop>
   <tabstop>CheckSearchReplaces</tabstop>
   <tabstop>CheckSearchReplacedBy</tabstop>
-  <tabstop>ButtonClearCategories</tabstop>
+  <tabstop>ButtonCheck</tabstop>
   <tabstop>ButtonOK</tabstop>
   <tabstop>ButtonCancel</tabstop>
  </tabstops>

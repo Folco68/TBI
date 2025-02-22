@@ -25,6 +25,7 @@
 #include "Global.hpp"
 #include "Settings.hpp"
 #include "ui_DlgSettings.h"
+#include <QCoreApplication>
 #include <QPushButton>
 
 DlgSettings::DlgSettings(QWidget* parent)
@@ -37,9 +38,6 @@ DlgSettings::DlgSettings(QWidget* parent)
     // Connections
     connect(ui->ButtonOK, &QPushButton::clicked, [this]() { accept(); });
     connect(ui->ButtonCancel, &QPushButton::clicked, [this]() { reject(); });
-    connect(ui->ButtonClearCategories, &QPushButton::clicked, []() {
-        Settings::instance()->resetCategories();
-    });
     connect(ui->ButtonResetTBwebpageUrl, &QPushButton::clicked, [this]() {
         Settings::instance()->resetBaseURLTechnicalBulletinWebpage();
         ui->EditTBwebpageUrl->setText(Settings::instance()->baseURLTechnicalBulletinWebpage());

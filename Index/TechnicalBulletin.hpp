@@ -24,6 +24,7 @@
 #ifndef TECHNICALBULLETIN_HPP
 #define TECHNICALBULLETIN_HPP
 
+#include "Global.hpp"
 #include <QByteArray>
 #include <QDataStream>
 #include <QDate>
@@ -49,6 +50,7 @@ class TechnicalBulletin
                       QString        replaces,
                       QString        replacedby,
                       QList<QString> keywords);
+
     void updateData(QString        number,
                     QString        title,
                     QString        category,
@@ -73,8 +75,13 @@ class TechnicalBulletin
     QString        replacedBy() const { return this->ReplacedBy; }
     QList<QString> keywords() const { return this->Keywords; }
 
-    QString keywordsString() const;
+    QString keywordsString() const { return this->Keywords.join(KEYWORD_SEPARATOR); };
     void    setKeywords(QList<QString> keywords) { this->Keywords = keywords; }
+
+    // Maintenance
+    void fixTrimming();
+    void fixDate();
+    void fixTechpub();
 
   private:
     QString        Number;
@@ -94,8 +101,7 @@ class TechnicalBulletin
 QDataStream& operator>>(QDataStream& stream, TechnicalBulletin* tb);
 QDataStream& operator<<(QDataStream& stream, const TechnicalBulletin& tb);
 
-// A TB pointer is saved in metadata of every table line, in column
-// COLUMN_METADATA
+// A TB pointer is saved in metadata of every table line, in column COLUMN_METADATA
 Q_DECLARE_METATYPE(TechnicalBulletin*)
 
 #endif // TECHNICALBULLETIN_HPP

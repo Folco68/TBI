@@ -87,9 +87,9 @@ DlgHelp::~DlgHelp()
     delete ui;
 }
 
-void DlgHelp::showDlgHelp()
+void DlgHelp::execDlgHelp(QWidget* parent)
 {
-    DlgHelp* Dlg = new DlgHelp;
+    DlgHelp* Dlg = new DlgHelp(parent);
     Dlg->exec();
     delete Dlg;
 }

@@ -55,3 +55,5 @@ o standardize machine names
 - a new version of a TB can keep the same radix with the version number incremented OR have a REPLACED_BY which replace a TB with a version number totally different
   ATM it is not checked in the NewTB check routines. This routine should be separated to be used later in the index sanitization routine
 - MainWindow::tbNumberAlreadyExists() is wrong, it says that a TB already exists why it should say that an older version exists
+- get rid of TechnicalBulletin::keywordString, use QStringList::join instead
+- maintenance: remove unused categories

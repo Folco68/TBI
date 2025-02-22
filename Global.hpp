@@ -64,10 +64,12 @@
 #define TBI_MAGIC "TBI_DB_BY_MARTIAL_DEMOLINS"
 
 // Application-wide events
-#define EVENT_OPEN_INDEX ((QEvent::Type) QEvent::User)
-#define EVENT_SAVE       ((QEvent::Type)(QEvent::User + 1))
-#define EVENT_NEW_TB     ((QEvent::Type)(QEvent::User + 2))
-#define EVENT_DELETE_TB  ((QEvent::Type)(QEvent::User + 3))
-#define EVENT_MERGE_TB   ((QEvent::Type)(QEvent::User + 4))
+#define EVENT_OPEN_INDEX  ((QEvent::Type) QEvent::User)
+#define EVENT_SAVE        ((QEvent::Type)(QEvent::User + 1))
+#define EVENT_NEW_TB      ((QEvent::Type)(QEvent::User + 2))
+#define EVENT_DELETE_TB   ((QEvent::Type)(QEvent::User + 3))
+#define EVENT_MERGE_TB    ((QEvent::Type)(QEvent::User + 4))
+#define EVENT_CHECK_INDEX ((QEvent::Type)(QEvent::User + 5))
+#define EVENT_FIX_INDEX   ((QEvent::Type)(QEvent::User + 6))
 
 #endif // GLOBAL_HPP

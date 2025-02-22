@@ -40,11 +40,11 @@ class DlgHelp: public QDialog
     Q_OBJECT
 
   public:
-    static void showDlgHelp();
+    static void execDlgHelp(QWidget* parent);
     ~DlgHelp() override;
 
   private:
-    explicit DlgHelp(QWidget* parent = nullptr);
+    explicit DlgHelp(QWidget* parent);
     Ui::DlgHelp* ui;
 };
 

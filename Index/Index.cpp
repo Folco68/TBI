@@ -23,6 +23,7 @@
 
 #include "Event/EventDeleteTB.hpp"
 #include "Event/EventMergeTB.hpp"
+#include "Event/EventNewTB.hpp"
 #include "Event/EventOpenIndex.hpp"
 #include "Event/EventSave.hpp"
 #include "Global.hpp"
@@ -31,6 +32,7 @@
 #include <QDate>
 #include <QFile>
 #include <QFileInfo>
+#include <QThread>
 
 //------------------------------------------------------------------------------------
 //
@@ -98,6 +100,10 @@ bool Index::event(QEvent* event)
         mergeTB(event);
         Return = true;
     }
+    else if (event->type() == EVENT_CHECK_INDEX) {
+        checkIndex();
+        Return = true;
+    }
 
     // Defer the event to the QObject if it was not handled by the switch/case
     return Return ? Return : QObject::event(event);
@@ -111,6 +117,7 @@ bool Index::event(QEvent* event)
 
 void Index::open(QEvent* event)
 {
+    emit threadID(QThread::currentThreadId());
     emit openingStarting();
 
     EventOpenIndex* Event(static_cast<EventOpenIndex*>(event));
@@ -461,4 +468,133 @@ bool Index::validateNumber(QString number) const
 
     // All looks fine
     return true;
+}
+
+void Index::checkIndex()
+{
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                                    Trimming                                                     *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    emit checkingTrimming();
+    for (int i = 0; i < this->Bulletins.size(); i++) {
+        TechnicalBulletin* TB(this->Bulletins.at(i));
+        bool               Add(false);
+
+        if (TB->number().trimmed() != TB->number()) {
+            Add = true;
+        }
+        if (TB->title().trimmed() != TB->title()) {
+            Add = true;
+        }
+        if (TB->category().trimmed() != TB->category()) {
+            Add = true;
+        }
+        if (TB->rk().trimmed() != TB->rk()) {
+            Add = true;
+        }
+        if (TB->techpub().trimmed() != TB->techpub()) {
+            Add = true;
+        }
+        if (TB->comment().trimmed() != TB->comment()) {
+            Add = true;
+        }
+        if (TB->registeredBy().trimmed() != TB->registeredBy()) {
+            Add = true;
+        }
+        if (TB->replaces().trimmed() != TB->replaces()) {
+            Add = true;
+        }
+        if (TB->replacedBy().trimmed() != TB->replacedBy()) {
+            Add = true;
+        }
+
+        if (Add) {
+            this->IncorrectTrimming.append(TB);
+        }
+    }
+    emit trimmingCheckDone(this->IncorrectTrimming.size());
+
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                         Looking for dates in the future                                         *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    emit checkingDate();
+    for (int i = 0; i < this->Bulletins.size(); i++) {
+        QDate              CurrentDate(QDate::currentDate());
+        TechnicalBulletin* TB(this->Bulletins.at(i));
+        if (TB->releaseDate() > CurrentDate) {
+            this->IncorrectDate.append(TB);
+        }
+    }
+    emit dateCheckDone(this->IncorrectDate.size());
+
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                             Technical publications                                              *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    emit checkingTechpub();
+    for (int i = 0; i < this->Bulletins.size(); i++) {
+        TechnicalBulletin* TB(this->Bulletins.at(i));
+        QList<QString>     List(TB->techpub().split(',', Qt::KeepEmptyParts));
+        for (int j = 0; j < List.size(); j++) {
+            List[j] = List.at(j).trimmed();
+        }
+        if (List.join(',') != TB->techpub()) {
+            this->IncorrectTechpub.append(TB);
+        }
+    }
+    emit techpubCheckDone(this->IncorrectTechpub.size());
+}
+
+void Index::fixIndex()
+{
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                                    Trimming                                                     *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    for (int i = 0; i < this->IncorrectTrimming.size(); i++) {
+        this->IncorrectTrimming.at(i)->fixTrimming();
+    }
+    emit trimmingFixed();
+
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                                      Date                                                       *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    for (int i = 0; i < this->IncorrectDate.size(); i++) {
+        this->IncorrectDate.at(i)->fixDate();
+    }
+    emit dateFixed();
+
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                             Technical publications                                              *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    for (int i = 0; i < this->IncorrectTechpub.size(); i++) {
+        this->IncorrectTechpub.at(i)->fixTechpub();
+    }
+    emit techpubFixed();
+
+    /*******************************************************************************************************************
+    *                                                                                                                  *
+    *                                                      Clean                                                       *
+    *                                                                                                                  *
+    *******************************************************************************************************************/
+
+    this->IncorrectTrimming.clear();
+    this->IncorrectDate.clear();
+    this->IncorrectTechpub.clear();
 }

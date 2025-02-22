@@ -34,6 +34,7 @@
 #include "Logger.hpp"
 #include "MainWindow.hpp"
 #include "Settings.hpp"
+#include "UI/DlgMaintenance.hpp"
 #include "ui_MainWindow.h"
 #include <QAbstractButton>
 #include <QAbstractScrollArea>
@@ -71,6 +72,7 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     , ActionOpenUrl(new ContextMenuAction(tr("Open URL"), this, QKeySequence(Qt::CTRL | Qt::Key_O)))
     , ActionDownload(new ContextMenuAction(tr("Download"), this))
     , ActionSettings(new ContextMenuAction(tr("Settings"), this))
+    , ActionMaintenance(new ContextMenuAction(tr("Maintenance"), this))
     , ActionHelp(new ContextMenuAction(tr("Help / About"), this, QKeySequence(Qt::Key_F1)))
     , DLMenu(new DownloadMenu)
     , ThreadIndex(new QThread)
@@ -78,7 +80,9 @@ MainWindow::MainWindow(bool ForceIndexCheck)
 {
     // Logger. Establish the connection after the first log because UI is not set up yet
     Logger::instance()->newEntry(tr("TBI starting..."));
+    Logger::instance()->newEntry(tr("MainWindow thread ID: %1").arg((long long) QThread::currentThreadId()));
     connect(Logger::instance(), &Logger::textAdded, [this](QString text) { ui->TextEditLog->setPlainText(text); });
+    connect(Index::instance(), &Index::threadID, this, &MainWindow::indexThreadID, Qt::QueuedConnection); // Connect now to be ready when necessary
 
     //------------------------------------------------------------------------------------
     //                                       Window
@@ -122,14 +126,15 @@ MainWindow::MainWindow(bool ForceIndexCheck)
         }
         updateUI();
     });
-    connect(this->ActionHelp, &QAction::triggered, []() { DlgHelp::showDlgHelp(); });
+    connect(this->ActionMaintenance, &QAction::triggered, [this]() { DlgMaintenance::execDlgMaintenance(this); });
+    connect(this->ActionHelp, &QAction::triggered, [this]() { DlgHelp::execDlgHelp(this); });
 
     //------------------------------------------------------------------------------------
     //   Add actions to the context menu and to the main window to allow kbd shortcuts
     //------------------------------------------------------------------------------------
     QList<QAction*> Actions;
-    Actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl
-            << this->ActionDownload << this->ActionSettings << this->ActionHelp;
+    Actions << this->ActionNewTB << this->ActionEditTB << this->ActionDeleteTB << this->ActionCopyUrl << this->ActionOpenUrl << this->ActionDownload
+            << this->ActionSettings << ActionMaintenance << this->ActionHelp;
     this->TableContextMenu->addActions(Actions);
     this->TableContextMenu->insertSeparator(this->ActionCopyUrl);
     this->TableContextMenu->insertSeparator(this->ActionSettings);
@@ -202,10 +207,33 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //
     //------------------------------------------------------------------------------------
 
-    //------------------------------------------------------------------------------------
-    //                      Execute the index in the separate thread
-    //------------------------------------------------------------------------------------
-    Index::instance()->moveToThread(this->ThreadIndex);
+    /*******************************************************************************************************************
+     *                                                                                                                 *
+     *                                               Thread connections                                                *
+     *                                                                                                                 *
+     ******************************************************************************************************************/
+
+    connect(this->ThreadIndex, &QThread::finished, this->ThreadIndex, &QThread::deleteLater);
+    connect(Index::instance(), &Index::openingStarting, this, &MainWindow::openingStarting);                     //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingHeader, this, &MainWindow::openingHeader);                         //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingProgress, this, &MainWindow::openingProgress);                     //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingSuccessful, this, &MainWindow::openingSuccessful);                 //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::noIndexFound, this, &MainWindow::noIndexFound);                           //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::indexTooRecent, this, &MainWindow::indexTooRecent);                       //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::invalidMagic, this, &MainWindow::invalidMagic);                           //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToOpenIndex, this, &MainWindow::failedToOpenIndex);                 //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToReadFileContent, this, &MainWindow::failedToReadFileContent);     //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::openingFailed, this, &MainWindow::openingFailed);                         //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToCreateBackup, this, &MainWindow::failedToCreateBackup);           //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToOpenFileForSaving, this, &MainWindow::failedToOpenFileForSaving); //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToWriteContent, this, &MainWindow::failedToWriteContent);           //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::savingSuccessful, this, &MainWindow::savingSuccessful);                   //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::failedToDeleteTB, this, &MainWindow::failedToDeleteTB);                   //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::tbDeletionSuccessful, this, &MainWindow::tbDeletionSuccessful);           //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::bulletinCreated, this, &MainWindow::bulletinCreated);                     //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::tbAlreadyExists, this, &MainWindow::tbAlreadyExists);                     //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::unrecognizedTBnumber, this, &MainWindow::unrecognizedTBnumber);           //, Qt::QueuedConnection);
+    connect(Index::instance(), &Index::olderTBfound, this, &MainWindow::olderTBfound);                           //, Qt::QueuedConnection);
 
     //-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
     //    Send the OpenIndex event when both the UI and the Index threads are running
@@ -220,33 +248,10 @@ MainWindow::MainWindow(bool ForceIndexCheck)
     //------------------------------------------------------------------------------------
     QTimer::singleShot(0, [this]() { this->ThreadIndex->start(); });
 
-    /*******************************************************************************************************************
-     *                                                                                                                 *
-     *                                               Thread connections                                                *
-     *                                                                                                                 *
-     ******************************************************************************************************************/
-
-    connect(this->ThreadIndex, &QThread::finished, this->ThreadIndex, &QThread::deleteLater);
-    connect(Index::instance(), &Index::openingStarting, this, &MainWindow::openingStarting, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::openingHeader, this, &MainWindow::openingHeader, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::openingProgress, this, &MainWindow::openingProgress, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::openingSuccessful, this, &MainWindow::openingSuccessful, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::noIndexFound, this, &MainWindow::noIndexFound, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::indexTooRecent, this, &MainWindow::indexTooRecent, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::invalidMagic, this, &MainWindow::invalidMagic, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToOpenIndex, this, &MainWindow::failedToOpenIndex, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToReadFileContent, this, &MainWindow::failedToReadFileContent, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::openingFailed, this, &MainWindow::openingFailed, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToCreateBackup, this, &MainWindow::failedToCreateBackup, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToOpenFileForSaving, this, &MainWindow::failedToOpenFileForSaving, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToWriteContent, this, &MainWindow::failedToWriteContent, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::savingSuccessful, this, &MainWindow::savingSuccessful, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::failedToDeleteTB, this, &MainWindow::failedToDeleteTB, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::tbDeletionSuccessful, this, &MainWindow::tbDeletionSuccessful, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::bulletinCreated, this, &MainWindow::bulletinCreated, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::tbAlreadyExists, this, &MainWindow::tbAlreadyExists, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::unrecognizedTBnumber, this, &MainWindow::unrecognizedTBnumber, Qt::QueuedConnection);
-    connect(Index::instance(), &Index::olderTBfound, this, &MainWindow::olderTBfound, Qt::QueuedConnection);
+    //------------------------------------------------------------------------------------
+    //                      Execute the index in the separate thread
+    //------------------------------------------------------------------------------------
+    Index::instance()->moveToThread(this->ThreadIndex);
 }
 
 MainWindow::~MainWindow()
@@ -266,6 +271,11 @@ MainWindow::~MainWindow()
     // UI
     delete this->DLMenu;
     delete ui;
+}
+
+void MainWindow::indexThreadID(Qt::HANDLE handle)
+{
+    Logger::instance()->newEntry(tr("Index thread ID: %1").arg((long long) handle));
 }
 
 /***********************************************************************************************************************
@@ -400,7 +410,7 @@ void MainWindow::failedToReadFileContent()
 
 void MainWindow::openingFailed(int count)
 {
-    QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened").arg(count);
+    QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened.").arg(count);
     Logger::instance()->newEntry(Message);
     fillTBtable();
     QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to read fully %1. %2 have been read and will be displayed.").arg(INDEX_FILENAME).arg(count));
@@ -526,7 +536,7 @@ void MainWindow::editTB()
 
 void MainWindow::tbAlreadyExists(QString number)
 {
-    QMessageBox::critical(this, WINDOW_TITLE, tr("The technical bulletin %1 already exists in the index").arg(number));
+    QMessageBox::critical(this, WINDOW_TITLE, tr("The technical bulletin %1 already exists in the index.").arg(number));
     Logger::instance()->newEntry(tr("Technical bulletin %1 already exists").arg(number));
 }
 
@@ -538,23 +548,18 @@ void MainWindow::unrecognizedTBnumber(QString number)
 void MainWindow::olderTBfound(TechnicalBulletin* tb)
 {
     // Prepare dialog
-    QMessageBox* MessageBox = new QMessageBox(QMessageBox::Question,
-                                              WINDOW_TITLE,
-                                              tr("An older version of TB %1 is present. Do you want to replace it with the new TB?").arg(tb->title()));
-    MessageBox->addButton(tr("Update old TB"), QMessageBox::AcceptRole);
-    QPushButton* ButtonMerge = MessageBox->addButton(tr("Update old TB and merge keywords"), QMessageBox::YesRole);
-    MessageBox->setDefaultButton(ButtonMerge);
-
-    // Exec dialog and grab result
-    MessageBox->exec();
-    QAbstractButton* ClickedButton = MessageBox->clickedButton();
-    delete MessageBox;
+    bool Merge = (QMessageBox(QMessageBox::Question,
+                              WINDOW_TITLE,
+                              tr("An older version of TB %1 is present in the index. Do you want to merge its keywords with the ones of the new bulletin?")
+                                  .arg(tb->title()),
+                              QMessageBox::Yes | QMessageBox::No)
+                      .exec()
+                  == QMessageBox::Yes);
 
     // Send the corresponding event to the index
-    bool Merge = (ClickedButton == ButtonMerge);
     QCoreApplication::postEvent(Index::instance(), new EventMergeTB(tb, Merge));
 
-    // Remove the TB from the table
+    // Remove the old TB from the table
     for (int i = 0; i < ui->TableTB->rowCount(); i++) {
         TechnicalBulletin* TB = ui->TableTB->item(i, COLUMN_METADATA)->data(TB_ROLE).value<TechnicalBulletin*>();
         if (TB == tb) {

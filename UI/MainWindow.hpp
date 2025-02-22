@@ -72,6 +72,7 @@ class MainWindow: public QMainWindow
     ContextMenuAction* ActionOpenUrl;
     ContextMenuAction* ActionDownload;
     ContextMenuAction* ActionSettings;
+    ContextMenuAction* ActionMaintenance;
     ContextMenuAction* ActionHelp;
 
     // Download sub-menu
@@ -130,6 +131,7 @@ class MainWindow: public QMainWindow
     void tbAlreadyExists(QString number);
     void unrecognizedTBnumber(QString number);
     void olderTBfound(TechnicalBulletin* tb);
+    void indexThreadID(Qt::HANDLE handle);
 };
 
 // Table header index

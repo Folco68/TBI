@@ -33,8 +33,12 @@ set(PROJECT_SOURCES
     Docs/TODO.txt
 
     # Events
+    Event/EventCheckIndex.cpp
+    Event/EventCheckIndex.hpp
     Event/EventDeleteTB.hpp
     Event/EventDeleteTB.cpp
+    Event/EventFixIndex.hpp
+    Event/EventFixIndex.cpp
     Event/EventMergeTB.hpp
     Event/EventMergeTB.cpp
     Event/EventNewTB.hpp
@@ -62,6 +66,9 @@ set(PROJECT_SOURCES
     UI/DlgHelp.cpp
     UI/DlgHelp.hpp
     UI/DlgHelp.ui
+    UI/DlgMaintenance.hpp
+    UI/DlgMaintenance.cpp
+    UI/DlgMaintenance.ui
     UI/DlgSettings.cpp
     UI/DlgSettings.hpp
     UI/DlgHelp.ui

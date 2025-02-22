@@ -27,13 +27,15 @@
 #include <QFocusEvent>
 #include <QLineEdit>
 
-//  LineEditDeselect
-//
-// This class prevents the QLineEdit widget to have its text selected when it
-// gets focused.
-// I don't know why the text is selected when compiling with MSVC,
-// while it is not with MinGW
-//
+/***********************************************************************************************************************
+ *                                                                                                                     *
+ *                                                  LineEditDeselect                                                   *
+ *                                                                                                                     *
+ *               This class prevents the QLineEdit widget to have its text selected when it gets focused               *
+ *          I don't know why the text is selected when compiling against MSVC, while it is not against MinGW           *
+ *                                                                                                                     *
+ **********************************************************************************************************************/
+
 class LineEditDeselect: public QLineEdit
 {
   public:

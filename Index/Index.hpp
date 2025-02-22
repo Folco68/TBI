@@ -24,7 +24,6 @@
 #ifndef INDEX_HPP
 #define INDEX_HPP
 
-#include "Event/EventNewTB.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QEvent>
 #include <QList>
@@ -41,6 +40,8 @@ class Index : public QObject
     QList<TechnicalBulletin*> bulletins() const;
 
   signals:
+    void threadID(Qt::HANDLE handle);
+
     // Opening on its normal way
     void openingStarting();
     void openingHeader(int version, qint32 count);
@@ -69,11 +70,25 @@ class Index : public QObject
     void failedToDeleteTB(QString number, QString title);
     void tbDeletionSuccessful(QString number, QString title);
 
+    // Maintenance
+    void checkingTrimming();
+    void trimmingCheckDone(int count);
+    void trimmingFixed();
+
+    void checkingDate();
+    void dateCheckDone(int count);
+    void dateFixed();
+
+    void checkingTechpub();
+    void techpubCheckDone(int count);
+    void techpubFixed();
+
   private:
     Index();
     ~Index();
     static Index* index;
 
+    // Normal operations
     bool event(QEvent* event) override;
     void open(QEvent* event);
     void openIndexVersion0(qint32 count, QDataStream& stream, bool ForceIndexCheck);
@@ -83,11 +98,17 @@ class Index : public QObject
     void deleteTB(QEvent* event);
     void mergeTB(QEvent* event);
 
-    // Validation / Sanitization / Checks / Whatever
-    bool validateNumber(QString number) const;
-
     QList<TechnicalBulletin*> Bulletins;
     bool                      OpeningSuccessful;
+
+    // Validation / Sanitization / Checks / Whatever
+    bool validateNumber(QString number) const;
+    void checkIndex();
+    void fixIndex();
+
+    QList<TechnicalBulletin*> IncorrectTrimming;
+    QList<TechnicalBulletin*> IncorrectDate;
+    QList<TechnicalBulletin*> IncorrectTechpub;
 };
 
 #endif // INDEX_HPP

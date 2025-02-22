@@ -21,7 +21,6 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
-#include "Global.hpp"
 #include "TechnicalBulletin.hpp"
 #include <QByteArrayView>
 
@@ -83,25 +82,31 @@ void TechnicalBulletin::updateData(QString        number,
     this->Keywords     = keywords;
 }
 
-//  keywordString
-//
-// Create a string, using the keyword list.
-// Intended to display keywords in UI
-//
-QString TechnicalBulletin::keywordsString() const
+void TechnicalBulletin::fixTrimming()
 {
-    // Default: no keyword registered
-    QString String("");
+    this->Number       = this->Number.trimmed();
+    this->Title        = this->Title.trimmed();
+    this->Category     = this->Category.trimmed();
+    this->RK           = this->RK.trimmed();
+    this->TechPub      = this->TechPub.trimmed();
+    this->Comment      = this->Comment.trimmed();
+    this->RegisteredBy = this->RegisteredBy.trimmed();
+    this->Replaces     = this->Replaces.trimmed();
+    this->ReplacedBy   = this->ReplacedBy.trimmed();
+}
 
-    // If there are some keywords, build the string
-    if (!this->Keywords.isEmpty()) {
-        String = this->Keywords.at(0);
-        for (int i = 1; i < this->Keywords.size(); i++) {
-            String.append(KEYWORD_SEPARATOR).append(this->Keywords.at(i));
-        }
+void TechnicalBulletin::fixDate()
+{
+    this->ReleaseDate = QDate::currentDate();
+}
+
+void TechnicalBulletin::fixTechpub()
+{
+    QList<QString> List(this->TechPub.split(',', Qt::SkipEmptyParts));
+    for (int i = 0; i < List.size(); i++) {
+        List[i] = List.at(i).trimmed();
     }
-
-    return String;
+    this->TechPub = List.join(',');
 }
 
 //  >>
