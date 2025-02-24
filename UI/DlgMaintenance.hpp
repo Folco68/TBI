@@ -12,12 +12,13 @@ class DlgMaintenance : public QDialog
     Q_OBJECT
 
   public:
-    static void execDlgMaintenance(QWidget* parent);
+    static bool execDlgMaintenance(QWidget* parent);
 
   private:
     DlgMaintenance(QWidget* parent);
     ~DlgMaintenance();
     Ui::DlgMaintenance* ui;
+    bool                Fixed;
 
     void log(QString message);
 };

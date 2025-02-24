@@ -127,8 +127,10 @@ MainWindow::MainWindow(bool ForceIndexCheck)
         updateUI();
     });
     connect(this->ActionMaintenance, &QAction::triggered, [this]() {
-        DlgMaintenance::execDlgMaintenance(this);
-        updateUI();
+        if (DlgMaintenance::execDlgMaintenance(this)) {
+            this->Modified = true;
+            updateUI();
+        }
     });
     connect(this->ActionHelp, &QAction::triggered, [this]() { DlgHelp::execDlgHelp(this); });
 

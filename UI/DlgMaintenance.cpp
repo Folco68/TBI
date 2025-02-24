@@ -10,6 +10,7 @@
 DlgMaintenance::DlgMaintenance(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::DlgMaintenance)
+    , Fixed(false)
 {
     ui->setupUi(this);
     connect(ui->ButtonsCheck, &QPushButton::clicked, [this]() {
@@ -30,6 +31,7 @@ DlgMaintenance::DlgMaintenance(QWidget* parent)
     connect(Index::instance(), &Index::fixingDone, this, [this](int count) {
         log(tr("Fixing done, total of %1 bad entries fixed\n").arg(count));
         ui->ButtonFix->setEnabled(false);
+        this->Fixed = true;
     });
 
     connect(Index::instance(), &Index::checkingTrimming, this, [this]() { log(tr("Checking trimming...")); });
@@ -42,11 +44,13 @@ DlgMaintenance::DlgMaintenance(QWidget* parent)
     connect(Index::instance(), &Index::techpubCheckDone, this, [this](int count) { log(tr("Tech pubs checked, %1 bad entries found").arg(count)); });
 }
 
-void DlgMaintenance::execDlgMaintenance(QWidget* parent)
+bool DlgMaintenance::execDlgMaintenance(QWidget* parent)
 {
     DlgMaintenance* Dlg = new DlgMaintenance(parent);
     Dlg->exec();
+    bool RetVal = Dlg->Fixed;
     delete Dlg;
+    return RetVal;
 }
 
 DlgMaintenance::~DlgMaintenance()
