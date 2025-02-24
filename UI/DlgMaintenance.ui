@@ -37,6 +37,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="ButtonFix">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Fix</string>
        </property>

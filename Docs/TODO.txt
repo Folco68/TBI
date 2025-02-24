@@ -45,15 +45,15 @@ o decode TB name to fill Keyword field with the machine name
 + separate TB index and UI (a singleton holding all the TBs?)
 o standardize machine names
 + MainWindow: defer the "add checks" to the Index
++ index sanitization (don't forget to trim strings)
++ remove Index::bulletins() const. Transmit it using signals
++ get rid of TechnicalBulletin::keywordString, use QStringList::join instead
 
 - download everything in a dedicated location when saving the TB
 - RT search starts to show some slight lags with around 450 TB. Perform the search in a thread separated from the UI
 - remove categories from settings. Embed it in the index file?
+  OR Maintenance: remove unused categories?
 - DlgTB: properly handle the "already existing" label
-- index sanitization (don't forget to trim strings)
-- remove Index::bulletins() const. Transmit it using signals
-- a new version of a TB can keep the same radix with the version number incremented OR have a REPLACED_BY which replace a TB with a version number totally different
+- Maintenance: a new version of a TB can keep the same radix with the version number incremented OR have a REPLACED_BY which replace a TB with a version number totally different
   ATM it is not checked in the NewTB check routines. This routine should be separated to be used later in the index sanitization routine
 - MainWindow::tbNumberAlreadyExists() is wrong, it says that a TB already exists why it should say that an older version exists
-- get rid of TechnicalBulletin::keywordString, use QStringList::join instead
-- maintenance: remove unused categories

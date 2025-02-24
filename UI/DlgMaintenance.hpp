@@ -20,7 +20,6 @@ class DlgMaintenance : public QDialog
     Ui::DlgMaintenance* ui;
 
     void log(QString message);
-    void checkIndex();
 };
 
 #endif // DLGMAINTENANCE_HPP

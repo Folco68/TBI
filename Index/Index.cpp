@@ -21,13 +21,13 @@
  *                                                                                                                     *
  **********************************************************************************************************************/
 
+#include "Index.hpp"
 #include "Event/EventDeleteTB.hpp"
 #include "Event/EventMergeTB.hpp"
 #include "Event/EventNewTB.hpp"
 #include "Event/EventOpenIndex.hpp"
 #include "Event/EventSave.hpp"
 #include "Global.hpp"
-#include "Index.hpp"
 #include <QCoreApplication>
 #include <QDate>
 #include <QFile>
@@ -102,6 +102,10 @@ bool Index::event(QEvent* event)
     }
     else if (event->type() == EVENT_CHECK_INDEX) {
         checkIndex();
+        Return = true;
+    }
+    else if (event->type() == EVENT_FIX_INDEX) {
+        fixIndex();
         Return = true;
     }
 
@@ -197,10 +201,10 @@ void Index::open(QEvent* event)
 
     // Opening is complete now
     if (this->OpeningSuccessful) {
-        emit openingSuccessful(this->Bulletins.size());
+        emit openingSuccessful(this->Bulletins);
     }
     else {
-        emit openingFailed(this->Bulletins.size());
+        emit openingFailed(this->Bulletins);
     }
 }
 
@@ -269,11 +273,6 @@ void Index::openIndexVersion1(QDataStream& stream, bool ForceIndexCheck)
             emit openingProgress(i);
         }
     }
-}
-
-QList<TechnicalBulletin*> Index::bulletins() const
-{
-    return this->Bulletins;
 }
 
 void Index::save(QEvent* event)
@@ -472,6 +471,8 @@ bool Index::validateNumber(QString number) const
 
 void Index::checkIndex()
 {
+    clearIncorrect();
+
     /*******************************************************************************************************************
      *                                                                                                                 *
      *                                                    Trimming                                                     *
@@ -551,6 +552,14 @@ void Index::checkIndex()
         }
     }
     emit techpubCheckDone(this->IncorrectTechpub.size());
+
+    /*******************************************************************************************************************
+    *                                                                                                                  *
+    *                                                       End                                                        *
+    *                                                                                                                  *
+    *******************************************************************************************************************/
+
+    emit checkingDone(incorrectCount());
 }
 
 void Index::fixIndex()
@@ -590,11 +599,22 @@ void Index::fixIndex()
 
     /*******************************************************************************************************************
     *                                                                                                                  *
-    *                                                      Clean                                                       *
+    *                                                       End                                                        *
     *                                                                                                                  *
     *******************************************************************************************************************/
 
+    emit fixingDone(incorrectCount());
+    clearIncorrect();
+}
+
+void Index::clearIncorrect()
+{
     this->IncorrectTrimming.clear();
     this->IncorrectDate.clear();
     this->IncorrectTechpub.clear();
+}
+
+int Index::incorrectCount() const
+{
+    return this->IncorrectTrimming.size() + this->IncorrectDate.size() + this->IncorrectTechpub.size();
 }

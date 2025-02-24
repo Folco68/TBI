@@ -92,7 +92,7 @@ class MainWindow: public QMainWindow
     void save();
     void search(bool ForceNewSearch = false);
     void updateTB(TechnicalBulletin* tb, int row);
-    void fillTBtable();
+    void fillTBtable(QList<TechnicalBulletin*> bulletins);
 
     TechnicalBulletin* currentTB() const;
 
@@ -114,13 +114,13 @@ class MainWindow: public QMainWindow
     void openingStarting();
     void openingHeader(int version, qint32 count);
     void openingProgress(int count);
-    void openingSuccessful(int count);
+    void openingSuccessful(QList<TechnicalBulletin*> bulletins);
     void noIndexFound();
     void indexTooRecent(qint32 version);
     void invalidMagic(QString magic);
     void failedToOpenIndex();
     void failedToReadFileContent();
-    void openingFailed(int count);
+    void openingFailed(QList<TechnicalBulletin*> bulletins);
     void failedToCreateBackup();
     void failedToOpenFileForSaving();
     void failedToWriteContent(int count);

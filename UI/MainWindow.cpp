@@ -126,7 +126,10 @@ MainWindow::MainWindow(bool ForceIndexCheck)
         }
         updateUI();
     });
-    connect(this->ActionMaintenance, &QAction::triggered, [this]() { DlgMaintenance::execDlgMaintenance(this); });
+    connect(this->ActionMaintenance, &QAction::triggered, [this]() {
+        DlgMaintenance::execDlgMaintenance(this);
+        updateUI();
+    });
     connect(this->ActionHelp, &QAction::triggered, [this]() { DlgHelp::execDlgHelp(this); });
 
     //------------------------------------------------------------------------------------
@@ -367,11 +370,11 @@ void MainWindow::openingProgress(int count)
     Logger::instance()->append(QString("%1... ").arg(count));
 }
 
-void MainWindow::openingSuccessful(int count)
+void MainWindow::openingSuccessful(QList<TechnicalBulletin*> bulletins)
 {
-    QString Message = tr("Opening successful. %1 technical bulletins read in %2").arg(count).arg(Logger::instance()->elapsedTime());
+    QString Message = tr("Opening successful. %1 technical bulletins read in %2").arg(bulletins.size()).arg(Logger::instance()->elapsedTime());
     Logger::instance()->newEntry(Message);
-    fillTBtable();
+    fillTBtable(bulletins);
     ui->StackCentral->setCurrentIndex(PAGE_TABLE);
 }
 
@@ -408,29 +411,28 @@ void MainWindow::failedToReadFileContent()
     QMessageBox::critical(this, WINDOW_TITLE, tr("Error while parsing the index filename %1. Please use a backup.").arg(INDEX_FILENAME));
 }
 
-void MainWindow::openingFailed(int count)
+void MainWindow::openingFailed(QList<TechnicalBulletin*> bulletins)
 {
-    QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened.").arg(count);
+    QString Message = tr("Failed to fully open the index file. Nevetheless %1 technical bulletins could be opened.").arg(bulletins.size());
     Logger::instance()->newEntry(Message);
-    fillTBtable();
-    QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to read fully %1. %2 have been read and will be displayed.").arg(INDEX_FILENAME).arg(count));
+    fillTBtable(bulletins);
+    QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to read fully %1. %2 have been read and will be displayed.").arg(INDEX_FILENAME).arg(bulletins.size()));
 }
 
-void MainWindow::fillTBtable()
+void MainWindow::fillTBtable(QList<TechnicalBulletin*> bulletins)
 {
     Logger::instance()->newEntry(tr("Filling technical bulletins table..."));
     QCoreApplication::processEvents(); // Force the refresh of the log display
     Logger::instance()->startTimer();
-    QList<TechnicalBulletin*> Bulletins = Index::instance()->bulletins();
 
     // Create a QTableWidgetItem in every cell
     // Once a line is completed, populate it with a TB
-    ui->TableTB->setRowCount(Bulletins.size());
-    for (int i = 0; i < Bulletins.size(); i++) {
+    ui->TableTB->setRowCount(bulletins.size());
+    for (int i = 0; i < bulletins.size(); i++) {
         for (int j = 0; j < ui->TableTB->columnCount(); j++) {
             ui->TableTB->setItem(i, j, new QTableWidgetItem);
         }
-        updateTB(Bulletins.at(i), i);
+        updateTB(bulletins.at(i), i);
     }
 
     // Resize columns and update UI

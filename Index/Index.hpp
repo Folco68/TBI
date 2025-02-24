@@ -37,8 +37,6 @@ class Index : public QObject
     static Index* instance();
     static void   release();
 
-    QList<TechnicalBulletin*> bulletins() const;
-
   signals:
     void threadID(Qt::HANDLE handle);
 
@@ -46,15 +44,15 @@ class Index : public QObject
     void openingStarting();
     void openingHeader(int version, qint32 count);
     void openingProgress(int count);
-    void openingSuccessful(int count); // Mark end of opening
-    void noIndexFound();               // Mark end of opening
+    void openingSuccessful(QList<TechnicalBulletin*> bulletins); // Mark end of opening
+    void noIndexFound();                                         // Mark end of opening
 
     // Opening failing
     void indexTooRecent(qint32 version);
     void invalidMagic(QString magic);
     void failedToOpenIndex();
     void failedToReadFileContent();
-    void openingFailed(int count); // Mark end of opening
+    void openingFailed(QList<TechnicalBulletin*> bulletins); // Mark end of opening
 
     // Saving
     void failedToCreateBackup();
@@ -71,6 +69,9 @@ class Index : public QObject
     void tbDeletionSuccessful(QString number, QString title);
 
     // Maintenance
+    void checkingDone(int count);
+    void fixingDone(int count);
+
     void checkingTrimming();
     void trimmingCheckDone(int count);
     void trimmingFixed();
@@ -105,6 +106,8 @@ class Index : public QObject
     bool validateNumber(QString number) const;
     void checkIndex();
     void fixIndex();
+    void clearIncorrect();
+    int  incorrectCount() const;
 
     QList<TechnicalBulletin*> IncorrectTrimming;
     QList<TechnicalBulletin*> IncorrectDate;
