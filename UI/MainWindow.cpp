@@ -585,13 +585,13 @@ void MainWindow::deleteTB()
 
 void MainWindow::failedToDeleteTB(QString number, QString title)
 {
-    Logger::instance()->newEntry(tr("Failed to delete technical bulletin %1 (%2)").arg(number).arg(title));
+    Logger::instance()->newEntry(tr("Failed to delete technical bulletin %1 (%2)").arg(number, title));
     QMessageBox::critical(this, WINDOW_TITLE, tr("Failed to delete technical bulletin %1.").arg(number));
 }
 
 void MainWindow::tbDeletionSuccessful(QString number, QString title)
 {
-    Logger::instance()->newEntry(tr("Technical bulletin %1 (%2) deleted successfully").arg(number).arg(title));
+    Logger::instance()->newEntry(tr("Technical bulletin %1 (%2) deleted successfully").arg(number, title));
 }
 
 /***********************************************************************************************************************
