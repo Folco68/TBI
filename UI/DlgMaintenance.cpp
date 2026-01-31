@@ -34,13 +34,13 @@ DlgMaintenance::DlgMaintenance(QWidget* parent)
         this->Fixed = true;
     });
 
-    connect(Index::instance(), &Index::checkingTrimming, this, [this]() { log(tr("Checking trimming...")); });
+    connect(Index::instance(), &Index::trimmingCheckStart, this, [this]() { log(tr("Checking trimming...")); });
     connect(Index::instance(), &Index::trimmingCheckDone, this, [this](int count) { log(tr("Trimming checked, %1 bad entries found").arg(count)); });
 
-    connect(Index::instance(), &Index::checkingDate, this, [this]() { log(tr("Checking dates...")); });
+    connect(Index::instance(), &Index::dateCheckStart, this, [this]() { log(tr("Checking dates...")); });
     connect(Index::instance(), &Index::dateCheckDone, this, [this](int count) { log(tr("Dates checked, %1 bad entries found").arg(count)); });
 
-    connect(Index::instance(), &Index::checkingTechpub, this, [this]() { log(tr("Checking tech pubs...")); });
+    connect(Index::instance(), &Index::techpubCheckStart, this, [this]() { log(tr("Checking tech pubs...")); });
     connect(Index::instance(), &Index::techpubCheckDone, this, [this](int count) { log(tr("Tech pubs checked, %1 bad entries found").arg(count)); });
 }
 

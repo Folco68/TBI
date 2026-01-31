@@ -206,12 +206,6 @@ MainWindow::MainWindow(bool ForceIndexCheck)
         ui->TableTB->resizeColumnToContents(i);
     }
 
-    //------------------------------------------------------------------------------------
-    //
-    //                         Initialization of the index thread
-    //
-    //------------------------------------------------------------------------------------
-
     /*******************************************************************************************************************
      *                                                                                                                 *
      *                                               Thread connections                                                *
@@ -523,7 +517,7 @@ void MainWindow::bulletinCreated(TechnicalBulletin* tb)
 
     updateTB(tb, RowCount);                                  // Display new TB in the new line
     ui->TableTB->setSortingEnabled(true);                    // Re-enable table sorting
-    QTableWidgetItem* Item = ui->TableTB->item(RowCount, 0); // Save an item ptr to make the last entry become the current one
+    QTableWidgetItem* Item = ui->TableTB->item(RowCount, 0); // Save an item ptr so that the last entry becomes the current one
     ui->TableTB->setCurrentItem(Item);                       // Select the created TB
     ui->TableTB->scrollToItem(Item);                         // And make it visible
     updateUI();

@@ -72,15 +72,15 @@ class Index : public QObject
     void checkingDone(int count);
     void fixingDone(int count);
 
-    void checkingTrimming();
+    void trimmingCheckStart();
     void trimmingCheckDone(int count);
     void trimmingFixed();
 
-    void checkingDate();
+    void dateCheckStart();
     void dateCheckDone(int count);
     void dateFixed();
 
-    void checkingTechpub();
+    void techpubCheckStart();
     void techpubCheckDone(int count);
     void techpubFixed();
 

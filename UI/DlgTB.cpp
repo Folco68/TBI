@@ -138,7 +138,7 @@ void DlgTB::updateButtonDownload()
 void DlgTB::newDlgTB(MainWindow* parent) // static
 {
     DlgTB* Dlg = new DlgTB(parent);
-    Dlg->setWindowTitle(tr("%1 - %2").arg(WINDOW_TITLE).arg(tr("New Technical Bulletin")));
+    Dlg->setWindowTitle(tr("%1 - %2").arg(WINDOW_TITLE, tr("New Technical Bulletin")));
     Dlg->ui->EditReleaseDate->setDate(QDate::currentDate());
     Dlg->updateButtonDownload();
     if (Dlg->exec() == QDialog::Accepted) {
@@ -195,7 +195,7 @@ bool DlgTB::editDlgTB(MainWindow* parent, TechnicalBulletin* tb) // static
                        Dlg->ui->EditReplacedBy->text(),
                        Dlg->ui->EditKeywords->text().split(KEYWORD_SEPARATOR, Qt::SkipEmptyParts));
         Return = true;
-        Logger::instance()->newEntry(tr("Technical bulletin updated: %1 (%2)").arg(tb->number()).arg(tb->title()));
+        Logger::instance()->newEntry(tr("Technical bulletin updated: %1 (%2)").arg(tb->number(), tb->title()));
     }
 
     delete Dlg;
@@ -337,10 +337,10 @@ void DlgTB::saveScreenshot()
     QPixmap Screenshot = this->grab();
     if (!Screenshot.save(Filename)) {
         QMessageBox::critical(this, WINDOW_TITLE, tr("Can't save the screenshot"));
-        Logger::instance()->newEntry(tr("Failed to save screenshot of %1 to file %2").arg(ui->EditNumber->text()).arg(Filename));
+        Logger::instance()->newEntry(tr("Failed to save screenshot of %1 to file %2").arg(ui->EditNumber->text(), Filename));
     }
     else {
-        Logger::instance()->newEntry(tr("Screenshot of %1 saved to file %2").arg(ui->EditNumber->text()).arg(Filename));
+        Logger::instance()->newEntry(tr("Screenshot of %1 saved to file %2").arg(ui->EditNumber->text(), Filename));
     }
 }
 

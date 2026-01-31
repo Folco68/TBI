@@ -479,7 +479,7 @@ void Index::checkIndex()
      *                                                                                                                 *
      ******************************************************************************************************************/
 
-    emit checkingTrimming();
+    emit trimmingCheckStart();
     for (int i = 0; i < this->Bulletins.size(); i++) {
         TechnicalBulletin* TB(this->Bulletins.at(i));
         bool               Add(false);
@@ -524,7 +524,7 @@ void Index::checkIndex()
      *                                                                                                                 *
      ******************************************************************************************************************/
 
-    emit checkingDate();
+    emit dateCheckStart();
     for (int i = 0; i < this->Bulletins.size(); i++) {
         QDate              CurrentDate(QDate::currentDate());
         TechnicalBulletin* TB(this->Bulletins.at(i));
@@ -540,7 +540,7 @@ void Index::checkIndex()
      *                                                                                                                 *
      ******************************************************************************************************************/
 
-    emit checkingTechpub();
+    emit techpubCheckStart();
     for (int i = 0; i < this->Bulletins.size(); i++) {
         TechnicalBulletin* TB(this->Bulletins.at(i));
         QList<QString>     List(TB->techpub().split(',', Qt::KeepEmptyParts));
